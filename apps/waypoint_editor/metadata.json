@@ -1,0 +1,10 @@
+{ "id": "waypoint_editor",
+  "name": "Waypoint editor",
+  "version":"0.01",
+  "description": "Allows editing waypoints on device",
+  "icon": "app.png",
+  "tags": "tool,outdoors,gps",
+  "type": "waypoints",
+  "supports" : ["BANGLEJS2"],
+  "readme": "README.md"
+}
