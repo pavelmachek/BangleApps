@@ -29,19 +29,19 @@ function redraw() {
 // Draw the POIs
 function drawPOI() {
   var waypoints = require("waypoints").load();
+  if (!waypoints)
+    return;
   g.setFont("Vector", 18);
-  waypoints.forEach((wp, idx) => { 
+  waypoints.forEach((wp, idx) => {
     var p = m.latLonToXY(wp.lat, wp.lon);
     var sz = 2;
     g.setColor(0,0,0);
     g.fillRect(p.x-sz, p.y-sz, p.x+sz, p.y+sz);
     g.setColor(0,0,0);
     g.drawString(wp.name, p.x, p.y);
-    print(wp.name); 
+    print(wp.name);
   })
 }
-
-
 
 // Draw the marker for where we are
 function drawMarker() {
