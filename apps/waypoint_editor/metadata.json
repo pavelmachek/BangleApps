@@ -6,5 +6,9 @@
   "tags": "tool,outdoors,gps",
   "type": "waypoints",
   "supports" : ["BANGLEJS2"],
-  "readme": "README.md"
+  "readme": "README.md",
+  "storage": [
+      {"name":"waypoint_editor.app.js","url":"app.js"},
+      {"name":"waypoint_editor.img","url":"app-icon.js","evaluate":true}
+  ]
 }
