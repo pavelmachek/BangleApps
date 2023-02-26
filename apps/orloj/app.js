@@ -11,6 +11,7 @@ const w = g.getWidth();
 //const sm = (Math.sqrt(2)-1)*(h/2)/2;
 const sm = 15;
 let settings, location, mode = 0;
+var altitude, temperature;
 
 var img_north = Graphics.createImage(`
     X    
@@ -48,16 +49,16 @@ X       X
 var img_temperature = Graphics.createImage(`
  XX      
 XXXXXXXX 
-XXXXXXXXX
+X      XX
 XXXXXXXX 
  XX      
 `);
 
 var img_battery = Graphics.createImage(`
 XXXXXXXX 
-XXXX   X 
+XXX    X 
 XXXX   XX
-XXXX   X 
+XXXXX  X 
 XXXXXXXX 
 `);
 
@@ -281,8 +282,12 @@ function drawBorders() {
     drawTimeIcon(moon.rise, img_sunrise, { scale: 2 });
   }
   {
-    drawOutsideIcon(0.33, img_altitude, { scale: 2 });
-    drawOutsideIcon(0.66, img_temperature, { scale: 2 });
+    Bangle.getPressure().then((x) => 
+      { altitude = x.altitude; temperature = x.temperature; },
+      print);
+    print(altitude, temperature);
+    drawOutsideIcon(altitude / 120, img_altitude, { scale: 2 });
+    drawOutsideIcon(temperature / 12, img_temperature, { scale: 2 });
   }
   if (use_compass) {
     let obj = Bangle.getCompass();
