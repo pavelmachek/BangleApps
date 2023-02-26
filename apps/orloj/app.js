@@ -4,16 +4,13 @@ SunCalc = // require("https://github.com/espruino/BangleApps/blob/master/modules
 
 let ScreenWidth  = g.getWidth(),  CenterX = ScreenWidth/2;
 let ScreenHeight = g.getHeight(), CenterY = ScreenHeight/2;
-
 let outerRadius = Math.min(CenterX,CenterY) * 0.9;
 
 const h = g.getHeight();
 const w = g.getWidth();
 //const sm = (Math.sqrt(2)-1)*(h/2)/2;
 const sm = 15;
-let settings;
-let location;
-let mode = 0;
+let settings, location, mode = 0;
 
 var img_north = Graphics.createImage(`
     X    
@@ -32,6 +29,30 @@ var img_sunrise = Graphics.createImage(`
    XXX   
   XXXXX  
 XXXXXXXXX
+`);
+
+var img_altitude = Graphics.createImage(`
+X       X
+X   X   X
+XXXXXXXXX
+X   X   X
+X       X
+`);
+
+var img_temperature = Graphics.createImage(`
+ XX      
+XXXXXXXX 
+XXXXXXXXX
+XXXXXXXX 
+ XX      
+`);
+
+var img_battery = Graphics.createImage(`
+XXXXXXXX 
+XXXX   X 
+XXXX   XX
+XXXX   X 
+XXXXXXXX 
 `);
 
 let use_compass = 0;
@@ -169,7 +190,6 @@ function drawIcon(time, icon, options) {
   let h = fracHour(time);
   let x = radX(h/12, 0.7);
   let y = radY(h/12, 0.7);
-  g.setColor(1, 1, 0);
   g.drawImage(icon, x,y, options);
 }
 
@@ -228,10 +248,11 @@ function drawBorders() {
     let x = radX(bat/100, 0.95);
     let y = radY(bat/100, 0.95);
     g.setColor(0.7, 0, 0);
-    g.fillCircle(x,y, 5);
+    g.drawImage(img_battery, x,y, { scale: 2, rotate: Math.PI*0.0 } );
   }
   {
     sun = SunCalc.getTimes(new Date(), 50, 14);
+    g.setColor(0.5, 0.5, 0);
     drawIcon(sun.sunset, img_sunrise, { rotate: Math.PI, scale: 2 });
     drawIcon(sun.sunrise, img_sunrise, { scale: 2 });
   }
