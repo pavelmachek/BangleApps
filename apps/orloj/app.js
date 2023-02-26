@@ -6,6 +6,9 @@ let ScreenWidth  = g.getWidth(),  CenterX = ScreenWidth/2;
 let ScreenHeight = g.getHeight(), CenterY = ScreenHeight/2;
 let outerRadius = Math.min(CenterX,CenterY) * 0.9;
 
+const lat = 50;
+const lon = 14;
+
 const h = g.getHeight();
 const w = g.getWidth();
 //const sm = (Math.sqrt(2)-1)*(h/2)/2;
@@ -63,11 +66,35 @@ XXXXXXXX
 `);
 
 var img_step = Graphics.createImage(`
- XX XXX  
-XXX XXXX 
+     XXX 
+ XX XXXXX
 XXX XXXXX
 XXX XXXXX
  XX XXXX 
+`);
+
+var img_sun = Graphics.createImage(`
+X       X
+   XXX   
+ XXXXXXX 
+XXXXXXXXX
+XXXXXXXXX
+XXXXXXXXX
+ XXXXXXX 
+   XXX   
+X       X
+`);
+
+var img_moon = Graphics.createImage(`
+   XXX   
+ XX  XXX 
+X    XXXX
+X     XXX
+X     XXX
+X     XXX
+X    XXXX
+ X   XXX 
+   XXX   
 `);
 
 let use_compass = 0;
@@ -272,14 +299,29 @@ function drawBorders() {
     g.drawImage(img_battery, x,y, { scale: 2, rotate: Math.PI*0.0 } );
   }
   {
-    sun = SunCalc.getTimes(new Date(), 50, 14);
+    d = new Date();
+    sun = SunCalc.getTimes(d, lat, lon);
     g.setColor(0.5, 0.5, 0);
     drawTimeIcon(sun.sunset, img_sunrise, { rotate: Math.PI, scale: 2 });
     drawTimeIcon(sun.sunrise, img_sunrise, { scale: 2 });
     g.setColor(0, 0, 0);
-    moon = SunCalc.getMoonTimes(new Date(), 50, 14);
+    moon = SunCalc.getMoonTimes(d, lat, lon);
     drawTimeIcon(moon.set, img_moonrise, { rotate: Math.PI, scale: 2 });
     drawTimeIcon(moon.rise, img_sunrise, { scale: 2 });
+    pos = SunCalc.getPosition(d, lat, lon);
+    if (pos.altitude > -.1) {
+      print("sun:", pos);
+      g.setColor(0.5, 0.5, 0);
+      az = pos.azimuth;
+      drawOutsideIcon(az / (2*Math.PI), img_sun, { scale: 2 });
+    }
+    pos = SunCalc.getMoonPosition(d, lat, lon);
+    if (pos.altitude > -.05) {
+      print("moon:", pos);
+      g.setColor(0, 0, 0);
+      az = pos.azimuth;
+      drawOutsideIcon(az / (2*Math.PI), img_moon, { scale: 2 });
+    }
   }
   {
     Bangle.getPressure().then((x) => 
