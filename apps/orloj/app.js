@@ -6,8 +6,8 @@ let ScreenWidth  = g.getWidth(),  CenterX = ScreenWidth/2;
 let ScreenHeight = g.getHeight(), CenterY = ScreenHeight/2;
 let outerRadius = Math.min(CenterX,CenterY) * 0.9;
 
-const lat = 50;
-const lon = 14;
+const lat = 50.1;
+const lon = 14.45;
 
 const h = g.getHeight();
 const w = g.getWidth();
@@ -302,22 +302,24 @@ function drawBorders() {
     d = new Date();
     sun = SunCalc.getTimes(d, lat, lon);
     g.setColor(0.5, 0.5, 0);
+    print("sun", sun);
     drawTimeIcon(sun.sunset, img_sunrise, { rotate: Math.PI, scale: 2 });
     drawTimeIcon(sun.sunrise, img_sunrise, { scale: 2 });
     g.setColor(0, 0, 0);
     moon = SunCalc.getMoonTimes(d, lat, lon);
+    print("moon", moon);
     drawTimeIcon(moon.set, img_moonrise, { rotate: Math.PI, scale: 2 });
     drawTimeIcon(moon.rise, img_sunrise, { scale: 2 });
     pos = SunCalc.getPosition(d, lat, lon);
-    if (pos.altitude > -.1) {
-      print("sun:", pos);
+    print("sun:", pos);
+    if (pos.altitude > -0.1) {
       g.setColor(0.5, 0.5, 0);
       az = pos.azimuth;
       drawOutsideIcon(az / (2*Math.PI), img_sun, { scale: 2 });
     }
     pos = SunCalc.getMoonPosition(d, lat, lon);
-    if (pos.altitude > -.05) {
-      print("moon:", pos);
+    print("moon:", pos);
+    if (pos.altitude > -0.05) {
       g.setColor(0, 0, 0);
       az = pos.azimuth;
       drawOutsideIcon(az / (2*Math.PI), img_moon, { scale: 2 });
