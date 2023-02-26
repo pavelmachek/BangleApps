@@ -31,6 +31,12 @@ var img_sunrise = Graphics.createImage(`
 XXXXXXXXX
 `);
 
+var img_moonrise = Graphics.createImage(`
+   XXX   
+  XX  X  
+XXXXXXXXX
+`);
+
 var img_altitude = Graphics.createImage(`
 X       X
 X   X   X
@@ -53,6 +59,14 @@ XXXX   X
 XXXX   XX
 XXXX   X 
 XXXXXXXX 
+`);
+
+var img_step = Graphics.createImage(`
+ XX XXX  
+XXX XXXX 
+XXX XXXXX
+XXX XXXXX
+ XX XXXX 
 `);
 
 let use_compass = 0;
@@ -186,10 +200,16 @@ function fracHour(d) {
 
   }
 
-function drawIcon(time, icon, options) {
+function drawTimeIcon(time, icon, options) {
   let h = fracHour(time);
   let x = radX(h/12, 0.7);
   let y = radY(h/12, 0.7);
+  g.drawImage(icon, x,y, options);
+}
+
+function drawOutsideIcon(h, icon, options) {
+  let x = radX(h, 0.95);
+  let y = radY(h, 0.95);
   g.drawImage(icon, x,y, options);
 }
 
@@ -238,10 +258,10 @@ function drawBorders() {
   }
   {
     let km = 0.001 * 0.719 * Bangle.getHealthStatus("day").steps;
-    let x = radX(km/12, 0.95);
-    let y = radY(km/12, 0.95);
+    let x = radX(km/12 + 0, 0.95);
+    let y = radY(km/12 + 0, 0.95);
     g.setColor(0, 0.7, 0);
-    g.fillCircle(x,y, 5);
+    g.drawImage(img_step, x,y, { scale: 2, rotate: Math.PI*0.0 } );
   }
   {
     let bat = E.getBattery();
@@ -253,8 +273,16 @@ function drawBorders() {
   {
     sun = SunCalc.getTimes(new Date(), 50, 14);
     g.setColor(0.5, 0.5, 0);
-    drawIcon(sun.sunset, img_sunrise, { rotate: Math.PI, scale: 2 });
-    drawIcon(sun.sunrise, img_sunrise, { scale: 2 });
+    drawTimeIcon(sun.sunset, img_sunrise, { rotate: Math.PI, scale: 2 });
+    drawTimeIcon(sun.sunrise, img_sunrise, { scale: 2 });
+    g.setColor(0, 0, 0);
+    moon = SunCalc.getMoonTimes(new Date(), 50, 14);
+    drawTimeIcon(moon.set, img_moonrise, { rotate: Math.PI, scale: 2 });
+    drawTimeIcon(moon.rise, img_sunrise, { scale: 2 });
+  }
+  {
+    drawOutsideIcon(0.33, img_altitude, { scale: 2 });
+    drawOutsideIcon(0.66, img_temperature, { scale: 2 });
   }
   if (use_compass) {
     let obj = Bangle.getCompass();
