@@ -1,6 +1,6 @@
-# Orloj ![](app.png)
+# Sixth Sense ![](app.png)
 
-Astronomical clock.
+Sensor suite.
 
 Written by: [Pavel Machek](https://github.com/pavelmachek)
 
