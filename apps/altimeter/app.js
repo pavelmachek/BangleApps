@@ -42,37 +42,32 @@ Bangle.on('pressure', function(e) {
     else
       t = t.toFixed(0);
     g.setFont("Vector",50).setFontAlign(0,0).drawString(t, g.getWidth()/2, y);
-    print("alt raw:", value.toFixed(1));
-    print("temperature:", e.temperature);
     sea = convertToSeaLevelPressure(e.pressure, value-zero);
-    print("pressure:", e.pressure);
-    print("sea pressure:", sea);
-    t = sea.toFixed(1) + " / " + e.temperature.toFixed(1);
-    print("std pressure:", getStandardPressure(value-zero));
-    print(t);
+    t = sea.toFixed(1) + " " + e.temperature.toFixed(1);
+    if (0) {
+      print("alt raw:", value.toFixed(1));
+      print("temperature:", e.temperature);
+      print("pressure:", e.pressure);
+      print("sea pressure:", sea);
+      print("std pressure:", getStandardPressure(value-zero));
+    }
     g.setFont("Vector",25).setFontAlign(-1,0).drawString(t,
-                                                        10, R.y+R.h - 30);
+                                                        10, R.y+R.h - 35);
     
   }
 });
 
 print(g.getFonts());
 g.reset();
-g.setFont("Vector:15").setFontAlign(0,0).drawString(/*LANG*/"ALTITUDE (m)", g.getWidth()/2, y-40);
+g.setFont("Vector:15");
+g.setFontAlign(0,0);
+g.drawString(/*LANG*/"ALTITUDE (m)", g.getWidth()/2, y-40);
+g.drawString(/*LANG*/"SEA L (hPa) TEMP (C)", g.getWidth()/2, y+62);
+g.flip();
 g.setFont("6x8").setFontAlign(0,0,3).drawString(/*LANG*/"ZERO", g.getWidth()-5, g.getHeight()/2);
-Bangle.setUI("clockupdown", btn=> {
-  if (btn==0) zero=value;
-  if (btn<0) zero+=5;
-  if (btn>0) zero-=5;
-  draw();
+Bangle.setUI("updown", btn=> {
+  print("setui -- ", btn);
+  if (!btn) zero=value;
+  if (btn<0) zero-=5;
+  if (btn>0) zero+=5;
 });
-
-setWatch(function() {
-  // Buggy: if user presses button before averages are available, he gets NaN.
-  zero = value;
-}, (process.env.HWVERSION==2) ? BTN1 : BTN2, {repeat:true});
-if (process.env.HWVERSION==1) {
-  setWatch(function() { zero += 1; }, BTN1, {repeat:true});
-  setWatch(function() { zero -= 1; }, BTN3, {repeat:true});
-} else {
-}
