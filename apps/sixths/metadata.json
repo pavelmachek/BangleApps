@@ -1,7 +1,7 @@
 { "id": "sixths",
   "name": "Sixth sense",
   "version":"0.01",
-  "description": "",
+  "description": "Sensor suite",
   "icon": "app.png",
   "readme": "README.md",
   "supports" : ["BANGLEJS2"],
