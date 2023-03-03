@@ -6,7 +6,11 @@ const W = g.getWidth();
 const H = g.getHeight();
 
 var wp = require('Storage').readJSON("waypoints.json", true) || [];
-var mode = 0; /* 0 .. DD.ddddd, */
+/* 0 .. DD.ddddd
+   1 .. DD MM.mmm'
+   2 .. DD MM'ss"
+*/
+var mode = 1; 
 
 function writeWP() {
   require('Storage').writeJSON("waypoints.json", wp);
@@ -31,6 +35,11 @@ function format(x) {
   switch (mode) {
     case 0:
       return "" + x;
+    case 1:
+      d = Math.floor(x);
+      m = x - d;
+      m = m*60;
+      return "" + d + " " + m + "'";
   }
 }
 
@@ -159,7 +168,7 @@ function askCoordinate(t1, t2, callback) {
       sign = -1;
     showNumpad("DDD.dddd", function() {
       switch (mode) {
-        case 0:
+        case 0: case 1: case 2:
           i = key.substr(0, 3);
           i += key.substr(4, 99);
           res = parseInt(i) / 10000;
