@@ -10,7 +10,7 @@ var wp = require('Storage').readJSON("waypoints.json", true) || [];
    1 .. DD MM.mmm'
    2 .. DD MM'ss"
 */
-var mode = 2;
+var mode = 1;
 
 function writeWP() {
   require('Storage').writeJSON("waypoints.json", wp);
@@ -91,7 +91,7 @@ function showNumpad(text, callback) {
     if (1) {
       l = text[key.length];
       switch (l) {
-        case '.': case ' ': 
+        case '.': case ' ': case "'":
           key+=l;
           break;
         case 'd': case 'D': default:
@@ -174,12 +174,26 @@ function askCoordinate(t1, t2, callback) {
   showNumpad(t1, function() {
     if (key == "0")
       sign = -1;
-    showNumpad("DDD.dddd", function() {
       switch (mode) {
-        case 0: case 1: case 2:
-          i = key.substr(0, 3);
-          i += key.substr(4, 99);
-          res = parseInt(i) / 10000;
+        case 0: s = "DDD.dddd"; break;
+        case 1: s = "DDD MM.mmm"; break;
+        case 2: s = "DDD MM'ss"+'"'; break;
+      }
+      showNumpad(s, function() {
+      switch (mode) {
+        case 0:
+          res = parseFloat(key);
+          break;
+        case 1:
+          d = parseInt(key.substr(0, 3));
+          m = parseFloat(key.substr(3,99));
+          res = d + m/60.0;
+          break;
+        case 2:
+          d = parseInt(key.substr(0, 3));
+          m = parseInt(key.substr(4, 2));
+          s = parseInt(key.substr(7, 2));
+          res = d + m/60.0 + s/3600.0;
       }
       res = sign * res;
       print("Coordinate", res);
