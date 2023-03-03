@@ -10,7 +10,7 @@ var wp = require('Storage').readJSON("waypoints.json", true) || [];
    1 .. DD MM.mmm'
    2 .. DD MM'ss"
 */
-var mode = 1; 
+var mode = 2;
 
 function writeWP() {
   require('Storage').writeJSON("waypoints.json", wp);
@@ -40,6 +40,14 @@ function format(x) {
       m = x - d;
       m = m*60;
       return "" + d + " " + m + "'";
+    case 2:
+      d = Math.floor(x);
+      m = x - d;
+      m = m*60;
+      mf = Math.floor(m);
+      s = m - mf;
+      s = s*60;
+      return "" + d + " " + mf + "'" + s + '"';
   }
 }
 
