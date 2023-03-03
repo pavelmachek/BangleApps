@@ -38,6 +38,7 @@ function setFormat() {
           {type:"txt", font:"15%", pad:1, fillx:1, filly:1, label:"Format"},
           {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: "DD.dddd", cb:l=>{  mode = 0; mainMenu(); }},
           {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: "DD MM.mmm'", cb:l=>{  mode = 1; mainMenu(); }},
+          {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: "DD MM'ss"+'"', cb:l=>{  mode = 2; mainMenu(); }},
         ], lazy:true});
   g.clear();
   confirmRemove.render();
