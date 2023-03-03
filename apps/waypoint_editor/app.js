@@ -27,10 +27,35 @@ function mainMenu() {
   E.showMenu(menu);
 }
 
+function format(x) {
+  switch (mode) {
+    case 0:
+      return "" + x;
+  }
+}
+
+function lat(x) {
+  c = "N";
+  if (x<0) {
+    c = "S";
+    x = -x;
+  }
+  return c+format(x);
+}
+
+function lon(x) {
+  c = "E";
+  if (x<0) {
+    c = "W";
+    x = -x;
+  }
+  return c+format(x);
+}
+
 function decode(pin) {
       print(pin);
       var i = wp[pin];
-      var pinDecrypted=i["name"] + "\n" + i["lat"] + "\n" + i["lon"];
+      var pinDecrypted=i["name"] + "\n" + lat(i["lat"]) + "\n" + lon(i["lon"]);
       var showPin = new Layout ({
         type:"v", c: [
           {type:"txt", font:"10%", pad:1, fillx:1, filly:1, label: pinDecrypted},
