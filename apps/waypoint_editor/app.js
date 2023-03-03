@@ -6,6 +6,7 @@ const W = g.getWidth();
 const H = g.getHeight();
 
 var wp = require('Storage').readJSON("waypoints.json", true) || [];
+var mode = 0; /* 0 .. DD.ddddd, */
 
 function writeWP() {
   require('Storage').writeJSON("waypoints.json", wp);
@@ -42,15 +43,27 @@ function decode(pin) {
 function showNumpad(text, callback) {
   E.showMenu();
   key="";
+  done=false;
   function addDigit(digit) {
     key+=digit;
+    if (1) {
+      l = text[key.length];
+      switch (l) {
+        case '.': case ' ': 
+          key+=l;
+          break;
+        case 'd': case 'D': default:
+          break;
+      }
+    }
     Bangle.buzz(20);
     update();
   }
   function update() {
     g.reset();
     g.clearRect(0,0,g.getWidth(),23);
-    g.setFont("Vector:24").setFontAlign(1,0).drawString(text+key,g.getWidth(),12);
+    s = key + text.substr(key.length, 999);
+    g.setFont("Vector:24").setFontAlign(1,0).drawString(s,g.getWidth(),12);
   }
   ds="12%";
   var numPad = new Layout ({
@@ -119,16 +132,16 @@ function askCoordinate(t1, t2, callback) {
   showNumpad(t1, function() {
     if (key == "0")
       sign = -1;
-    showNumpad(t2+" deg:", function() {
-      res = parseInt(key);
-      showNumpad(t2+" .deg:", function() {
-        i = parseInt(key);
-        for (j=0; j<key.length; j++)
-          i = i / 10;
-        res = sign * (res + i);
-        print("Coordinate", res);
-        callback(res);
-      });
+    showNumpad("DDD.dddd", function() {
+      switch (mode) {
+        case 0:
+          i = key.substr(0, 3);
+          i += key.substr(4, 99);
+          res = parseInt(i) / 10000;
+      }
+      res = sign * res;
+      print("Coordinate", res);
+      callback(res);
     });
   });
 }
