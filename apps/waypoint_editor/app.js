@@ -27,8 +27,20 @@ function mainMenu() {
   }
   menu["Add"]=addCard;
   menu["Remove"]=removeCard;
+  menu["Format"]=setFormat;
   g.clear();
   E.showMenu(menu);
+}
+
+function setFormat() {
+  var confirmRemove = new Layout (
+        {type:"v", c: [
+          {type:"txt", font:"15%", pad:1, fillx:1, filly:1, label:"Format"},
+          {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: "DD.dddd", cb:l=>{  mode = 0; mainMenu(); }},
+          {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: "DD MM.mmm'", cb:l=>{  mode = 1; mainMenu(); }},
+        ], lazy:true});
+  g.clear();
+  confirmRemove.render();
 }
 
 function format(x) {
