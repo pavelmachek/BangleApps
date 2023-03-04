@@ -1,4 +1,4 @@
-/* Thanks to pinsafe apps from BangleApps repository */
+/* Thanks to pinsafe from BangleApps repository */
 
 var Layout = require("Layout");
 
@@ -183,11 +183,21 @@ function removeCard() {
   E.showMenu(menu);
 }
 
+function ask01(t, cb) {
+  var confirmRemove = new Layout (
+        {type:"v", c: [
+          {type:"txt", font:"15%", pad:1, fillx:1, filly:1, label:"Format"},
+          {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: t[0], cb:l=>{ cb(1); }},
+          {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: t[1], cb:l=>{ cb(-1); }},
+        ], lazy:true});
+  g.clear();
+  confirmRemove.render();
+}
+
+
 function askCoordinate(t1, t2, callback) {
   let sign = 1;
-  showNumpad(t1, "", function() {
-    if (key == "0")
-      sign = -1;
+  ask01(t1, function(sign) {
       switch (mode) {
         case 0: s = "DDD.dddd"; break;
         case 1: s = "DDD MM.mmm"; break;
@@ -218,8 +228,8 @@ function askCoordinate(t1, t2, callback) {
 
 function askPosition(callback) {
   let full = "";
-  askCoordinate("0S 1N", "0", function(lat) {
-    askCoordinate("0W 1E", "", function(lon) {
+  askCoordinate("NS", "0", function(lat) {
+    askCoordinate("EW", "", function(lon) {
         callback(lat, lon);
     });
   });
