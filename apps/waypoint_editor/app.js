@@ -7,7 +7,7 @@ const H = g.getHeight();
 
 var wp = require('Storage').readJSON("waypoints.json", true) || [];
 // Use this with corrupted waypoints
-var wp = [];
+//var wp = [];
 /* 0 .. DD.ddddd
    1 .. DD MM.mmm'
    2 .. DD MM'ss"
@@ -193,7 +193,7 @@ function askCoordinate(t1, t2, callback) {
         case 1: s = "DDD MM.mmm"; break;
         case 2: s = "DDD MM'ss"+'"'; break;
       }
-      showNumpad(s, "", function() {
+      showNumpad(s, t2, function() {
       switch (mode) {
         case 0:
           res = parseFloat(key);
@@ -218,16 +218,16 @@ function askCoordinate(t1, t2, callback) {
 
 function askPosition(callback) {
   let full = "";
-  askCoordinate("0S 1N", "lat", function(lat) {
-    askCoordinate("0W 1E", "lon", function(lon) {
+  askCoordinate("0S 1N", "0", function(lat) {
+    askCoordinate("0W 1E", "", function(lon) {
         callback(lat, lon);
     });
   });
 }
 
 function addCard() {
-  showNumpad("Name:", "", function() {
-    result = "wp"+key;
+  showNumpad("wpXX", "wp", function() {
+    result = key;
     if (wp[result]!=undefined) {
             E.showMenu();
             var alreadyExists = new Layout (
