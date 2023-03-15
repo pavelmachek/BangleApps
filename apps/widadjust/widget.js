@@ -99,7 +99,8 @@
     settings = Object.assign({
       advanced: false,
       saveState: true,
-      debugLog: false,
+      debugLog: true,
+      useGPS: true,
       ppm: 0,
       ppm0: 0,
       ppm1: 0,
@@ -193,6 +194,23 @@
     WIDGETS.adjust.draw();
   }
 
+  function onGPS(fix) {
+    if (false && fix.fix && fix.time) {
+      var curTime = fix.time.getTime()/1000;
+      setTime(curTime);
+      lastTimeSet = curTime;
+
+      WIDGETS["gpsAutoTime"].draw(WIDGETS["gpsAutoTime"]);
+    }
+    if (fix.fix && fix.time) {
+      let gt = fix.time.getTime()/1000;
+      let st = getTime();	
+      debug(
+        new Date().toISOString() + ' GPS available (' + gt + ',' + st + ')'
+      );
+    }
+  }
+
   // ======================================================================
   // MAIN
 
@@ -241,4 +259,5 @@
 
   E.on('kill', onQuit);
 
+  Bangle.on('GPS', onGPS);
 })()
