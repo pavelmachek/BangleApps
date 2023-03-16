@@ -128,11 +128,11 @@
     let save = false;
 
     if (! settings.saveState) {
-      debug(new Date(now).toISOString() + ' QUIT');
+      debug(new Date(now).toISOString() + ' quit');
 
     } else if (saved === undefined) {
       save = true;
-      debug(new Date(now).toISOString() + ' QUIT & SAVE STATE');
+      debug(new Date(now).toISOString() + ' quit & save state');
 
     } else {
       let elapsedSaved = now - saved.time;
@@ -142,7 +142,7 @@
       let clockErrorDeltaInPpm = clockErrorDelta / elapsedSaved * 1000000;
       let ppmDelta = ppm - saved.ppm;
 
-      let debugA = new Date(now).toISOString() + ' QUIT';
+      let debugA = new Date(now).toISOString() + ' quit';
       let debugB =
         '\n> ' + updatedClockError.toFixed(2) + ' - ' + estimatedClockError.toFixed(2) + ' = ' +
         clockErrorDelta.toFixed(2) + ' (' +
@@ -155,7 +155,7 @@
          )
       {
         save = true;
-        debug(debugA + ' & SAVE STATE' + debugB);
+        debug(debugA + ' & save state' + debugB);
       } else {
         debug(debugA + debugB);
       }
@@ -186,7 +186,7 @@
       setTime(getTime() - e);
       debug(
         new Date(now).toISOString() + ' -> ' + ((now / 1000 - e) % 60).toFixed(3) +
-        ' SET TIME (' + clockError.toFixed(2) + ')'
+        ' set time (' + clockError.toFixed(2) + ')'
       );
       clockError = 0;
     }
@@ -195,6 +195,10 @@
   }
 
   function onGPS(fix) {
+    debug(
+        new Date().toISOString() + ' GPS callback'
+    );
+
     if (false && fix.fix && fix.time) {
       var curTime = fix.time.getTime()/1000;
       setTime(curTime);
@@ -237,18 +241,18 @@
   lastClockErrorUpdateTime = now;
   if (saved === undefined) {
     clockError = 0;
-    debug(new Date().toISOString() + ' START');
+    debug(new Date().toISOString() + ' start');
   } else {
     clockError = saved.clockError + (now - saved.time) * saved.ppm / 1000000;
 
     if (Math.abs(clockError) <= MAX_CLOCK_ERROR_FROM_SAVED_STATE) {
       debug(
-        new Date().toISOString() + ' START & LOAD STATE (' +
+        new Date().toISOString() + ' start & load state (' +
         clockError.toFixed(2) + ')'
       );
     } else {
       debug(
-        new Date().toISOString() + ' START & IGNORE STATE (' +
+        new Date().toISOString() + ' start & ignore state (' +
         clockError.toFixed(2) + ')'
       );
       clockError = 0;
