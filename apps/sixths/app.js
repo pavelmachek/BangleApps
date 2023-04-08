@@ -16,7 +16,7 @@ function toMorse(x) {
       r += " ";
       continue;
     }
-    r += asciiToMorse(c);
+    r += asciiToMorse(c) + " ";
   }
   return r;
 }
@@ -30,6 +30,15 @@ function inputHandler(s) {
   print("Ascii: ", s);
   note = note + s;
   switch(s) {
+    case 'B':
+      s = ' B';
+      bat = E.getBattery();
+      if (bat > 45)
+        s += 'E';
+      else
+        s = s+(bat/5);
+      buzz += toMorse(s);
+      break;
     case 'L': aload("altimeter.app.js"); break;
     case 'O': aload("orloj.app.js"); break;
     case 'T':
