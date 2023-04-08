@@ -152,6 +152,24 @@ function add0(i) {
   }
 }
 
+var lastHour = -1, lastMin = -1;
+
+function hourly() {
+  print("hourly");
+  s = ' T';
+  buzz += toMorse(s);
+}
+
+function fivemin() {
+  print("fivemin");
+  s = ' B';
+  bat = E.getBattery();
+  if (bat < 45) {
+      s = s+(bat/5);
+      buzz += toMorse(s);
+  }
+}
+
 function draw() {
   g.setColor(1, 1, 1);
   g.fillRect(0, 0, W, H);
@@ -161,19 +179,19 @@ function draw() {
   g.setFontAlign(-1, 1);
   let now = new Date();
   g.drawString(now.getHours() + ":" + add0(now.getMinutes()), 10, 60);
+  if (lastHour != now.getHours()) {
+    lastHour = now.getHours();
+    hourly();
+  }
+  if (lastMin / 5 != now.getMinutes() / 5) {
+    lastMin = now.getMinutes();
+    fivemin();
+  }
 
   g.setFont('Vector', 26);
   g.drawString(note, 10, 120);
   
   queueDraw();
-}
-
-function add0(i) {
-  if (i > 9) {
-    return ""+i;
-  } else {
-    return "0"+i;
-  }
 }
 
 function draw_all() {
