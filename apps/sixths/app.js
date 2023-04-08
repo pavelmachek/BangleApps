@@ -6,15 +6,131 @@ const H = g.getHeight();
 var cx = 100; cy = 105; sc = 70;
 var buzz = "", msg = "";
 temp = 0; alt = 0; bpm = 0;
+var buzz = "", msg = "", inm = "", l = "", note = "";
+
+function inputHandler(s) {
+  print("Ascii: ", s);
+  note = note + s;
+  switch(s) {
+    case 'A':
+      buzz += ' ' + asciiToMorse('E');
+      load("altimeter.app.js");
+      break;
+    case 'O':
+      buzz += ' ' + asciiToMorse('E');
+      load("orloj.app.js");
+      break;
+    case 'T':
+      buzz += ' ' + asciiToMorse('T');
+      break;
+    case 'R':
+      buzz += ' ' + asciiToMorse('E');
+      load("run.app.js");
+      break;
+  }
+}
+
+function morseToAscii(morse) {
+  const morseDict = {
+    '.-': 'A',
+    '-...': 'B',
+    '-.-.': 'C',
+    '-..': 'D',
+    '.': 'E',
+    '..-.': 'F',
+    '--.': 'G',
+    '....': 'H',
+    '..': 'I',
+    '.---': 'J',
+    '-.-': 'K',
+    '.-..': 'L',
+    '--': 'M',
+    '-.': 'N',
+    '---': 'O',
+    '.--.': 'P',
+    '--.-': 'Q',
+    '.-.': 'R',
+    '...': 'S',
+    '-': 'T',
+    '..-': 'U',
+    '...-': 'V',
+    '.--': 'W',
+    '-..-': 'X',
+    '-.--': 'Y',
+    '--..': 'Z'
+  };
+
+  return morseDict[morse];
+}
+
+function asciiToMorse(char) {
+  const asciiDict = {
+    'A': '.-',
+    'B': '-...',
+    'C': '-.-.',
+    'D': '-..',
+    'E': '.',
+    'F': '..-.',
+    'G': '--.',
+    'H': '....',
+    'I': '..',
+    'J': '.---',
+    'K': '-.-',
+    'L': '.-..',
+    'M': '--',
+    'N': '-.',
+    'O': '---',
+    'P': '.--.',
+    'Q': '--.-',
+    'R': '.-.',
+    'S': '...',
+    'T': '-',
+    'U': '..-',
+    'V': '...-',
+    'W': '.--',
+    'X': '-..-',
+    'Y': '-.--',
+    'Z': '--..'
+  };
+
+  return asciiDict[char];
+}
+
+function morseHandler() {
+  inputHandler(morseToAscii(inm));
+  inm = "";
+  l = "";
+}
 
 function touchHandler(d) {
   let x = Math.floor(d.x);
   let y = Math.floor(d.y);
-  
-  print("drag:", d);
- 
+
   g.setColor(0.25, 0, 0);
   g.fillCircle(W-x, W-y, 5);
+
+  if (d.b) {
+  if (x < W/2 && y < H/2 && l != ".u") {
+    inm = inm + ".";
+    l = ".u";
+  }
+  if (x > W/2 && y < H/2 && l != "-u") {
+    inm = inm + "-";
+    l = "-u";
+  }
+  if (x < W/2 && y > H/2 && l != ".d") {
+    inm = inm + ".";
+    l = ".d";
+  }
+  if (x > W/2 && y > H/2 && l != "-d") {
+    inm = inm + "-";
+    l = "-d";
+  }
+    
+  } else
+    morseHandler();
+  
+  print(inm, "drag:", d);
 }
 
 function add0(i) {
@@ -26,6 +142,30 @@ function add0(i) {
 }
 
 function draw() {
+  g.setColor(1, 1, 1);
+  g.fillRect(0, 0, W, H);
+  g.setFont('Vector', 60);
+
+  g.setColor(0, 0, 0);
+  g.setFontAlign(-1, 1);
+  let now = new Date();
+  g.drawString(now.getHours() + ":" + add0(now.getMinutes()), 10, 60);
+
+  g.setFont('Vector', 26);
+  g.drawString(note, 10, 120);
+  
+  queueDraw();
+}
+
+function add0(i) {
+  if (i > 9) {
+    return ""+i;
+  } else {
+    return "0"+i;
+  }
+}
+
+function draw_all() {
   g.setColor(0, 0, 0);
   g.fillRect(0, 0, W, H);
   g.setFont('Vector', 36);
@@ -81,8 +221,8 @@ function draw() {
   g.drawString("S" + step + " B" + Math.round(bat/10) + (Bangle.isCharging()?"c":""), 3, 100);
   g.drawString("A" + Math.round(alt) + " T" + Math.round(temp), 3, 120);
   g.drawString("C" + Math.round(co.heading) + " B" + bpm, 3, 140);
-  g.drawString("S" + step + " B" + bat, 3, 160);  
-  g.drawString("S" + step + " B" + bat, 3, 180);
+  //g.drawString("S" + step + " B" + bat, 3, 160);  
+  //g.drawString("S" + step + " B" + bat, 3, 180);
      
   queueDraw();
 }
@@ -90,7 +230,7 @@ function draw() {
 function accelTask() {
   tm = 100;
   acc = Bangle.getAccel();
-    en = !Bangle.isLocked();
+  en = !Bangle.isLocked();
   if (en && acc.z < -0.95) {
     msg = "Level";
     buzz = ".-..";
@@ -130,6 +270,21 @@ function buzzTask() {
   setTimeout(buzzTask, 50);
 }
 
+function aliveTask() {
+  function cmp(s) {
+    let d = acc[s] - last_acc[s];
+    //print(d);
+    return d < -0.03 || d > 0.03;
+  }
+  // HRM seems to detect hand quite nicely
+  acc = Bangle.getAccel();
+  if (cmp("x") || cmp("y") || cmp("z"))
+    print("active");
+  last_acc = acc;
+  
+  setTimeout(aliveTask, 500);
+}
+
 var drawTimeout;
 
 function queueDraw() {
@@ -154,7 +309,12 @@ function start() {
   
   draw();
   buzzTask();
-  accelTask();
+  //accelTask();
+  
+  if (1) {
+    last_acc = Bangle.getAccel();
+    aliveTask();
+  }
 }
 
 
