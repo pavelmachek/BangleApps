@@ -8,30 +8,42 @@ var buzz = "", msg = "";
 temp = 0; alt = 0; bpm = 0;
 var buzz = "", msg = "", inm = "", l = "", note = "";
 
+function toMorse(x) {
+  r = "";
+  for (var i = 0; i < x.length; i++) {
+    c = x[i];
+    if (c == " ") {
+      r += " ";
+      continue;
+    }
+    r += asciiToMorse(c);
+  }
+  return r;
+}
+
+function aload(s) {
+  buzz += toMorse(' E');
+  load(s);
+}
+
 function inputHandler(s) {
   print("Ascii: ", s);
   note = note + s;
   switch(s) {
-    case 'A':
-      buzz += ' ' + asciiToMorse('E');
-      load("altimeter.app.js");
-      break;
-    case 'O':
-      buzz += ' ' + asciiToMorse('E');
-      load("orloj.app.js");
-      break;
+    case 'L': aload("altimeter.app.js"); break;
+    case 'O': aload("orloj.app.js"); break;
     case 'T':
-      buzz += ' ' + asciiToMorse('T');
+      s = ' T';
+      d = new Date();
+      s += d.getHours() % 10;
+      s += add0(d.getMinutes());
+      buzz += toMorse(s);
       break;
-    case 'R':
-      buzz += ' ' + asciiToMorse('E');
-      load("run.app.js");
-      break;
+    case 'R': aload("run.app.js"); break;
   }
 }
 
-function morseToAscii(morse) {
-  const morseDict = {
+const morseDict = {
     '.-': 'A',
     '-...': 'B',
     '-.-.': 'C',
@@ -57,42 +69,32 @@ function morseToAscii(morse) {
     '.--': 'W',
     '-..-': 'X',
     '-.--': 'Y',
-    '--..': 'Z'
+    '--..': 'Z',
+    '.----': '1',
+    '..---': '2',
+    '...--': '3',
+    '....-': '4',
+    '.....': '5',
+    '----.': '9',
+    '---..': '8',
+    '--...': '7',
+    '-....': '6',
+    '-----': '0',
   };
 
+let asciiDict = {};
+
+for (let k in morseDict) {
+  print(k, morseDict[k]);
+  asciiDict[morseDict[k]] = k;
+}
+
+
+function morseToAscii(morse) {
   return morseDict[morse];
 }
 
 function asciiToMorse(char) {
-  const asciiDict = {
-    'A': '.-',
-    'B': '-...',
-    'C': '-.-.',
-    'D': '-..',
-    'E': '.',
-    'F': '..-.',
-    'G': '--.',
-    'H': '....',
-    'I': '..',
-    'J': '.---',
-    'K': '-.-',
-    'L': '.-..',
-    'M': '--',
-    'N': '-.',
-    'O': '---',
-    'P': '.--.',
-    'Q': '--.-',
-    'R': '.-.',
-    'S': '...',
-    'T': '-',
-    'U': '..-',
-    'V': '...-',
-    'W': '.--',
-    'X': '-..-',
-    'Y': '-.--',
-    'Z': '--..'
-  };
-
   return asciiDict[char];
 }
 
@@ -299,13 +301,16 @@ function queueDraw() {
 
 function start() {
   Bangle.on("drag", touchHandler);
-  //Bangle.on("accel", accelHandler);
-  Bangle.setCompassPower(1, "cyborg");
-  Bangle.setBarometerPower(1, "cyborg");
-  Bangle.setHRMPower(1, "cyborg");
-  Bangle.setGPSPower(1, "cyborg");
-  Bangle.on("HRM", (hrm) => { bpm = hrm.bpm; } );
+  if (0)
+    Bangle.on("accel", accelHandler);
+  if (0) {
+    Bangle.setCompassPower(1, "cyborg");
+    Bangle.setBarometerPower(1, "cyborg");
+    Bangle.setHRMPower(1, "cyborg");
+    Bangle.setGPSPower(1, "cyborg");
+    Bangle.on("HRM", (hrm) => { bpm = hrm.bpm; } );
   //Bangle.on("mag", magHandler);
+  }
   
   draw();
   buzzTask();
