@@ -7,7 +7,7 @@ var cx = 100; cy = 105; sc = 70;
 var buzz = "", msg = "";
 temp = 0; alt = 0; bpm = 0;
 var buzz = "", msg = "", inm = "", l = "", note = "(NOTEHERE)";
-var mode = 0; // 0 .. normal, 1 .. note
+var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note
 
 function toMorse(x) {
   r = "";
@@ -29,8 +29,13 @@ function aload(s) {
 
 function inputHandler(s) {
   print("Ascii: ", s);
+  if ((mode > 0) && (mode_time - getTime() > 60)) {
+    mode = 0;
+  }
   if (mode == 1) {
     note = note + s;
+    mode_time = getTime();
+    return;
   }
   switch(s) {
     case 'B':
@@ -43,7 +48,7 @@ function inputHandler(s) {
       buzz += toMorse(s);
       break;
     case 'L': aload("altimeter.app.js"); break;
-    case 'N': mode = 1; break;
+    case 'N': mode = 1; note = ">"; break;
     case 'O': aload("orloj.app.js"); break;
     case 'T':
       s = ' T';
