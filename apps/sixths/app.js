@@ -6,7 +6,8 @@ const H = g.getHeight();
 var cx = 100; cy = 105; sc = 70;
 var buzz = "", msg = "";
 temp = 0; alt = 0; bpm = 0;
-var buzz = "", msg = "", inm = "", l = "", note = "";
+var buzz = "", msg = "", inm = "", l = "", note = "(NOTEHERE)";
+var mode = 0; // 0 .. normal, 1 .. note
 
 function toMorse(x) {
   r = "";
@@ -28,7 +29,9 @@ function aload(s) {
 
 function inputHandler(s) {
   print("Ascii: ", s);
-  note = note + s;
+  if (mode == 1) {
+    note = note + s;
+  }
   switch(s) {
     case 'B':
       s = ' B';
@@ -40,6 +43,7 @@ function inputHandler(s) {
       buzz += toMorse(s);
       break;
     case 'L': aload("altimeter.app.js"); break;
+    case 'N': mode = 1; break;
     case 'O': aload("orloj.app.js"); break;
     case 'T':
       s = ' T';
@@ -189,7 +193,10 @@ function draw() {
   }
 
   g.setFont('Vector', 26);
-  g.drawString(note, 10, 120);
+  g.drawString(note, 10, 115);
+  
+  g.drawString("Sat XX", 10, 145);
+  g.drawString("XX km", 10, 175);
   
   queueDraw();
 }
