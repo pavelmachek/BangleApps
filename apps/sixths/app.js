@@ -172,13 +172,13 @@ function fivemin() {
 
 function draw() {
   g.setColor(1, 1, 1);
-  g.fillRect(0, 0, W, H);
+  g.fillRect(0, 25, W, H);
   g.setFont('Vector', 60);
 
   g.setColor(0, 0, 0);
   g.setFontAlign(-1, 1);
   let now = new Date();
-  g.drawString(now.getHours() + ":" + add0(now.getMinutes()), 10, 60);
+  g.drawString(now.getHours() + ":" + add0(now.getMinutes()), 10, 90);
   if (lastHour != now.getHours()) {
     lastHour = now.getHours();
     hourly();
@@ -352,4 +352,7 @@ function start() {
 
 g.reset();
 Bangle.setUI();
+Bangle.loadWidgets();
+Bangle.drawWidgets();
+
 start();
