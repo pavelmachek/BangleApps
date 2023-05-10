@@ -48,7 +48,7 @@ function inputHandler(s) {
       buzz += toMorse(s);
       break;
     case 'L': aload("altimeter.app.js"); break;
-    case 'N': mode = 1; note = ">"; break;
+    case 'N': mode = 1; note = ">"; mode_time = getTime(); break;
     case 'O': aload("orloj.app.js"); break;
     case 'T':
       s = ' T';
