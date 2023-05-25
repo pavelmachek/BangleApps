@@ -8,6 +8,7 @@ var buzz = "", msg = "";
 temp = 0; alt = 0; bpm = 0;
 var buzz = "", msg = "", inm = "", l = "", note = "(NOTEHERE)";
 var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note
+var gps_on = 0;
 
 function toMorse(x) {
   r = "";
@@ -29,9 +30,6 @@ function aload(s) {
 
 function inputHandler(s) {
   print("Ascii: ", s);
-  if ((mode > 0) && (mode_time - getTime() > 60)) {
-    mode = 0;
-  }
   if (mode == 1) {
     note = note + s;
     mode_time = getTime();
@@ -47,6 +45,7 @@ function inputHandler(s) {
         s = s+(bat/5);
       buzz += toMorse(s);
       break;
+    case 'G': gps_on = getTime(); Bangle.setGPSPower(1, "sixths"); break;
     case 'L': aload("altimeter.app.js"); break;
     case 'N': mode = 1; note = ">"; mode_time = getTime(); break;
     case 'O': aload("orloj.app.js"); break;
@@ -163,10 +162,15 @@ function add0(i) {
 
 var lastHour = -1, lastMin = -1;
 
+function logstamp(s) {
+    logfile.write("utime=" + getTime() + " " + s + "\n");
+}
+
 function hourly() {
   print("hourly");
   s = ' T';
   buzz += toMorse(s);
+  logstamp("");
 }
 
 function fivemin() {
@@ -179,6 +183,28 @@ function fivemin() {
   }
 }
 
+function every() {
+  if ((mode > 0) && (mode_time - getTime() > 60)) {
+    if (mode == 1) {
+      logstamp(">" + note);
+    }
+    mode = 0;
+  }
+  if (gps_on && getTime() - gps_on > 300) {
+    Bangle.setGPSPower(0, "sixths");
+    gps_on = 0;
+  } 
+
+  if (lastHour != now.getHours()) {
+    lastHour = now.getHours();
+    hourly();
+  }
+  if (lastMin / 5 != now.getMinutes() / 5) {
+    lastMin = now.getMinutes();
+    fivemin();
+  }
+}
+
 function draw() {
   g.setColor(1, 1, 1);
   g.fillRect(0, 25, W, H);
@@ -188,20 +214,16 @@ function draw() {
   g.setFontAlign(-1, 1);
   let now = new Date();
   g.drawString(now.getHours() + ":" + add0(now.getMinutes()), 10, 90);
-  if (lastHour != now.getHours()) {
-    lastHour = now.getHours();
-    hourly();
-  }
-  if (lastMin / 5 != now.getMinutes() / 5) {
-    lastMin = now.getMinutes();
-    fivemin();
-  }
+
+  every();
 
   g.setFont('Vector', 26);
   g.drawString(note, 10, 115);
   
-  g.drawString("Sat XX", 10, 145);
-  g.drawString("XX km", 10, 175);
+  if (gps_on) {
+    g.drawString("Sat XX", 10, 145);
+    g.drawString("XX km", 10, 175);
+  }
   
   queueDraw();
 }
@@ -343,10 +365,10 @@ function start() {
   if (0)
     Bangle.on("accel", accelHandler);
   if (0) {
-    Bangle.setCompassPower(1, "cyborg");
-    Bangle.setBarometerPower(1, "cyborg");
-    Bangle.setHRMPower(1, "cyborg");
-    Bangle.setGPSPower(1, "cyborg");
+    Bangle.setCompassPower(1, "sixths");
+    Bangle.setBarometerPower(1, "sixths");
+    Bangle.setHRMPower(1, "sixths");
+    Bangle.setGPSPower(1, "sixths");
     Bangle.on("HRM", (hrm) => { bpm = hrm.bpm; } );
   //Bangle.on("mag", magHandler);
   }
@@ -366,5 +388,7 @@ g.reset();
 Bangle.setUI();
 Bangle.loadWidgets();
 Bangle.drawWidgets();
+let logfile = require("Storage").open("sixths.egt", "a");
+
 
 start();
