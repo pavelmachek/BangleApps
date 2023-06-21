@@ -216,14 +216,25 @@ function draw() {
   g.drawString(now.getHours() + ":" + add0(now.getMinutes()), 10, 90);
 
   every(now);
+  
+  let km = 0.001 * 0.719 * Bangle.getHealthStatus("day").steps;
 
   g.setFont('Vector', 26);
-  g.drawString(note, 10, 115);
+  //g.drawString(note, 10, 115);
+  //getDay is day of week.
   
+    //g.drawString(note, 10, 115);
+  const weekday = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  
+  g.drawString(weekday[now.getDay()] + " " + now.getDate() + ". " + km + "km", 10, 115);
+
+  g.drawString(note, 10, 145);
+
   if (gps_on) {
     g.drawString("Sat XX", 10, 145);
     g.drawString("XX km", 10, 175);
   }
+  
   
   queueDraw();
 }
