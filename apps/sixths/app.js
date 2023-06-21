@@ -183,7 +183,7 @@ function fivemin() {
   }
 }
 
-function every() {
+function every(now) {
   if ((mode > 0) && (mode_time - getTime() > 60)) {
     if (mode == 1) {
       logstamp(">" + note);
@@ -215,7 +215,7 @@ function draw() {
   let now = new Date();
   g.drawString(now.getHours() + ":" + add0(now.getMinutes()), 10, 90);
 
-  every();
+  every(now);
 
   g.setFont('Vector', 26);
   g.drawString(note, 10, 115);
