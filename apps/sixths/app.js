@@ -10,6 +10,8 @@ var buzz = "", msg = "", inm = "", l = "", note = "(NOTEHERE)";
 var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note
 var gps_on = 0;
 var is_active = false;
+var cur_altitude = 0, cur_temperature = 0, alt_adjust = 0;
+const rest_altitude = 354;
 
 function toMorse(x) {
   r = "";
@@ -206,6 +208,10 @@ function every(now) {
     lastMin = now.getMinutes();
     fivemin();
   }
+  Bangle.getPressure().then((x) => { cur_altitude = x.altitude; 
+                                     cur_temperature = x.temperature; },
+                                 print);
+
 }
 
 function draw() {
@@ -227,12 +233,17 @@ function draw() {
   //getDay is day of week.
   
     //g.drawString(note, 10, 115);
-  const weekday = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const weekday = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
   
-  g.drawString(weekday[now.getDay()] + " " + now.getDate() + ". " + km + "km", 10, 115);
+  g.drawString(weekday[now.getDay()] + "" + now.getDate() + "." + km.toFixed(1) + "km", 10, 115);
 
   g.drawString(note, 10, 145);
-  g.drawString("act:" + is_active, 10, 175);
+  if (is_active) {
+    g.drawString("act " + (cur_altitude - alt_adjust).toFixed(0), 10, 175);
+  } else {
+    alt_adjust = cur_altitude - rest_altitude;
+    g.drawString(alt_adjust.toFixed(0) + "m " + cur_temperature.toFixed(1)+"C", 10, 175);
+  }
 
   if (gps_on) {
     g.drawString("Sat XX", 10, 145);
