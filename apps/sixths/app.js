@@ -9,6 +9,7 @@ temp = 0; alt = 0; bpm = 0;
 var buzz = "", msg = "", inm = "", l = "", note = "(NOTEHERE)";
 var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note
 var gps_on = 0;
+var is_active = false;
 
 function toMorse(x) {
   r = "";
@@ -169,7 +170,8 @@ function logstamp(s) {
 function hourly() {
   print("hourly");
   s = ' T';
-  buzz += toMorse(s);
+  if (is_active)
+    buzz += toMorse(s);
   logstamp("");
 }
 
@@ -179,7 +181,8 @@ function fivemin() {
   bat = E.getBattery();
   if (bat < 45) {
       s = s+(bat/5);
-      buzz += toMorse(s);
+      if (is_active)
+        buzz += toMorse(s);
   }
 }
 
@@ -229,6 +232,7 @@ function draw() {
   g.drawString(weekday[now.getDay()] + " " + now.getDate() + ". " + km + "km", 10, 115);
 
   g.drawString(note, 10, 145);
+  g.drawString("act:" + is_active, 10, 175);
 
   if (gps_on) {
     g.drawString("Sat XX", 10, 145);
@@ -341,7 +345,7 @@ function buzzTask() {
       setTimeout(buzzTask, 6*dot);
     } else print("Unknown character -- ", now, buzz);
   } else
-  setTimeout(buzzTask, 50);
+  setTimeout(buzzTask, 60000);
 }
 
 function aliveTask() {
@@ -352,18 +356,21 @@ function aliveTask() {
   }
   // HRM seems to detect hand quite nicely
   acc = Bangle.getAccel();
-  if (cmp("x") || cmp("y") || cmp("z"))
+  is_active = false;
+  if (cmp("x") || cmp("y") || cmp("z")) {
     print("active");
+    is_active = true;
+  }
   last_acc = acc;
   
-  setTimeout(aliveTask, 500);
+  setTimeout(aliveTask, 60000);
 }
 
 var drawTimeout;
 
 function queueDraw() {
   if (drawTimeout) clearTimeout(drawTimeout);
-  next = 50;
+  next = 60000;
   drawTimeout = setTimeout(function() {
     drawTimeout = undefined;
     draw();
