@@ -8,7 +8,8 @@ var buzz = "", msg = "";
 temp = 0; alt = 0; bpm = 0;
 var buzz = "", msg = "", inm = "", l = "", note = "(NOTEHERE)";
 var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note
-var gps_on = 0, last_fix = 0;
+var gps_on = 0, last_fix = 0, last_restart = 0, last_pause = 0; // utime
+var gps_needed = 0, gps_limit = 0; // seconds
 var is_active = false;
 var cur_altitude = 0, cur_temperature = 0, alt_adjust = 0;
 const rest_altitude = 354;
@@ -31,6 +32,32 @@ function aload(s) {
   load(s);
 }
 
+function gpsRestart() {
+  print("gpsRestart");
+  Bangle.setGPSPower(1, "sixths");
+  last_restart = getTime();
+  last_pause = 0;
+}
+
+function gpsPause() {
+  print("gpsPause");
+  Bangle.setGPSPower(0, "sixths");
+  last_restart = 0;
+  last_pause = getTime();
+}
+
+function gpsOn() {
+  gps_on = getTime();
+  gps_needed = 60; // FIXME
+  gps_limit = 6000;
+  gpsRestart();
+}
+
+function gpsOff() {
+  Bangle.setGPSPower(0, "sixths");
+  gps_on = 0;
+}
+
 function inputHandler(s) {
   print("Ascii: ", s);
   if (mode == 1) {
@@ -48,7 +75,7 @@ function inputHandler(s) {
         s = s+(bat/5);
       buzz += toMorse(s);
       break;
-    case 'G': gps_on = getTime(); Bangle.setGPSPower(1, "sixths"); break;
+    case 'G': gpsOn(); break;
     case 'L': aload("altimeter.app.js"); break;
     case 'N': mode = 1; note = ">"; mode_time = getTime(); break;
     case 'O': aload("orloj.app.js"); break;
@@ -200,7 +227,7 @@ function every(now) {
     }
     mode = 0;
   }
-  if (gps_on && getTime() - gps_on > 300) {
+  if (gps_on && getTime() - gps_on > gps_limit) {
     Bangle.setGPSPower(0, "sixths");
     gps_on = 0;
   } 
@@ -240,17 +267,40 @@ function draw() {
   g.drawString(weekday[now.getDay()] + "" + now.getDate() + ". " + km.toFixed(1) + "km", 10, 115);
 
   if (gps_on) {
-    fix = Bangle.getGPSFix();
-    if (fix && !isNaN(fix.long)) {
-      msg = fix.lon + " " + fix.lat;
-      last_fix = getTime();
-    } else {
+    if (!last_restart) {
+      d = (getTime()-last_pause);
       if (last_fix)
-        msg = "Last "+ (getTime()-last_fix);
+          msg = "PLast "+ (getTime()-last_fix);
       else
-        msg = "No "+ (getTime()-gps_on);
+          msg = "PNo "+ (getTime()-gps_on);
+
+      print("gps on, paused ", d, gps_needed);
+      if (d > gps_needed * 2) { // FIXME
+        gpsRestart();
+      }
+    } else {
+      fix = Bangle.getGPSFix();
+      if (fix && !isNaN(fix.long)) {
+        msg = fix.lon + " " + fix.lat;
+        last_fix = getTime();
+        gps_needed = 60;
+        print("GPS FIX", msg);
+      } else {
+        if (last_fix)
+          msg = "Last "+ (getTime()-last_fix);
+        else
+          msg = "No "+ (getTime()-gps_on);
+      }
+      
+      d = (getTime()-last_restart);
+      d2 = (getTime()-last_fix);
+      print("gps on, restarted ", d, gps_needed, d2);
+      if (d > gps_needed && d2 > 10) {
+        gpsPause();
+        gps_needed = gps_needed * 1.5;
+        print("Pausing, next try", gps_needed);
+      }
     }
-    
   } else {
     msg = note;
   }
@@ -391,7 +441,7 @@ var drawTimeout;
 
 function queueDraw() {
   if (drawTimeout) clearTimeout(drawTimeout);
-  if (0)
+  if (0) // FIXME
     next = 60000;
   else
     next =  1000;
