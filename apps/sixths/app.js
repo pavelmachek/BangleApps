@@ -235,7 +235,7 @@ function draw() {
     //g.drawString(note, 10, 115);
   const weekday = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
   
-  g.drawString(weekday[now.getDay()] + "" + now.getDate() + "." + km.toFixed(1) + "km", 10, 115);
+  g.drawString(weekday[now.getDay()] + "" + now.getDate() + ". " + km.toFixed(1) + "km", 10, 115);
 
   g.drawString(note, 10, 145);
   if (is_active) {
