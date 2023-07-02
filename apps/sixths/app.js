@@ -8,7 +8,7 @@ var buzz = "", msg = "";
 temp = 0; alt = 0; bpm = 0;
 var buzz = "", msg = "", inm = "", l = "", note = "(NOTEHERE)";
 var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note
-var gps_on = 0;
+var gps_on = 0, last_fix = 0;
 var is_active = false;
 var cur_altitude = 0, cur_temperature = 0, alt_adjust = 0;
 const rest_altitude = 354;
@@ -186,6 +186,11 @@ function fivemin() {
       if (is_active)
         buzz += toMorse(s);
   }
+  if (0)
+    Bangle.getPressure().then((x) => { cur_altitude = x.altitude; 
+                                     cur_temperature = x.temperature; },
+                                 print)
+      .catch(print);
 }
 
 function every(now) {
@@ -208,9 +213,6 @@ function every(now) {
     lastMin = now.getMinutes();
     fivemin();
   }
-  Bangle.getPressure().then((x) => { cur_altitude = x.altitude; 
-                                     cur_temperature = x.temperature; },
-                                 print);
 
 }
 
@@ -237,20 +239,28 @@ function draw() {
   
   g.drawString(weekday[now.getDay()] + "" + now.getDate() + ". " + km.toFixed(1) + "km", 10, 115);
 
-  g.drawString(note, 10, 145);
+  if (gps_on) {
+    fix = Bangle.getGPSFix();
+    if (fix && !isNaN(fix.long)) {
+      msg = fix.lon + " " + fix.lat;
+      last_fix = getTime();
+    } else {
+      if (last_fix)
+        msg = "Last "+ (getTime()-last_fix);
+      else
+        msg = "No "+ (getTime()-gps_on);
+    }
+    
+  } else {
+    msg = note;
+  }
+  g.drawString(msg, 10, 145);
   if (is_active) {
     g.drawString("act " + (cur_altitude - alt_adjust).toFixed(0), 10, 175);
   } else {
     alt_adjust = cur_altitude - rest_altitude;
     g.drawString(alt_adjust.toFixed(0) + "m " + cur_temperature.toFixed(1)+"C", 10, 175);
   }
-
-  if (gps_on) {
-    g.drawString("Sat XX", 10, 145);
-    g.drawString("XX km", 10, 175);
-  }
-  
-  
   queueDraw();
 }
 
@@ -381,7 +391,10 @@ var drawTimeout;
 
 function queueDraw() {
   if (drawTimeout) clearTimeout(drawTimeout);
-  next = 60000;
+  if (0)
+    next = 60000;
+  else
+    next =  1000;
   drawTimeout = setTimeout(function() {
     drawTimeout = undefined;
     draw();
