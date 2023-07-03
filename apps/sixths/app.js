@@ -8,7 +8,7 @@ var buzz = "", msg = "";
 temp = 0; alt = 0; bpm = 0;
 var buzz = "", msg = "", inm = "", l = "", note = "(NOTEHERE)";
 var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note
-var gps_on = 0, last_fix = 0, last_restart = 0, last_pause = 0; // utime
+var gps_on = 0, last_fix = 0, last_restart = 0, last_pause = 0, last_fstart = 0; // utime
 var gps_needed = 0, gps_limit = 0; // seconds
 var is_active = false;
 var cur_altitude = 0, cur_temperature = 0, alt_adjust = 0;
@@ -37,6 +37,7 @@ function gpsRestart() {
   Bangle.setGPSPower(1, "sixths");
   last_restart = getTime();
   last_pause = 0;
+  last_fstart = 0;
 }
 
 function gpsPause() {
@@ -286,8 +287,10 @@ function draw() {
       }
     } else {
       fix = Bangle.getGPSFix();
-      if (!isNaN(fix.lon)) {
+      if (!isNaN(fix.lon) && fix.lon) {
         msg = fix.lon + " " + fix.lat;
+        if (!last_fstart)
+          last_fstart = getTime();
         last_fix = getTime();
         gps_needed = 60;
         loggps(fix);
@@ -300,9 +303,9 @@ function draw() {
       }
       
       d = (getTime()-last_restart);
-      d2 = (getTime()-last_fix);
+      d2 = (getTime()-last_fstart);
       print("gps on, restarted ", d, gps_needed, d2, fix.lat);
-      if (d > gps_needed && d2 > 10) {
+      if (d > gps_needed || (last_fstart && d2 > 10)) {
         gpsPause();
         gps_needed = gps_needed * 1.5;
         print("Pausing, next try", gps_needed);
