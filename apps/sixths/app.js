@@ -48,7 +48,7 @@ function gpsPause() {
 
 function gpsOn() {
   gps_on = getTime();
-  gps_needed = 60; // FIXME
+  gps_needed = 1000; // FIXME
   gps_limit = 6000;
   gpsRestart();
 }
@@ -75,6 +75,7 @@ function inputHandler(s) {
         s = s+(bat/5);
       buzz += toMorse(s);
       break;
+    case 'F': gpsOff(); break;
     case 'G': gpsOn(); break;
     case 'L': aload("altimeter.app.js"); break;
     case 'N': mode = 1; note = ">"; mode_time = getTime(); break;
@@ -196,6 +197,11 @@ function logstamp(s) {
     logfile.write("utime=" + getTime() + " " + s + "\n");
 }
 
+function loggps(fix) {
+  logfile.write(fix.lat + " " + fix.lon);
+  logstamp("");
+}
+
 function hourly() {
   print("hourly");
   s = ' T';
@@ -280,10 +286,11 @@ function draw() {
       }
     } else {
       fix = Bangle.getGPSFix();
-      if (fix && !isNaN(fix.long)) {
+      if (!isNaN(fix.lon)) {
         msg = fix.lon + " " + fix.lat;
         last_fix = getTime();
         gps_needed = 60;
+        loggps(fix);
         print("GPS FIX", msg);
       } else {
         if (last_fix)
@@ -294,7 +301,7 @@ function draw() {
       
       d = (getTime()-last_restart);
       d2 = (getTime()-last_fix);
-      print("gps on, restarted ", d, gps_needed, d2);
+      print("gps on, restarted ", d, gps_needed, d2, fix.lat);
       if (d > gps_needed && d2 > 10) {
         gpsPause();
         gps_needed = gps_needed * 1.5;
