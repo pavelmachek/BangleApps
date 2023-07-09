@@ -8,8 +8,12 @@ var buzz = "", msg = "";
 temp = 0; alt = 0; bpm = 0;
 var buzz = "", msg = "", inm = "", l = "", note = "(NOTEHERE)";
 var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note
+
 var gps_on = 0, last_fix = 0, last_restart = 0, last_pause = 0, last_fstart = 0; // utime
 var gps_needed = 0, gps_limit = 0; // seconds
+var prev_fix = null;
+var gps_dist = 0;
+
 var is_active = false;
 var cur_altitude = 0, cur_temperature = 0, alt_adjust = 0;
 const rest_altitude = 354;
@@ -50,7 +54,10 @@ function gpsPause() {
 function gpsOn() {
   gps_on = getTime();
   gps_needed = 1000; // FIXME
-  gps_limit = 6000;
+  gps_limit = 60*60*4;
+  last_fix = 0;
+  prev_fix = null;
+  gps_dist = 0;
   gpsRestart();
 }
 
@@ -199,7 +206,7 @@ function logstamp(s) {
 }
 
 function loggps(fix) {
-  logfile.write(fix.lat + " " + fix.lon);
+  logfile.write(fix.lat + " " + fix.lon + " ");
   logstamp("");
 }
 
@@ -250,6 +257,16 @@ function every(now) {
 
 }
 
+// distance between 2 lat and lons, in meters, Mean Earth Radius = 6371km       
+// https://www.movable-type.co.uk/scripts/latlong.html                          
+// (Equirectangular approximation)                                              
+function calcDistance(a,b) {
+  function radians(a) { return a*Math.PI/180; }
+  var x = radians(b.lon-a.lon) * Math.cos(radians((a.lat+b.lat)/2));
+  var y = radians(b.lat-a.lat);
+  return Math.sqrt(x*x + y*y) * 6371000;
+}
+
 function draw() {
   g.setColor(1, 1, 1);
   g.fillRect(0, 25, W, H);
@@ -277,9 +294,9 @@ function draw() {
     if (!last_restart) {
       d = (getTime()-last_pause);
       if (last_fix)
-          msg = "PLast "+ (getTime()-last_fix);
+          msg = "PL"+ (getTime()-last_fix).toFixed(0);
       else
-          msg = "PNo "+ (getTime()-gps_on);
+          msg = "PN"+ (getTime()-gps_on).toFixed(0);
 
       print("gps on, paused ", d, gps_needed);
       if (d > gps_needed * 2) { // FIXME
@@ -287,19 +304,27 @@ function draw() {
       }
     } else {
       fix = Bangle.getGPSFix();
-      if (!isNaN(fix.lon) && fix.lon) {
-        msg = fix.lon + " " + fix.lat;
+      if (fix.fix && fix.lat) {
+        if (!prev_fix) {
+          prev_fix = fix;
+        }
+        msg = fix.speed.toFixed(1) + " km/h";
         if (!last_fstart)
           last_fstart = getTime();
         last_fix = getTime();
         gps_needed = 60;
         loggps(fix);
         print("GPS FIX", msg);
+        d = calcDistance(fix, prev_fix);
+        if (d > 30) {
+          last_fix = fix;
+          gps_dist += d;
+        }
       } else {
         if (last_fix)
-          msg = "Last "+ (getTime()-last_fix);
+          msg = "L"+ (getTime()-last_fix).toFixed(0);
         else
-          msg = "No "+ (getTime()-gps_on);
+          msg = "N"+ (getTime()-gps_on).toFixed(0);
       }
       
       d = (getTime()-last_restart);
@@ -311,6 +336,7 @@ function draw() {
         print("Pausing, next try", gps_needed);
       }
     }
+    msg += " "+gps_dist.toFixed(1)+"km";
   } else {
     msg = note;
   }
