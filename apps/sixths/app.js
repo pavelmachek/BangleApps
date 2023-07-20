@@ -317,8 +317,8 @@ function draw() {
         print("GPS FIX", msg);
         d = calcDistance(fix, prev_fix);
         if (d > 30) {
-          last_fix = fix;
-          gps_dist += d;
+          prev_fix = fix;
+          gps_dist += d/1000;
         }
       } else {
         if (last_fix)
