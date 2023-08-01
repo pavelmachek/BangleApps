@@ -5,6 +5,7 @@ var fix = {};
 var mapVisible = false;
 var hasScrolled = false;
 var settings = require("Storage").readJSON("openstmap.json",1)||{};
+var startDrag = 0;
 
 // Redraw the whole page
 function redraw() {
@@ -80,13 +81,26 @@ function showMap() {
   redraw();
   Bangle.setUI({mode:"custom",drag:e=>{
     if (e.b) {
+      if (!startDrag)
+        startDrag = getTime();
       g.setClipRect(R.x,R.y,R.x2,R.y2);
       g.scroll(e.dx,e.dy);
       m.scroll(e.dx,e.dy);
       g.setClipRect(0,0,g.getWidth()-1,g.getHeight()-1);
       hasScrolled = true;
     } else if (hasScrolled) {
+      delta = getTime() - startDrag;
+      startDrag = 0;
       hasScrolled = false;
+      if (delta < 0.2) {
+         if (e.y > g.getHeight() / 2) {
+           if (e.x < g.getWidth() / 2) {
+             m.scale /= 2;
+           } else {
+             m.scale *= 2;
+           }
+	 g.reset().clearRect(R);
+      }
       redraw();
     }
   }, btn: btn=>{
