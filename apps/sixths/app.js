@@ -162,9 +162,10 @@ function touchHandler(d) {
   let x = Math.floor(d.x);
   let y = Math.floor(d.y);
 
-  g.setColor(0.25, 0, 0);
-  g.fillCircle(W-x, W-y, 5);
-
+  if (0) { /* Just a debugging feature */
+    g.setColor(0.25, 0, 0);
+    g.fillCircle(W-x, W-y, 5);
+  }
   if (d.b) {
   if (x < W/2 && y < H/2 && l != ".u") {
     inm = inm + ".";
@@ -500,7 +501,9 @@ function start() {
 }
 
 g.reset();
-Bangle.setUI();
+Bangle.setUI({
+    mode : "clock"
+});
 Bangle.loadWidgets();
 Bangle.drawWidgets();
 let logfile = require("Storage").open("sixths.egt", "a");
