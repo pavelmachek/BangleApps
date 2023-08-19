@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ ".$1" == "-f" ]; then
+if [ ".$1" == ".-f" ]; then
     I=/data/gis/osm/dumps/czech_republic-2023-07-24.osm.pbf
     #I=/data/gis/osm/dumps/zernovka.osm.bz2
     O=cr.geojson

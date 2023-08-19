@@ -70,7 +70,7 @@ function readTarFile(tar, f) {
 }
 
 if (pc)
-  writeTar("delme.mtaz", "delme/");
+  writeTar("delme.mtar", "delme/");
 else {
   print(readTarFile("delme.mtar", "ahoj"));
   print(readTarFile("delme.mtar", "nazdar"));
