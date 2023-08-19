@@ -76,6 +76,21 @@ function paintWay(tags) {
     return p;
 }
 
+function zoomPolygon(tags) {
+    var z = 99;
+
+    if (tags.landuse == "forest") z = 17;
+    if (tags.natural == "water") z = 13;
+
+    return z;
+}
+
+function paintPolygon(tags) {
+    var p = {};
+
+    return p;
+}
+
 function writeFeatures(name, feat)
 {
     var n = {};
@@ -104,9 +119,19 @@ function toGjson(name, d, tile) {
             f.geometry.type = "LineString";
             f.geometry.coordinates = convGeom(tile, a.geometry[0]);
             zoom = zoomWay(a.tags);
-            p = paintWay(a.tags);
-        } else {
-            //console.log("Unknown type", a.type);
+            p = paintWay(a.tags);	    
+	    if (zoom == 99) {
+		f.geometry.type = "Polygon";
+		zoom = zoomPolygon(a.tags);
+		p = paintPolygon(a.tags);
+	    }
+        } else if (a.type == 3) {
+            f.geometry.type = "Polygon";
+            f.geometry.coordinates = convGeom(tile, a.geometry[0]);
+            zoom = zoomPolygon(a.tags);
+            p = paintPolygon(a.tags);
+	} else {
+            console.log("Unknown type", a.type);
         }
         //zoom -= 4; // Produces way nicer map, at expense of space.
         if (tile.z < zoom)
@@ -137,7 +162,7 @@ var merc = new sphm({
 console.log("Splitting data");
 var meta = {}
 meta.min_zoom = 0;
-meta.max_zoom = 17; // HERE
+meta.max_zoom = 13; // HERE
                  // = 16 ... split3 takes > 30 minutes
                  // = 13 ... 2 minutes
 var index = split(gjs, Object.assign({
