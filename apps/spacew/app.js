@@ -500,9 +500,6 @@ function drawPolygon(a, qual) {
   step = step * qual;
   var p1 = m.latLonToXY(lat, lon);
   let pol = [p1.x, p1.y];
-  if (a.properties.stroke) {
-    g.setColor(a.properties.stroke);
-  }
   while (i < len) {  
     lon = a.geometry.coordinates[i][0];
     lat = a.geometry.coordinates[i][1];
@@ -517,7 +514,18 @@ function drawPolygon(a, qual) {
     points ++;
   }
   print(len, "--", pol, "--", pol.length);
+  if (a.properties.fill) {
+    g.setColor(a.properties.fill);
+  } else {
+    g.setColor(.75, .75, 1);
+  }
   g.fillPoly(pol);
+  if (a.properties.stroke) {
+    g.setColor(a.properties.stroke);
+  } else {
+    g.setColor(0,0,0)
+  }
+  g.drawPoly(pol);
 }
 
 
