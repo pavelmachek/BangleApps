@@ -489,6 +489,38 @@ function drawLine(a, qual) {
   }
 }
 
+function drawPolygon(a, qual) {
+  lon = a.geometry.coordinates[0][0];
+  lat = a.geometry.coordinates[0][1];
+  i = 1;
+  step = 1;
+  len = a.geometry.coordinates.length;
+  if (len > 62)
+    return;
+  step = step * qual;
+  var p1 = m.latLonToXY(lat, lon);
+  let pol = [p1.x, p1.y];
+  if (a.properties.stroke) {
+    g.setColor(a.properties.stroke);
+  }
+  while (i < len) {  
+    lon = a.geometry.coordinates[i][0];
+    lat = a.geometry.coordinates[i][1];
+    var p2 = m.latLonToXY(lat, lon);
+
+    pol.push(p2.x, p2.y);
+    if (i == len-1)
+      break;
+    i = i + step;
+    if (i>len)
+      i = len-1;
+    points ++;
+  }
+  print(len, "--", pol, "--", pol.length);
+  g.fillPoly(pol);
+}
+
+
 function drawVector(gjson, qual) {
   var d = gjson;
   points = 0;
@@ -504,7 +536,7 @@ function drawVector(gjson, qual) {
     if (qual < 8 && a.geometry.type == "LineString")
       drawLine(a, qual);
     if (qual < 8 && a.geometry.type == "Polygon")
-      drawLine(a, qual);    
+      drawPolygon(a, qual);    
   }
   print("....", points, "painted in", getTime()-t1, "sec");
 }
