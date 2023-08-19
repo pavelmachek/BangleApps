@@ -79,7 +79,7 @@ function paintWay(tags) {
 function zoomPolygon(tags) {
     var z = 99;
 
-    if (tags.landuse == "forest") z = 17;
+    if (tags.landuse == "forest") z = 13;
     if (tags.natural == "water") z = 13;
 
     return z;
@@ -87,6 +87,9 @@ function zoomPolygon(tags) {
 
 function paintPolygon(tags) {
     var p = {};
+
+    if (tags.landuse == "forest") { p.fill = "#c0ffc0"; }
+    if (tags.natural == "water") { p.fill = "#c0c0ff"; }
 
     return p;
 }
