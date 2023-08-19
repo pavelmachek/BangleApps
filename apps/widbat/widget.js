@@ -32,7 +32,7 @@
     else if (battery < 40) {g.setColor(g.theme.dark ? "#ff0" : "#f80");}
     else {g.setColor("#0f0");}
     g.fillRect(x+4,y+6,x+4+battery*(s-12)/100,y+17);
-      if (1 || Bangle.isCharging()) {
+      if (Bangle.isCharging()) {
 	let hy = y+11;
 	let hx = x+s/2;
         let flash = [x+5,hy, hx-4,hy-1, hx,y+6, x+s-7,y+hy,
