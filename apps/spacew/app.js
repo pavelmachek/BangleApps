@@ -495,8 +495,11 @@ function drawPolygon(a, qual) {
   i = 1;
   step = 1;
   len = a.geometry.coordinates.length;
-  if (len > 62)
-    return;
+  if (len > 62) {
+    step = log2(len) - 5;
+    step = 1<<step;
+    print(len, "points - step", step);
+  }
   step = step * qual;
   var p1 = m.latLonToXY(lat, lon);
   let pol = [p1.x, p1.y];
