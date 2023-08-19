@@ -503,6 +503,8 @@ function drawVector(gjson, qual) {
       drawPoint(a);
     if (qual < 8 && a.geometry.type == "LineString")
       drawLine(a, qual);
+    if (qual < 8 && a.geometry.type == "Polygon")
+      drawLine(a, qual);    
   }
   print("....", points, "painted in", getTime()-t1, "sec");
 }
