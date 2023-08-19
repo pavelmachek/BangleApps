@@ -33,10 +33,10 @@
     else {g.setColor("#0f0");}
     g.fillRect(x+4,y+6,x+4+battery*(s-12)/100,y+17);
       if (1 || Bangle.isCharging()) {
-	let hy = y+8;
+	let hy = y+11;
 	let hx = x+s/2;
         let flash = [x+5,hy, hx-4,hy-1, hx,y+6, x+s-7,y+hy,
-                   hx+4,y+hy+1, hx,y+16];
+                   hx+4,y+hy+1, hx,y+17];
       g.setColor(g.theme.fg).fillPoly(flash);
       x+=16;
     }
