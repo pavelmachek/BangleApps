@@ -79,8 +79,8 @@ function paintWay(tags) {
 function zoomPolygon(tags) {
     var z = 99;
 
-    if (tags.landuse == "forest") z = 13;
-    if (tags.natural == "water") z = 13;
+    if (tags.landuse == "forest") z = 16;
+    if (tags.natural == "water") z = 17;
 
     return z;
 }
@@ -165,7 +165,7 @@ var merc = new sphm({
 console.log("Splitting data");
 var meta = {}
 meta.min_zoom = 0;
-meta.max_zoom = 13; // HERE
+meta.max_zoom = 17; // HERE
                  // = 16 ... split3 takes > 30 minutes
                  // = 13 ... 2 minutes
 var index = split(gjs, Object.assign({
