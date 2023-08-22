@@ -593,7 +593,7 @@ function newPolygon(tile, a) {
   let pol = [p1.x, p1.y];
   while (i < len) {  
     xy = a.geometry[0][i];
-    var p2 = toScreen;
+    var p2 = toScreen(tile, xy);
 
     pol.push(p2.x, p2.y);
     if (i == len-1)
