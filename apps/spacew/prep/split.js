@@ -141,7 +141,9 @@ function toGjson(name, d, tile) {
         if (tile.z < zoom)
             continue;
         f.properties = Object.assign({}, f.properties, p);
-        feat.push(f);
+        //feat.push(f); FIXME
+        a.properties = p
+	feat.push(a);
         var s = JSON.stringify(feat);
         if (s.length > 6000) {
             console.log("tile too big, splitting", cnt);
