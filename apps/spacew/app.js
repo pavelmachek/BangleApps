@@ -400,8 +400,7 @@ function emptyMap() {
 
 var gjson = null;
 
-function stringFromArray(data)
-{
+function stringFromArray(data) {
   var count = data.length;
   var str = "";
 
@@ -411,23 +410,24 @@ function stringFromArray(data)
   return str;
 }
 
+const st = require('Storage');
+const hs = require('heatshrink');
+
 function readTarFile(tar, f) {
-  const st = require('Storage');
-  const hs = require('heatshrink');
-  json_off = st.read(tar, 0, 16) * 1;
+  let json_off = st.read(tar, 0, 16) * 1;
   if (isNaN(json_off)) {
     print("Don't have archive", tar);
     return undefined;
   }
   while (1) {
-    json_len = st.read(tar, json_off, 6) * 1;
+    let json_len = st.read(tar, json_off, 6) * 1;
     if (json_len == -1)
       break;
     json_off += 6;
     let json = st.read(tar, json_off, json_len);
     //print("Have directory, ", json.length, "bytes");
     let files = JSON.parse(json);
-    rec = files[f];
+    let rec = files[f];
     if (rec) {
       let cs = st.read(tar, rec.st, rec.si);
       let d = stringFromArray(hs.decompress(cs));
