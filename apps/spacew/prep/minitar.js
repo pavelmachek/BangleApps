@@ -1,7 +1,8 @@
 #!/usr/bin/nodejs
 
+// https://stackoverflow.com/questions/49129643/how-do-i-merge-an-array-of-uint8arrays
+
 var pc = 1;
-var hack = 0;
 const hs = require('./heatshrink.js');
 
 if (pc) {
@@ -23,7 +24,7 @@ function writeTar(tar, dir) {
     var h_len = 16;
     var cur = h_len;
     files = fs.readdirSync(dir);
-    data = '';
+    let data = [];
     var directory = '';
     var json = {};
     for (f of files) {
@@ -32,7 +33,7 @@ function writeTar(tar, dir) {
         //cs = String.fromCharCode.apply(null, hs.compress(d))
         print("Processing", f, cur, d.length, cs.length);
         //if (d.length == 42) continue;
-        data = data + cs;
+        data.push(cs);
         var f_rec = {};
         f_rec.st = cur;
         var len = d.length;
@@ -53,10 +54,10 @@ function writeTar(tar, dir) {
     while (header.length < h_len) {
         header = header+' ';
     }
-    if (!hack)
-        fs.writeFileSync(tar, header+data+directory);
-    else
-        fs.writeFileSync(tar, directory);
+    fs.writeFileSync(tar, header);
+    for (d of data)
+	fs.appendFileSync(tar, Buffer.from(d));
+    fs.appendFileSync(tar, directory);
 }
 
 function readTarFile(tar, f) {
