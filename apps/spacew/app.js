@@ -402,6 +402,7 @@ var gjson = null;
 
 function readTarFile(tar, f) {
   const st = require('Storage');
+  const hs = require('heatshrink');
   json_off = st.read(tar, 0, 16) * 1;
   if (isNaN(json_off)) {
     print("Don't have archive", tar);
@@ -413,13 +414,18 @@ function readTarFile(tar, f) {
       break;
     json_off += 6;
     json = st.read(tar, json_off, json_len);
-    //print("Have directory, ", json.length, "bytes");
+    print("Have directory, ", json.length, "bytes");
   //print(json);
     files = JSON.parse(json);
   //print(files);
     rec = files[f];
-    if (rec)
-      return st.read(tar, rec.st, rec.si);
+    if (rec) {
+      cs = st.read(tar, rec.st, rec.si);
+      print("Have data", cs);
+      d = hs.decompress(cs);
+      print("Decompressed", d);
+      return d;
+    }
     json_off += json_len;
   }
   return undefined;
@@ -457,7 +463,6 @@ function drawPoint(a) {   /* FIXME: let... */
   g.drawString(a.properties.name, p.x, p.y);
   points ++;
 }
-
 function drawLine(a, qual) {
   lon = a.geometry.coordinates[0][0];
   lat = a.geometry.coordinates[0][1];
@@ -486,7 +491,6 @@ function drawLine(a, qual) {
     g.flip();
   }
 }
-
 function drawPolygon(a, qual) {
   lon = a.geometry.coordinates[0][0];
   lat = a.geometry.coordinates[0][1];

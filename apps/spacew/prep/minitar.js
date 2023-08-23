@@ -29,14 +29,14 @@ function writeTar(tar, dir) {
     var json = {};
     for (f of files) {
         d = fs.readFileSync(dir+f);
-        cs = d;
-        //cs = String.fromCharCode.apply(null, hs.compress(d))
+        //cs = d;
+        cs = hs.compress(d);
         print("Processing", f, cur, d.length, cs.length);
         //if (d.length == 42) continue;
         data.push(cs);
         var f_rec = {};
         f_rec.st = cur;
-        var len = d.length;
+        var len = cs.length;
         f_rec.si = len;
         cur = cur + len;
         json[f] = f_rec;
