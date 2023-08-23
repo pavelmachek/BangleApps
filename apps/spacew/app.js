@@ -424,16 +424,14 @@ function readTarFile(tar, f) {
     if (json_len == -1)
       break;
     json_off += 6;
-    json = st.read(tar, json_off, json_len);
-    print("Have directory, ", json.length, "bytes");
-  //print(json);
-    files = JSON.parse(json);
-  //print(files);
+    let json = st.read(tar, json_off, json_len);
+    //print("Have directory, ", json.length, "bytes");
+    let files = JSON.parse(json);
     rec = files[f];
     if (rec) {
-      cs = st.read(tar, rec.st, rec.si);
-      d = stringFromArray(hs.decompress(cs));
-      print("Decompressed", d);
+      let cs = st.read(tar, rec.st, rec.si);
+      let d = stringFromArray(hs.decompress(cs));
+      //print("Decompressed", d);
       return d;
     }
     json_off += json_len;
