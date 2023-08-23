@@ -430,9 +430,12 @@ function readTarFile(tar, f) {
     let rec = files[f];
     if (rec) {
       let cs = st.read(tar, rec.st, rec.si);
-      let d = stringFromArray(hs.decompress(cs));
-      //print("Decompressed", d);
-      return d;
+      if (rec.comp == "hs") {
+        let d = stringFromArray(hs.decompress(cs));
+        //print("Decompressed", d);
+        return d;
+      }
+      return cs;
     }
     json_off += json_len;
   }

@@ -28,13 +28,16 @@ function writeTar(tar, dir) {
     var directory = '';
     var json = {};
     for (f of files) {
+        let f_rec = {};
         d = fs.readFileSync(dir+f);
-        //cs = d;
-        cs = hs.compress(d);
+	if (0) {
+            cs = hs.compress(d);
+	    f_rec.comp = "hs";
+	} else
+            cs = d;
         print("Processing", f, cur, d.length, cs.length);
         //if (d.length == 42) continue;
         data.push(cs);
-        var f_rec = {};
         f_rec.st = cur;
         var len = cs.length;
         f_rec.si = len;
