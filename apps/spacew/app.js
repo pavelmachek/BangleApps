@@ -400,6 +400,17 @@ function emptyMap() {
 
 var gjson = null;
 
+function stringFromArray(data)
+{
+  var count = data.length;
+  var str = "";
+
+  for(var index = 0; index < count; index += 1)
+    str += String.fromCharCode(data[index]);
+
+  return str;
+}
+
 function readTarFile(tar, f) {
   const st = require('Storage');
   const hs = require('heatshrink');
@@ -421,8 +432,7 @@ function readTarFile(tar, f) {
     rec = files[f];
     if (rec) {
       cs = st.read(tar, rec.st, rec.si);
-      print("Have data", cs);
-      d = hs.decompress(cs);
+      d = stringFromArray(hs.decompress(cs));
       print("Decompressed", d);
       return d;
     }
