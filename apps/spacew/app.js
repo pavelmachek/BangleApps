@@ -531,13 +531,12 @@ function toScreen(tile, xy) {
 //  w, s, e, n, (x,y in 0..4096 range)
   let x = xy[0];
   let y = xy[1];
-  let r = {}
+  let r = {};
   r.x = ((x/4096) * (tile[2]-tile[0])) + tile[0];
   r.y = ((1-(y/4096)) * (tile[3]-tile[1])) + tile[1];
-  return m.latLonToXY(r.y, r.x);
+  return r;
 }
 function newPoint(tile, a) {  
-  print("Point:", a, "first=", a.geometry[0], "x=", a.geometry[0][0]);
   var p = toScreen(tile, a.geometry[0]);
   var sz = 2;
   if (a.properties["marker-color"]) {
@@ -630,10 +629,15 @@ function drawVector(gjson, tile, qual) {
   points = 0;
   var t1 = getTime();
   
+  let xy1 = m.latLonToXY(tile[1], tile[0]);
+  let xy2 = m.latLonToXY(tile[3], tile[2]);
+  let t2 = [ xy1.x, xy1.y, xy2.x, xy2.y ];
+  print(t2);
+  
   for (var a of d.features) {
     g.setColor(0,0,0);
     if (a.type != "Feature") {
-      newVector(tile, a);
+      newVector(t2, a);
       continue;
     }
     // marker-size, marker-color, stroke
