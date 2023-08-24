@@ -554,7 +554,7 @@ function toScreen(tile, xy) {
 function getBin(bin, i, prev) {
   let x = bin[i*3 + 0]<<4;
   let y = bin[i*3 + 1]<<4;
-  print("Point", x, y, bin);
+  //print("Point", x, y, bin);
   return [x, y];
 }
 function getBinLength(bin) {
