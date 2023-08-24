@@ -386,7 +386,7 @@ function emptyMap() {
       m.scale = 2;
       g.reset().clearRect(R);
       redraw(18);
-      print("Benchmark done (31 sec)");
+      print("Benchmark done");
     }
     };
     if (fix.fix) menu[/*LANG*/"Center GPS"]=() =>{
@@ -551,30 +551,36 @@ function toScreen(tile, xy) {
   r.y = ((1-(y/4096)) * (tile[3]-tile[1])) + tile[1];
   return r;
 }
+var d_off = 1;
 function getBin(bin, i, prev) {
-  let x = bin[i*3 + 0]<<4;
-  let y = bin[i*3 + 1]<<4;
+  let x = bin[i*3 + d_off  ]<<4;
+  let y = bin[i*3 + d_off+1]<<4;
   //print("Point", x, y, bin);
   return [x, y];
 }
 function getBinLength(bin) {
-  return bin.length / 3;
+  return (bin.length-d_off) / 3;
 }
-function newPoint(tile, a, bin) {  
+function newPoint(tile, a, rec, bin) {  
   var p = toScreen(tile, getBin(bin, 0, null));
   var sz = 2;
-  if (a.properties["marker-color"]) {
-    g.setColor(a.properties["marker-color"]);
-  }
+  print(a);
+  if (a.properties) {
+  //if (a.properties["marker-color"]) {
+  //  g.setColor(a.properties["marker-color"]);
+  //}
   if (a.properties.marker_size == "small")
     sz = 1;
   if (a.properties.marker_size == "large")
     sz = 4;
+  }
   
   g.fillRect(p.x-sz, p.y-sz, p.x+sz, p.y+sz);
-  g.setColor(0,0,0);
-  g.setFont("Vector", 18).setFontAlign(-1,-1);
-  g.drawString(a.tags.name, p.x, p.y);
+  if (a.tags) {
+    g.setColor(0,0,0);
+    g.setFont("Vector", 18).setFontAlign(-1,-1);
+    g.drawString(a.tags.name, p.x, p.y);
+  }
   points ++;
 }
 function newLine(tile, a, bin) {
@@ -583,7 +589,7 @@ function newLine(tile, a, bin) {
   let step = 1;
   let len = getBinLength(bin);
   let p1 = toScreen(tile, xy);
-  if (a.properties.stroke) {
+  if (a.properties && a.properties.stroke) {
     g.setColor(a.properties.stroke);
   }
   while (i < len) {  
@@ -626,23 +632,24 @@ function newPolygon(tile, a, bin) {
       i = len-1;
     points ++;
   }
-  if (a.properties.fill) {
+  if (a.properties && a.properties.fill) {
     g.setColor(a.properties.fill);
   } else {
     g.setColor(.75, .75, 1);
   }
   g.fillPoly(pol, true);
-  if (a.properties.stroke) {
+  if (a.properties && a.properties.stroke) {
     g.setColor(a.properties.stroke);
   } else {
     g.setColor(0,0,0)
   }
   g.drawPoly(pol, true);
 }
-function newVector(tile, a) {
-  let bin = E.toUint8Array(atob(a.bin));
+function newVector(tile, rec) {
+  let bin = E.toUint8Array(atob(rec.b));
+  a = meta.attrs[bin[0]];  
   if (a.type == 1) {
-    newPoint(tile, a, bin);
+    newPoint(tile, a, rec, bin);
   } else if (a.type == 2) {
     newLine(tile, a, bin);
   } else if (a.type == 3) {

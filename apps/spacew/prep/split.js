@@ -39,8 +39,9 @@ function clamp(i) {
 }
 
 function binGeom(tile, geom) {
-    let r = new Uint8Array(geom.length * 3);
-    let j = 0;
+    let off = 1;
+    let r = new Uint8Array(geom.length * 3 + off);
+    let j = off;
     for (i = 0; i< geom.length; i++) {
         let x = geom[i][0];
         let y = geom[i][1];
@@ -64,10 +65,27 @@ function zoomPoint(tags) {
     return z;
 }
 
+var meta = {};
+var ac = 0;
+meta.attrs = [];
+var a_town = ac++;
+meta.attrs[a_town] = {};
+meta.attrs[a_town].type = 1;
+var a_village = ac++;
+meta.attrs[a_village] = {};
+meta.attrs[a_village].type = 1;
+var a_way = ac++;
+meta.attrs[a_way] = {};
+meta.attrs[a_way].type = 2;
+var a_polygon = ac++;
+meta.attrs[a_polygon] = {};
+meta.attrs[a_polygon].type = 3;
+
 function paintPoint(tags) {
     var p = {};
 
-    if (tags.place == "village") p["marker-color"] = "#ff0000";
+    if (tags.place == "city" || tags.place == "town") { p.attr = a_town; }
+    if (tags.place == "village") { p.attr = a_village; p["marker-color"] = "#ff0000"; }
 
     return p;
 }
@@ -91,6 +109,7 @@ function zoomWay(tags) {
 function paintWay(tags) {
     var p = {};
 
+    p.attr = a_way;
     if (tags.highway == "motorway" || tags.highway == "primary") /* ok */;
     if (tags.highway == "secondary" || tags.highway == "tertiary") p.stroke = "#0000ff";
     if (tags.highway == "tertiary" || tags.highway == "unclassified" || tags.highway == "residential") p.stroke = "#00ff00";
@@ -113,6 +132,7 @@ function zoomPolygon(tags) {
 function paintPolygon(tags) {
     var p = {};
 
+    p.attr = a_polygon;
     if (tags.landuse == "forest") { p.fill = "#c0ffc0"; }
     if (tags.natural == "water") { p.fill = "#c0c0ff"; }
 
@@ -182,16 +202,15 @@ function toGjson(name, d, tile) {
             continue;
         f.properties = Object.assign({}, f.properties, p);
         //feat.push(f); FIXME
-	b.bin = btoa(bin);
+	bin[0] = p.attr;
+	b.b = btoa(bin);
 	b.tags = {};
 	b.tags.name = a.tags.name;
-	b.type = a.type;
 	//delete(a.tags.highway);
 	//delete(a.tags.landuse);
 	//delete(a.tags.natural);
 	//delete(a.tags.place);
-	
-        b.properties = p
+	//        b.properties = p
 	feat.push(b);
         var s = JSON.stringify(feat);
         if (s.length > 6000) {
@@ -215,7 +234,6 @@ var merc = new sphm({
 });
 
 console.log("Splitting data");
-var meta = {}
 meta.min_zoom = 0;
 meta.max_zoom = 15; // HERE
                  // = 16 ... split3 takes > 30 minutes
