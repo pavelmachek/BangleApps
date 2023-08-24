@@ -564,15 +564,14 @@ function getBinLength(bin) {
 function newPoint(tile, a, rec, bin) {  
   var p = toScreen(tile, getBin(bin, 0, null));
   var sz = 2;
-  print(a);
   if (a.properties) {
-  //if (a.properties["marker-color"]) {
-  //  g.setColor(a.properties["marker-color"]);
-  //}
-  if (a.properties.marker_size == "small")
-    sz = 1;
-  if (a.properties.marker_size == "large")
-    sz = 4;
+    if (a.properties["marker-color"]) {
+      g.setColor(a.properties["marker-color"]);
+    }
+    if (a.properties.marker_size == "small")
+      sz = 1;
+    if (a.properties.marker_size == "large")
+      sz = 4;
   }
   
   g.fillRect(p.x-sz, p.y-sz, p.x+sz, p.y+sz);
