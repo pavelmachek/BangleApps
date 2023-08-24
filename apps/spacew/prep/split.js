@@ -121,14 +121,15 @@ function paintPolygon(tags) {
 
 function writeFeatures(name, feat)
 {
-    if (1) {
+    if (0) {
 	var n = {};
 	n.type = "FeatureCollection";
 	n.features = feat;
     
 	fs.writeFile(name+'.json', JSON.stringify(n), on_error);
     } else {
-	fs.writeFile(name+'.json', JSON.stringify(feat), on_error);
+	if (feat.length > 0)
+	    fs.writeFile(name+'.json', JSON.stringify(feat), on_error);
     }
 }
 

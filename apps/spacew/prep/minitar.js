@@ -36,7 +36,6 @@ function writeTar(tar, dir) {
 	} else
             cs = d;
         print("Processing", f, cur, d.length, cs.length);
-        //if (d.length == 42) continue;
         data.push(cs);
         f_rec.st = cur;
         var len = cs.length;
