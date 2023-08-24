@@ -640,7 +640,7 @@ function newPolygon(tile, a, bin) {
   g.drawPoly(pol, true);
 }
 function newVector(tile, a) {
-  let bin = E.toUint8Array(atob(a.bin_geom));
+  let bin = E.toUint8Array(atob(a.bin));
   if (a.type == 1) {
     newPoint(tile, a, bin);
   } else if (a.type == 2) {

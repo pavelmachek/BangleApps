@@ -30,12 +30,22 @@ function convGeom(tile, geom) {
     return g;
 }
 
+function clamp(i) {
+    if (i<0)
+	return 0;
+    if (i>4095)
+	return 4095;
+    return i;
+}
+
 function binGeom(tile, geom) {
     let r = new Uint8Array(geom.length * 3);
     let j = 0;
     for (i = 0; i< geom.length; i++) {
-        var x = geom[i][0];
-        var y = geom[i][1];
+        let x = geom[i][0];
+        let y = geom[i][1];
+	x = clamp(x);
+	y = clamp(y);
 	r[j++] = x >> 4;
 	r[j++] = y >> 4;
 	r[j++] = (x & 0x0f) + ((y & 0x0f) << 4);
@@ -166,7 +176,7 @@ function toGjson(name, d, tile) {
             continue;
         f.properties = Object.assign({}, f.properties, p);
         //feat.push(f); FIXME
-	a.bin_geom = btoa(bin);
+	a.bin = btoa(bin);
 	a.geometry = [];
         a.properties = p
 	feat.push(a);
@@ -202,6 +212,7 @@ var index = split(gjs, Object.assign({
     indexMaxZoom: meta.max_zoom,
     indexMaxPoints: 0,
     tolerance: 30,
+    buffer: 0,
 }), {});
 console.log("Producing output");
 
