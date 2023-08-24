@@ -30,6 +30,20 @@ function convGeom(tile, geom) {
     return g;
 }
 
+function binGeom(tile, geom) {
+    let r = new Uint8Array(geom.length * 3);
+    let j = 0;
+    for (i = 0; i< geom.length; i++) {
+        var x = geom[i][0];
+        var y = geom[i][1];
+	r[j++] = x >> 4;
+	r[j++] = y >> 4;
+	r[j++] = (x & 0x0f) + ((y & 0x0f) << 4);
+    }
+
+    return r;
+}
+
 function zoomPoint(tags) {
     var z = 99;
 
@@ -104,6 +118,12 @@ function writeFeatures(name, feat)
     fs.writeFile(name+'.json', JSON.stringify(n), on_error);
 }
 
+function btoa(s) {
+    return Buffer.from(s).toString('base64');
+}
+
+// E.toString()
+
 function toGjson(name, d, tile) {
     var cnt = 0;
     var feat = [];
@@ -111,17 +131,20 @@ function toGjson(name, d, tile) {
         var f = {};
         var zoom = 99;
         var p = {};
+	var bin = [];
         f.properties = a.tags;
         f.type = "Feature";
         f.geometry = {};
         if (a.type == 1) {
             f.geometry.type = "Point";
             f.geometry.coordinates = convGeom(tile, a.geometry)[0];
+	    bin = binGeom(tile, a.geometry);
             zoom = zoomPoint(a.tags);
             p = paintPoint(a.tags);
         } else if (a.type == 2) {
             f.geometry.type = "LineString";
             f.geometry.coordinates = convGeom(tile, a.geometry[0]);
+	    bin = binGeom(tile, a.geometry[0]);
             zoom = zoomWay(a.tags);
             p = paintWay(a.tags);	    
 	    if (zoom == 99) {
@@ -132,6 +155,7 @@ function toGjson(name, d, tile) {
         } else if (a.type == 3) {
             f.geometry.type = "Polygon";
             f.geometry.coordinates = convGeom(tile, a.geometry[0]);
+	    bin = binGeom(tile, a.geometry[0]);
             zoom = zoomPolygon(a.tags);
             p = paintPolygon(a.tags);
 	} else {
@@ -142,6 +166,8 @@ function toGjson(name, d, tile) {
             continue;
         f.properties = Object.assign({}, f.properties, p);
         //feat.push(f); FIXME
+	a.bin_geom = btoa(bin);
+	a.geometry = [];
         a.properties = p
 	feat.push(a);
         var s = JSON.stringify(feat);

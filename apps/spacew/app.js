@@ -551,8 +551,17 @@ function toScreen(tile, xy) {
   r.y = ((1-(y/4096)) * (tile[3]-tile[1])) + tile[1];
   return r;
 }
-function newPoint(tile, a) {  
-  var p = toScreen(tile, a.geometry[0]);
+function getBin(bin, i, prev) {
+  let x = bin[i*3 + 0]<<4;
+  let y = bin[i*3 + 1]<<4;
+  print("Point", x, y, bin);
+  return [x, y];
+}
+function getBinLength(bin) {
+  return bin.length / 3;
+}
+function newPoint(tile, a, bin) {  
+  var p = toScreen(tile, getBin(bin, 0, null));
   var sz = 2;
   if (a.properties["marker-color"]) {
     g.setColor(a.properties["marker-color"]);
@@ -568,17 +577,17 @@ function newPoint(tile, a) {
   g.drawString(a.tags.name, p.x, p.y);
   points ++;
 }
-function newLine(tile, a) {
-  let xy = a.geometry[0][0];
+function newLine(tile, a, bin) {
+  let xy = getBin(bin, 0, null);
   let i = 1;
   let step = 1;
-  let len = a.geometry[0].length;
+  let len = getBinLength(bin);
   let p1 = toScreen(tile, xy);
   if (a.properties.stroke) {
     g.setColor(a.properties.stroke);
   }
   while (i < len) {  
-    xy = a.geometry[0][i];
+    xy = getBin(bin, i, xy);
     var p2 = toScreen(tile, xy);
 
     //print(p1.x, p1.y, p2.x, p2.y);
@@ -593,11 +602,11 @@ function newLine(tile, a) {
     g.flip();
   }
 }
-function newPolygon(tile, a) {
-  let xy = a.geometry[0][0];
+function newPolygon(tile, a, bin) {
+  let xy = getBin(bin, 0, null);
   i = 1;
   step = 1;
-  len = a.geometry[0].length;
+  len = getBinLength(bin);
   if (len > 62) {
     step = log2(len) - 5;
     step = 1<<step;
@@ -606,7 +615,7 @@ function newPolygon(tile, a) {
   var p1 = toScreen(tile, xy);
   let pol = [p1.x, p1.y];
   while (i < len) {  
-    xy = a.geometry[0][i];
+    xy = getBin(bin, i, xy); // FIXME... when skipping
     var p2 = toScreen(tile, xy);
 
     pol.push(p2.x, p2.y);
@@ -631,12 +640,13 @@ function newPolygon(tile, a) {
   g.drawPoly(pol, true);
 }
 function newVector(tile, a) {
+  let bin = E.toUint8Array(atob(a.bin_geom));
   if (a.type == 1) {
-    newPoint(tile, a);
+    newPoint(tile, a, bin);
   } else if (a.type == 2) {
-    newLine(tile, a);
+    newLine(tile, a, bin);
   } else if (a.type == 3) {
-    newPolygon(tile, a);
+    newPolygon(tile, a, bin);
   } else print("Unknown record", a);
 }
 function drawVector(gjson, tile, qual) {
