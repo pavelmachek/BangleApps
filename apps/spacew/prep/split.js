@@ -121,11 +121,15 @@ function paintPolygon(tags) {
 
 function writeFeatures(name, feat)
 {
-    var n = {};
-    n.type = "FeatureCollection";
-    n.features = feat;
+    if (1) {
+	var n = {};
+	n.type = "FeatureCollection";
+	n.features = feat;
     
-    fs.writeFile(name+'.json', JSON.stringify(n), on_error);
+	fs.writeFile(name+'.json', JSON.stringify(n), on_error);
+    } else {
+	fs.writeFile(name+'.json', JSON.stringify(feat), on_error);
+    }
 }
 
 function btoa(s) {
@@ -138,7 +142,8 @@ function toGjson(name, d, tile) {
     var cnt = 0;
     var feat = [];
     for (var a of d) {
-        var f = {};
+        let f = {};	// geojson output
+	let b = {};     // moving towards binary output 
         var zoom = 99;
         var p = {};
 	var bin = [];
@@ -176,10 +181,17 @@ function toGjson(name, d, tile) {
             continue;
         f.properties = Object.assign({}, f.properties, p);
         //feat.push(f); FIXME
-	a.bin = btoa(bin);
-	a.geometry = [];
-        a.properties = p
-	feat.push(a);
+	b.bin = btoa(bin);
+	b.tags = {};
+	b.tags.name = a.tags.name;
+	b.type = a.type;
+	//delete(a.tags.highway);
+	//delete(a.tags.landuse);
+	//delete(a.tags.natural);
+	//delete(a.tags.place);
+	
+        b.properties = p
+	feat.push(b);
         var s = JSON.stringify(feat);
         if (s.length > 6000) {
             console.log("tile too big, splitting", cnt);
