@@ -659,7 +659,7 @@ function drawVector(gjson, tile, qual) {
   let t2 = [ xy1.x, xy1.y, xy2.x, xy2.y ];
   print(t2);
   
-  for (var a of d.features) {
+  for (var a of d) { // d.features for geojson
     g.setColor(0,0,0);
     if (a.type != "Feature") {
       newVector(t2, a);
