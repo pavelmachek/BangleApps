@@ -6,7 +6,7 @@ if [ ".$1" == ".-f" ]; then
 fi
 ln -sf ne_10m_admin_0_sovereignty.json delme.json
 rm -r delme/; mkdir delme
-./split.js
+./split.js --maxz 5
 ./minitar.js
 ls -lS delme/*.json  | head -20
 cat delme/* | wc -c

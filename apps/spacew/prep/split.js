@@ -124,6 +124,8 @@ function paintWay(tags) {
 function zoomPolygon(tags) {
     var z = 99;
 
+    if (tags.scalerank == 0) z = 0;
+
     if (tags.landuse == "forest") z = 16;
     if (tags.natural == "water") z = 16;
 
@@ -169,6 +171,8 @@ function toGjson(name, d, tile) {
         var zoom = 99;
         var p = {};
 	var bin = [];
+	if (!a.tags)
+	    a.tags = a.properties;
         f.properties = a.tags;
         f.type = "Feature";
         f.geometry = {};
