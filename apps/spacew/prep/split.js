@@ -97,11 +97,11 @@ function zoomWay(tags) {
     if (tags.highway == "primary") z = 9;
     if (tags.highway == "secondary") z = 13;
     if (tags.highway == "tertiary") z = 14;
-    if (tags.highway == "unclassified") z = 16;
-    if (tags.highway == "residential") z = 17;
-    if (tags.highway == "track") z = 17;
-    if (tags.highway == "path") z = 17;
-    if (tags.highway == "footway") z = 17;
+    if (tags.highway == "unclassified") z = 15;
+    if (tags.highway == "residential") z = 15;
+    if (tags.highway == "track") z = 15;
+    if (tags.highway == "path") z = 16;
+    if (tags.highway == "footway") z = 16;
 
     return z;
 }
@@ -123,8 +123,7 @@ function zoomPolygon(tags) {
     var z = 99;
 
     if (tags.landuse == "forest") z = 16;
-    if (tags.natural == "water") z = 17;
-    z -= 1;
+    if (tags.natural == "water") z = 16;
 
     return z;
 }
@@ -235,7 +234,7 @@ var merc = new sphm({
 
 console.log("Splitting data");
 meta.min_zoom = 0;
-meta.max_zoom = 15; // HERE
+meta.max_zoom = 16; // HERE
                  // = 16 ... split3 takes > 30 minutes
                  // = 13 ... 2 minutes
 var index = split(gjs, Object.assign({

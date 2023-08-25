@@ -4,7 +4,8 @@ if [ ".$1" == ".-f" ]; then
     #I=/data/gis/osm/dumps/zernovka.osm.bz2
     O=cr.geojson
     rm delme.pbf $O
-    time osmium extract $I --bbox 14.7,49.9,14.8,50.1 -f pbf -o delme.pbf
+    #time osmium extract $I --bbox 14.7,49.9,14.8,50.1 -f pbf -o delme.pbf
+    time osmium extract $I --bbox 14.6,49.7,14.9,50.1 -f pbf -o delme.pbf
     time osmium export delme.pbf -c prepare.json -o $O
     echo "Converting to ascii"
     time cstocs utf8 ascii cr.geojson  > cr_ascii.geojson
