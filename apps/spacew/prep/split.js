@@ -6,7 +6,9 @@
 
 const fs = require('fs');
 const sphm = require('./sphericalmercator.js');
-var split = require('geojson-vt')
+var split = require('geojson-vt');
+const process = require('process');
+
 
 // delme.json needs to be real file, symlink to geojson will not work
 console.log("Loading json");
@@ -236,7 +238,16 @@ console.log("Splitting data");
 meta.min_zoom = 0;
 meta.max_zoom = 16; // HERE
                  // = 16 ... split3 takes > 30 minutes
-                 // = 13 ... 2 minutes
+		 // = 13 ... 2 minutes
+if (process.argv[2] == "-h") {
+    console.log("help here");
+    process.exit(0);
+}
+if (process.argv[2] == "--maxz") {
+    meta.max_zoom = 1*process.argv[3];
+    console.log("... max zoom", meta.max_zoom);
+}
+
 var index = split(gjs, Object.assign({
     maxZoom: meta.max_zoom,
     indexMaxZoom: meta.max_zoom,
