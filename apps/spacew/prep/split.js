@@ -11,8 +11,6 @@ const process = require('process');
 
 
 // delme.json needs to be real file, symlink to geojson will not work
-console.log("Loading json");
-var gjs = require("./delme.json");
 
 function tileToLatLon(x, y, z, x_, y_) {
     var [ w, s, e, n ] = merc.bbox(x, y, z);
@@ -60,6 +58,8 @@ function binGeom(tile, geom) {
 function zoomPoint(tags) {
     var z = 99;
 
+    if (tags.scalerank == 0) z = 0;
+
     if (tags.place == "city") z = 4;
     if (tags.place == "town") z = 8;
     if (tags.place == "village") z = 10;
@@ -94,6 +94,8 @@ function paintPoint(tags) {
 
 function zoomWay(tags) {
     var z = 99;
+
+    if (tags.scalerank == 0) z = 0;
 
     if (tags.highway == "motorway") z = 7;
     if (tags.highway == "primary") z = 9;
@@ -250,6 +252,22 @@ if (process.argv[2] == "-h") {
 if (process.argv[2] == "--maxz") {
     meta.max_zoom = 1*process.argv[3];
     console.log("... max zoom", meta.max_zoom);
+}
+if (process.argv[2] == "--world") {
+    console.log("Loading world");
+    meta.max_zoom = 5;
+    var g_sovereign = require("./ne_10m_admin_0_sovereignty.json");
+    var g_labels = require("./ne_10m_admin_0_label_points.json");
+    var g_places = require("./ne_10m_populated_places_simple.json");
+
+    gjs = {}
+    gjs.type = "FeatureCollection";
+    //gjs.features = g_sovereign.features + g_labels.features + g_places.features;
+    gjs.features = g_sovereign.features.concat(g_labels.features).concat(g_places.features);
+    console.log(gjs);
+} else {
+    console.log("Loading json");
+    gjs = require("./delme.json");
 }
 
 var index = split(gjs, Object.assign({
