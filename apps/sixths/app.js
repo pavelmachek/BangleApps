@@ -28,12 +28,10 @@ function toMorse(x) {
   }
   return r;
 }
-
 function aload(s) {
   buzz += toMorse(' E');
   load(s);
 }
-
 function gpsRestart() {
   print("gpsRestart");
   Bangle.setGPSPower(1, "sixths");
@@ -41,14 +39,12 @@ function gpsRestart() {
   last_pause = 0;
   last_fstart = 0;
 }
-
 function gpsPause() {
   print("gpsPause");
   Bangle.setGPSPower(0, "sixths");
   last_restart = 0;
   last_pause = getTime();
 }
-
 function gpsOn() {
   gps_on = getTime();
   gps_needed = 1000;
@@ -58,12 +54,10 @@ function gpsOn() {
   gps_dist = 0;
   gpsRestart();
 }
-
 function gpsOff() {
   Bangle.setGPSPower(0, "sixths");
   gps_on = 0;
 }
-
 function inputHandler(s) {
   print("Ascii: ", s);
   if (mode == 1) {
@@ -96,7 +90,6 @@ function inputHandler(s) {
     case 'R': aload("run.app.js"); break;
   }
 }
-
 const morseDict = {
     '.-': 'A',
     '-...': 'B',
@@ -135,29 +128,22 @@ const morseDict = {
     '-....': '6',
     '-----': '0',
   };
-
 let asciiDict = {};
-
 for (let k in morseDict) {
   print(k, morseDict[k]);
   asciiDict[morseDict[k]] = k;
 }
-
-
 function morseToAscii(morse) {
   return morseDict[morse];
 }
-
 function asciiToMorse(char) {
   return asciiDict[char];
 }
-
 function morseHandler() {
   inputHandler(morseToAscii(inm));
   inm = "";
   l = "";
 }
-
 function touchHandler(d) {
   let x = Math.floor(d.x);
   let y = Math.floor(d.y);
@@ -189,7 +175,6 @@ function touchHandler(d) {
 
   print(inm, "drag:", d);
 }
-
 function add0(i) {
   if (i > 9) {
     return ""+i;
@@ -197,18 +182,14 @@ function add0(i) {
     return "0"+i;
   }
 }
-
 var lastHour = -1, lastMin = -1;
-
 function logstamp(s) {
     logfile.write("utime=" + getTime() + " " + s + "\n");
 }
-
 function loggps(fix) {
   logfile.write(fix.lat + " " + fix.lon + " ");
   logstamp("");
 }
-
 function hourly() {
   print("hourly");
   s = ' T';
@@ -216,7 +197,6 @@ function hourly() {
     buzz += toMorse(s);
   logstamp("");
 }
-
 function fivemin() {
   print("fivemin");
   s = ' B';
@@ -235,7 +215,6 @@ function fivemin() {
   }
    
 }
-
 function every(now) {
   if ((mode > 0) && (mode_time - getTime() > 60)) {
     if (mode == 1) {
@@ -268,7 +247,6 @@ function calcDistance(a,b) {
   var y = radians(b.lat-a.lat);
   return Math.sqrt(x*x + y*y) * 6371000;
 }
-
 function draw() {
   g.setColor(1, 1, 1);
   g.fillRect(0, 25, W, H);
@@ -349,7 +327,6 @@ function draw() {
   }
   queueDraw();
 }
-
 function draw_all() {
   g.setColor(0, 0, 0);
   g.fillRect(0, 0, W, H);
@@ -406,7 +383,6 @@ function draw_all() {
 
   queueDraw();
 }
-
 function accelTask() {
   tm = 100;
   acc = Bangle.getAccel();
@@ -429,7 +405,6 @@ function accelTask() {
 
   setTimeout(accelTask, tm);
 }
-
 function buzzTask() {
   if (buzz != "") {
     now = buzz[0];
@@ -449,7 +424,6 @@ function buzzTask() {
   } else
   setTimeout(buzzTask, 60000);
 }
-
 function aliveTask() {
   function cmp(s) {
     let d = acc[s] - last_acc[s];
@@ -481,7 +455,6 @@ function queueDraw() {
   }, next - (Date.now() % next));
 
 }
-
 function start() {
   Bangle.on("drag", touchHandler);
   if (0)
