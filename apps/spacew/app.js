@@ -575,10 +575,10 @@ function newPoint(tile, a, rec, bin) {
   }
   
   g.fillRect(p.x-sz, p.y-sz, p.x+sz, p.y+sz);
-  if (a.tags) {
+  if (rec.tags) {
     g.setColor(0,0,0);
     g.setFont("Vector", 18).setFontAlign(-1,-1);
-    g.drawString(a.tags.name, p.x, p.y);
+    g.drawString(rec.tags.name, p.x, p.y);
   }
   points ++;
 }
