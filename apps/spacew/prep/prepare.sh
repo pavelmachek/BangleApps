@@ -12,10 +12,12 @@ Z=
 #BBOX=16.13,60,35,30
 #Z="--maxz 9"
 # Roudnice az Kutna hora -- band 1.1 deg -- 145MB delme.pbf, 5m cstocs, 40+m split.
+#                        -- band 0.1 deg -- 13MB delme.pbf, 13s split, 21k result.
 #BBOX=14.20,50.45,15.32,49.20
 #Z="--maxz 9"
-# XX az Kutna hora -- band 0.1 deg -- 13MB delme.pbf, 13s split, 21k result.
-#BBOX=15.20,50.45,15.32,49.20
+# Roudnice az... -- band 0.5 deg --  91MB delme.pbf, 200k result.
+# Roudnice az... -- band 0.8 deg -- 120MB delme.pbf, 2.5GB while splitting, 260k result.
+#BBOX=14.20,50.45,15.0,49.20
 #Z="--maxz 9"
 # Prague; 1.2MB map, not really useful
 #BBOX=14.25,50.17,14.61,49.97
