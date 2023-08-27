@@ -85,12 +85,22 @@ var a_secondary = ++ac;
 meta.attrs[ac] = {};
 meta.attrs[ac].type = 2;
 meta.attrs[ac].properties = {};
-meta.attrs[ac].properties.stroke = "#400000";
+meta.attrs[ac].properties.stroke = "#000040";
 var a_tertiary = ++ac;
 meta.attrs[ac] = {};
 meta.attrs[ac].type = 2;
 meta.attrs[ac].properties = {};
-meta.attrs[ac].properties.stroke = "#800000";
+meta.attrs[ac].properties.stroke = "#000080";
+var a_track = ++ac;
+meta.attrs[ac] = {};
+meta.attrs[ac].type = 2;
+meta.attrs[ac].properties = {};
+meta.attrs[ac].properties.stroke = "#404040";
+var a_path = ++ac;
+meta.attrs[ac] = {};
+meta.attrs[ac].type = 2;
+meta.attrs[ac].properties = {};
+meta.attrs[ac].properties.stroke = "#408040";
 var a_polygon = ++ac;
 meta.attrs[ac] = {};
 meta.attrs[ac].type = 3;
@@ -139,8 +149,8 @@ function paintWay(tags) {
     if (tags.highway == "motorway" || tags.highway == "primary") /* ok */;
     if (tags.highway == "secondary" || tags.highway == "tertiary") { p.stroke = "#0000ff"; p.attr = a_secondary; }
     if (tags.highway == "tertiary" || tags.highway == "unclassified" || tags.highway == "residential") { p.stroke = "#00ff00"; p.attr = a_tertiary; }
-    if (tags.highway == "track") p.stroke = "#ff0000";
-    if (tags.highway == "path" || tags.highway == "footway") p.stroke = "#800000";
+    if (tags.highway == "track") { p.stroke = "#ff0000"; p.attr = a_track; }
+    if (tags.highway == "path" || tags.highway == "footway") { p.stroke = "#800000"; p.attr = a_path; }
 
     return p;
 }
