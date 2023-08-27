@@ -77,10 +77,20 @@ var a_village = ++ac
 meta.attrs[ac] = {};
 meta.attrs[ac].type = 1;
 meta.attrs[ac].properties = {};
-meta.attrs[ac].properties["marker-color"] = "#c0ffc0";
+meta.attrs[ac].properties["marker-color"] = "#800000";
 var a_way = ++ac;
 meta.attrs[ac] = {};
 meta.attrs[ac].type = 2;
+var a_secondary = ++ac;
+meta.attrs[ac] = {};
+meta.attrs[ac].type = 2;
+meta.attrs[ac].properties = {};
+meta.attrs[ac].properties.stroke = "#400000";
+var a_tertiary = ++ac;
+meta.attrs[ac] = {};
+meta.attrs[ac].type = 2;
+meta.attrs[ac].properties = {};
+meta.attrs[ac].properties.stroke = "#800000";
 var a_polygon = ++ac;
 meta.attrs[ac] = {};
 meta.attrs[ac].type = 3;
@@ -88,6 +98,11 @@ var a_forest = ++ac;
 meta.attrs[ac] = {};
 meta.attrs[ac].properties = {};
 meta.attrs[ac].properties.fill = "#c0ffc0";
+meta.attrs[ac].type = 3;
+var a_water = ++ac;
+meta.attrs[ac] = {};
+meta.attrs[ac].properties = {};
+meta.attrs[ac].properties.fill = "#c0c0ff";
 meta.attrs[ac].type = 3;
 
 function paintPoint(tags) {
@@ -122,8 +137,8 @@ function paintWay(tags) {
 
     p.attr = a_way;
     if (tags.highway == "motorway" || tags.highway == "primary") /* ok */;
-    if (tags.highway == "secondary" || tags.highway == "tertiary") p.stroke = "#0000ff";
-    if (tags.highway == "tertiary" || tags.highway == "unclassified" || tags.highway == "residential") p.stroke = "#00ff00";
+    if (tags.highway == "secondary" || tags.highway == "tertiary") { p.stroke = "#0000ff"; p.attr = a_secondary; }
+    if (tags.highway == "tertiary" || tags.highway == "unclassified" || tags.highway == "residential") { p.stroke = "#00ff00"; p.attr = a_tertiary; }
     if (tags.highway == "track") p.stroke = "#ff0000";
     if (tags.highway == "path" || tags.highway == "footway") p.stroke = "#800000";
 
@@ -146,7 +161,7 @@ function paintPolygon(tags) {
 
     p.attr = a_polygon;
     if (tags.landuse == "forest") { p.fill = "#c0ffc0"; p.attr = a_forest; }
-    if (tags.natural == "water") { p.fill = "#c0c0ff"; }
+    if (tags.natural == "water") { p.fill = "#c0c0ff"; p.attr = a_water; }
 
     return p;
 }
