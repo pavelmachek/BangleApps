@@ -14,6 +14,7 @@ var gps_dist = 0;
 
 var is_active = false;
 var cur_altitude = 0, cur_temperature = 0, alt_adjust = 0;
+var alt_adjust_mode = "";
 const rest_altitude = 354;
 
 function toMorse(x) {
@@ -251,6 +252,9 @@ function draw() {
   g.setColor(1, 1, 1);
   g.fillRect(0, 25, W, H);
   g.setFont('Vector', 60);
+  
+  g.setColor(0.25, 1, 1);
+  g.fillPoly([ W/2, 25, W, 80, 0, 80 ]);
 
   g.setColor(0, 0, 0);
   g.setFontAlign(1, 1);
@@ -320,9 +324,10 @@ function draw() {
   }
   g.drawString(msg, 10, 145);
   if (is_active) {
-    g.drawString("act " + (cur_altitude - alt_adjust).toFixed(0), 10, 175);
+    g.drawString(alt_adjust_mode+") "+(cur_altitude - alt_adjust).toFixed(0) + "m", 10, 175);
   } else {
     alt_adjust = cur_altitude - rest_altitude;
+    alt_adjust_mode = "h";
     g.drawString(alt_adjust.toFixed(0) + "m " + cur_temperature.toFixed(1)+"C", 10, 175);
   }
   queueDraw();
