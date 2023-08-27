@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # http://bboxfinder.com/#0.000000,0.000000,0.000000,0.000000
-
+Z=
 # Czech republic -- hitting internal limit in nodejs
 #BBOX=10,60,20,30
 #Z="--maxz 9"
@@ -12,16 +12,16 @@
 #BBOX=16.13,60,35,30
 #Z="--maxz 9"
 # Roudnice az Kutna hora -- band 1.1 deg -- 145MB delme.pbf, 5m cstocs, 40+m split.
-BBOX=14.20,50.45,15.32,49.20
-Z="--maxz 9"
+#BBOX=14.20,50.45,15.32,49.20
+#Z="--maxz 9"
 # XX az Kutna hora -- band 0.1 deg -- 13MB delme.pbf, 13s split, 21k result.
-BBOX=15.20,50.45,15.32,49.20
-Z="--maxz 9"
+#BBOX=15.20,50.45,15.32,49.20
+#Z="--maxz 9"
 # Prague; 1.2MB map, not really useful
 #BBOX=14.25,50.17,14.61,49.97
 #Z="--maxz 14"
-# Zernovka small -- ~850K
-#BBOX=14.7,49.9,14.8,50.1
+# Zernovka small -- 3.5 delme.pbf, ~850K result.
+BBOX=14.7,49.9,14.8,50.1
 # Zernovka big
 #BBOX=14.6,49.7,14.9,50.1
 
