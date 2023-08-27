@@ -226,11 +226,14 @@ function fivemin() {
       if (is_active)
         buzz += toMorse(s);
   }
-  if (0)
+  try {
     Bangle.getPressure().then((x) => { cur_altitude = x.altitude;
                                      cur_temperature = x.temperature; },
-                                 print)
-      .catch(print);
+                              print);
+  } catch (e) {
+    print("Altimeter error", e);
+  }
+   
 }
 
 function every(now) {
@@ -272,14 +275,15 @@ function draw() {
   g.setFont('Vector', 60);
 
   g.setColor(0, 0, 0);
-  g.setFontAlign(-1, 1);
+  g.setFontAlign(1, 1);
   let now = new Date();
-  g.drawString(now.getHours() + ":" + add0(now.getMinutes()), 10, 90);
+  g.drawString(now.getHours() + ":" + add0(now.getMinutes()), W, 90);
 
   every(now);
 
   let km = 0.001 * 0.719 * Bangle.getHealthStatus("day").steps;
 
+  g.setFontAlign(-1, 1);
   g.setFont('Vector', 26);
 
   const weekday = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
