@@ -68,20 +68,27 @@ function zoomPoint(tags) {
 }
 
 var meta = {};
-var ac = 0;
+var ac = -1;
 meta.attrs = [];
-var a_town = ac++;
-meta.attrs[a_town] = {};
-meta.attrs[a_town].type = 1;
-var a_village = ac++;
-meta.attrs[a_village] = {};
-meta.attrs[a_village].type = 1;
-var a_way = ac++;
-meta.attrs[a_way] = {};
-meta.attrs[a_way].type = 2;
-var a_polygon = ac++;
-meta.attrs[a_polygon] = {};
-meta.attrs[a_polygon].type = 3;
+var a_town = ++ac;
+meta.attrs[ac] = {};
+meta.attrs[ac].type = 1;
+var a_village = ++ac
+meta.attrs[ac] = {};
+meta.attrs[ac].type = 1;
+meta.attrs[ac].properties = {};
+meta.attrs[ac].properties["marker-color"] = "#c0ffc0";
+var a_way = ++ac;
+meta.attrs[ac] = {};
+meta.attrs[ac].type = 2;
+var a_polygon = ++ac;
+meta.attrs[ac] = {};
+meta.attrs[ac].type = 3;
+var a_forest = ++ac;
+meta.attrs[ac] = {};
+meta.attrs[ac].properties = {};
+meta.attrs[ac].properties.fill = "#c0ffc0";
+meta.attrs[ac].type = 3;
 
 function paintPoint(tags) {
     var p = {};
@@ -138,7 +145,7 @@ function paintPolygon(tags) {
     var p = {};
 
     p.attr = a_polygon;
-    if (tags.landuse == "forest") { p.fill = "#c0ffc0"; }
+    if (tags.landuse == "forest") { p.fill = "#c0ffc0"; p.attr = a_forest; }
     if (tags.natural == "water") { p.fill = "#c0c0ff"; }
 
     return p;
