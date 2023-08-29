@@ -2,7 +2,6 @@ const W = g.getWidth();
 const H = g.getHeight();
 
 var cx = 100; cy = 105; sc = 70;
-var buzz = "", msg = "";
 temp = 0; alt = 0; bpm = 0;
 var buzz = "", msg = "", inm = "", l = "", note = "(NOTEHERE)";
 var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note
@@ -202,10 +201,10 @@ function fivemin() {
   print("fivemin");
   s = ' B';
   bat = E.getBattery();
-  if (bat < 45) {
-      s = s+(bat/5);
+  if (bat < 25) {
       if (is_active)
         buzz += toMorse(s);
+      note = "Bat "+25+"%";
   }
   try {
     Bangle.getPressure().then((x) => { cur_altitude = x.altitude;
