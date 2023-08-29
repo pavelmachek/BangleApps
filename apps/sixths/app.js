@@ -3,16 +3,23 @@ const H = g.getHeight();
 
 var cx = 100; cy = 105; sc = 70;
 temp = 0; alt = 0; bpm = 0;
-var buzz = "", msg = "", inm = "", l = "", note = "(NOTEHERE)";
+var buzz = "",      /* Set this to transmit morse via vibrations */
+    inm = "", l = "", /* For incoming morse handling */
+    note = "(NOTEHERE)";
 var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note
 
+// GPS handling
 var gps_on = 0, last_fix = 0, last_restart = 0, last_pause = 0, last_fstart = 0; // utime
 var gps_needed = 0, gps_limit = 0; // seconds
 var prev_fix = null;
 var gps_dist = 0;
 
+// Is the human present?
 var is_active = false;
-var cur_altitude = 0, cur_temperature = 0, alt_adjust = 0;
+var cur_altitude = 0;
+
+// For altitude handling.
+var cur_temperature = 0, alt_adjust = 0;
 var alt_adjust_mode = "";
 const rest_altitude = 354;
 
@@ -247,32 +254,9 @@ function calcDistance(a,b) {
   var y = radians(b.lat-a.lat);
   return Math.sqrt(x*x + y*y) * 6371000;
 }
-function draw() {
-  g.setColor(1, 1, 1);
-  g.fillRect(0, 25, W, H);
-  g.setFont('Vector', 60);
-  
-  g.setColor(0.25, 1, 1);
-  g.fillPoly([ W/2, 25, W, 80, 0, 80 ]);
-
-  g.setColor(0, 0, 0);
-  g.setFontAlign(1, 1);
-  let now = new Date();
-  g.drawString(now.getHours() + ":" + add0(now.getMinutes()), W, 90);
-
-  every(now);
-
-  let km = 0.001 * 0.719 * Bangle.getHealthStatus("day").steps;
-
-  g.setFontAlign(-1, 1);
-  g.setFont('Vector', 26);
-
-  const weekday = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-
-  g.drawString(weekday[now.getDay()] + "" + now.getDate() + ". " + km.toFixed(1) + "km", 10, 115);
-
-  if (gps_on) {
-    if (!last_restart) {
+function handleGPS() {
+  let msg = "";
+  if (!last_restart) {
       d = (getTime()-last_pause);
       if (last_fix)
           msg = "PL"+ (getTime()-last_fix).toFixed(0);
@@ -318,6 +302,35 @@ function draw() {
       }
     }
     msg += " "+gps_dist.toFixed(1)+"km";
+  return msg;
+}
+function draw() {
+  g.setColor(1, 1, 1);
+  g.fillRect(0, 25, W, H);
+  g.setFont('Vector', 60);
+  
+  g.setColor(0.25, 1, 1);
+  g.fillPoly([ W/2, 25, W, 80, 0, 80 ]);
+
+  g.setColor(0, 0, 0);
+  g.setFontAlign(1, 1);
+  let now = new Date();
+  g.drawString(now.getHours() + ":" + add0(now.getMinutes()), W, 90);
+
+  every(now);
+
+  let km = 0.001 * 0.719 * Bangle.getHealthStatus("day").steps;
+
+  g.setFontAlign(-1, 1);
+  g.setFont('Vector', 26);
+
+  const weekday = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+  g.drawString(weekday[now.getDay()] + "" + now.getDate() + ". " + km.toFixed(1) + "km", 10, 115);
+
+  let msg = "";
+  if (gps_on) {
+    msg = handleGPS();
   } else {
     msg = note;
   }
