@@ -307,13 +307,40 @@ function calcDistance(a,b) {
   var y = radians(b.lat-a.lat);
   return Math.sqrt(x*x + y*y) * 6371000;
 }
+function radA(p) { return p*(Math.PI*2); }
+function radD(d) { return d*(H/2); }
+
+function radX(p, d) {
+  let a = radA(p);
+  return H/2 + Math.sin(a)*radD(d);
+}
+
+function radY(p, d) {
+  let a = radA(p);
+  return W/2 - Math.cos(a)*radD(d);
+}
+function drawBackground() {
+  if (1) {
+    let obj = Bangle.getCompass();
+    if (obj) {
+      let h = 360-obj.heading;
+      let x = radX(h/360, 0.7);
+      let y = radY(h/360, 0.7);
+      g.setColor(0.5, 0.5, 1);
+      g.fillCircle(x,y, 10);
+    }
+  }
+}
 function draw() {
   g.setColor(1, 1, 1);
   g.fillRect(0, 25, W, H);
   g.setFont('Vector', 60);
-  
-  g.setColor(0.25, 1, 1);
-  g.fillPoly([ W/2, 25, W, 80, 0, 80 ]);
+
+  if (0) {
+    g.setColor(0.25, 1, 1);
+    g.fillPoly([ W/2, 25, W, 80, 0, 80 ]);
+  }
+  drawBackground();
 
   g.setColor(0, 0, 0);
   g.setFontAlign(1, 1);
