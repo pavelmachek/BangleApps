@@ -18,10 +18,10 @@ var prev_fix = null;
 var gps_dist = 0;
 
 // Is the human present?
-var is_active = false;
-var cur_altitude = 0;
+var is_active = false, last_active = 0;
 
 // For altitude handling.
+var cur_altitude = 0;
 var cur_temperature = 0, alt_adjust = 0;
 var alt_adjust_mode = "";
 const rest_altitude = 354;
@@ -365,11 +365,13 @@ function draw() {
     msg = note;
   }
   g.drawString(msg, 10, 145);
-  if (is_active) {
+  if (getTime() - last_active > 60) {
     g.drawString(alt_adjust_mode+") "+(cur_altitude - alt_adjust).toFixed(0) + "m", 10, 175);
   } else {
-    alt_adjust = cur_altitude - rest_altitude;
-    alt_adjust_mode = "h";
+    if (getTime() - last_active > 3600) {
+      alt_adjust = cur_altitude - rest_altitude;
+      alt_adjust_mode = "h";
+    }
     g.drawString(alt_adjust.toFixed(0) + "m " + cur_temperature.toFixed(1)+"C", 10, 175);
   }
   queueDraw();
@@ -482,6 +484,7 @@ function aliveTask() {
   if (cmp("x") || cmp("y") || cmp("z")) {
     print("active");
     is_active = true;
+    last_active = getTime();
   }
   last_acc = acc;
 
