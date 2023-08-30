@@ -68,6 +68,56 @@ function gpsOff() {
   Bangle.setGPSPower(0, "sixths");
   gps_on = 0;
 }
+function handleGPS() {
+  let msg = "";
+  if (!last_restart) {
+      d = (getTime()-last_pause);
+      if (last_fix)
+          msg = "PL"+ (getTime()-last_fix).toFixed(0);
+      else
+          msg = "PN"+ (getTime()-gps_on).toFixed(0);
+
+      print("gps on, paused ", d, gps_needed);
+      if (d > gps_needed * 2) {
+        gpsRestart();
+      }
+    } else {
+      fix = Bangle.getGPSFix();
+      if (fix.fix && fix.lat) {
+        if (!prev_fix) {
+          prev_fix = fix;
+        }
+        msg = fix.speed.toFixed(1) + " km/h";
+        if (!last_fstart)
+          last_fstart = getTime();
+        last_fix = getTime();
+        gps_needed = 60;
+        loggps(fix);
+        print("GPS FIX", msg);
+        d = calcDistance(fix, prev_fix);
+        if (d > 30) {
+          prev_fix = fix;
+          gps_dist += d/1000;
+        }
+      } else {
+        if (last_fix)
+          msg = "L"+ (getTime()-last_fix).toFixed(0);
+        else
+          msg = "N"+ (getTime()-gps_on).toFixed(0);
+      }
+
+      d = (getTime()-last_restart);
+      d2 = (getTime()-last_fstart);
+      print("gps on, restarted ", d, gps_needed, d2, fix.lat);
+      if (d > gps_needed || (last_fstart && d2 > 10)) {
+        gpsPause();
+        gps_needed = gps_needed * 1.5;
+        print("Pausing, next try", gps_needed);
+      }
+    }
+    msg += " "+gps_dist.toFixed(1)+"km";
+  return msg;
+}
 function inputHandler(s) {
   print("Ascii: ", s);
   if (mode == 1) {
@@ -256,56 +306,6 @@ function calcDistance(a,b) {
   var x = radians(b.lon-a.lon) * Math.cos(radians((a.lat+b.lat)/2));
   var y = radians(b.lat-a.lat);
   return Math.sqrt(x*x + y*y) * 6371000;
-}
-function handleGPS() {
-  let msg = "";
-  if (!last_restart) {
-      d = (getTime()-last_pause);
-      if (last_fix)
-          msg = "PL"+ (getTime()-last_fix).toFixed(0);
-      else
-          msg = "PN"+ (getTime()-gps_on).toFixed(0);
-
-      print("gps on, paused ", d, gps_needed);
-      if (d > gps_needed * 2) {
-        gpsRestart();
-      }
-    } else {
-      fix = Bangle.getGPSFix();
-      if (fix.fix && fix.lat) {
-        if (!prev_fix) {
-          prev_fix = fix;
-        }
-        msg = fix.speed.toFixed(1) + " km/h";
-        if (!last_fstart)
-          last_fstart = getTime();
-        last_fix = getTime();
-        gps_needed = 60;
-        loggps(fix);
-        print("GPS FIX", msg);
-        d = calcDistance(fix, prev_fix);
-        if (d > 30) {
-          prev_fix = fix;
-          gps_dist += d/1000;
-        }
-      } else {
-        if (last_fix)
-          msg = "L"+ (getTime()-last_fix).toFixed(0);
-        else
-          msg = "N"+ (getTime()-gps_on).toFixed(0);
-      }
-
-      d = (getTime()-last_restart);
-      d2 = (getTime()-last_fstart);
-      print("gps on, restarted ", d, gps_needed, d2, fix.lat);
-      if (d > gps_needed || (last_fstart && d2 > 10)) {
-        gpsPause();
-        gps_needed = gps_needed * 1.5;
-        print("Pausing, next try", gps_needed);
-      }
-    }
-    msg += " "+gps_dist.toFixed(1)+"km";
-  return msg;
 }
 function draw() {
   g.setColor(1, 1, 1);
