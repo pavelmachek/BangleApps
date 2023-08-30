@@ -9,8 +9,11 @@ var buzz = "",      /* Set this to transmit morse via vibrations */
 var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note
 
 // GPS handling
-var gps_on = 0, last_fix = 0, last_restart = 0, last_pause = 0, last_fstart = 0; // utime
-var gps_needed = 0, gps_limit = 0; // seconds
+var gps_on = 0, // time GPS was turned on
+    last_fix = 0, // time of last fix
+    last_restart = 0, last_pause = 0, last_fstart = 0; // utime
+var gps_needed = 0, // how long to wait for a fix
+    gps_limit = 0; // seconds for how long to keep recording
 var prev_fix = null;
 var gps_dist = 0;
 
