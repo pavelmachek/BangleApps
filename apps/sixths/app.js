@@ -148,6 +148,7 @@ function inputHandler(s) {
       buzz += toMorse(s);
       break;
     case 'R': aload("run.app.js"); break;
+    case 'Y': buzz += " ."; Bangle.resetCompass(); break;
   }
 }
 const morseDict = {
@@ -233,7 +234,7 @@ function touchHandler(d) {
   } else
     morseHandler();
 
-  print(inm, "drag:", d);
+  //print(inm, "drag:", d);
 }
 function add0(i) {
   if (i > 9) {
@@ -309,12 +310,10 @@ function calcDistance(a,b) {
 }
 function radA(p) { return p*(Math.PI*2); }
 function radD(d) { return d*(H/2); }
-
 function radX(p, d) {
   let a = radA(p);
   return H/2 + Math.sin(a)*radD(d);
 }
-
 function radY(p, d) {
   let a = radA(p);
   return W/2 - Math.cos(a)*radD(d);
@@ -324,6 +323,7 @@ function drawBackground() {
     let obj = Bangle.getCompass();
     if (obj) {
       let h = 360-obj.heading;
+      print("Compass", h);
       let x = radX(h/360, 0.7);
       let y = radY(h/360, 0.7);
       g.setColor(0.5, 0.5, 1);
@@ -506,9 +506,11 @@ function start() {
   Bangle.on("drag", touchHandler);
   if (0)
     Bangle.on("accel", accelHandler);
-  if (0) {
+  if (1) {
     Bangle.setCompassPower(1, "sixths");
     Bangle.setBarometerPower(1, "sixths");
+  }
+  if (0) {
     Bangle.setHRMPower(1, "sixths");
     Bangle.setGPSPower(1, "sixths");
     Bangle.on("HRM", (hrm) => { bpm = hrm.bpm; } );
