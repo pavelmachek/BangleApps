@@ -13,7 +13,8 @@ var gps_on = 0, // time GPS was turned on
     last_fix = 0, // time of last fix
     last_restart = 0, last_pause = 0, last_fstart = 0; // utime
 var gps_needed = 0, // how long to wait for a fix
-    gps_limit = 0; // seconds for how long to keep recording
+    gps_limit = 0, // timeout -- when to stop recording
+    gps_speed_limit = 0;
 var prev_fix = null;
 var gps_dist = 0;
 
@@ -59,7 +60,6 @@ function gpsPause() {
 function gpsOn() {
   gps_on = getTime();
   gps_needed = 1000;
-  gps_limit = getTime() + 60*60*4;
   last_fix = 0;
   prev_fix = null;
   gps_dist = 0;
@@ -92,8 +92,8 @@ function gpsHandle() {
       fix = Bangle.getGPSFix();
       if (fix.fix && fix.lat) {
         if (!prev_fix) {
-	  show("GPS acquired", 10);
-	  buzz += " .";
+          show("GPS acquired", 10);
+          buzz += " .";
           prev_fix = fix;
         }
         msg = fix.speed.toFixed(1) + " km/h";
@@ -118,13 +118,14 @@ function gpsHandle() {
       d = (getTime()-last_restart);
       d2 = (getTime()-last_fstart);
       print("gps on, restarted ", d, gps_needed, d2, fix.lat);
-      if (d > gps_needed || (last_fstart && d2 > 10)) {
+      if (getTime() > gps_speed_limit && 
+          (d > gps_needed || (last_fstart && d2 > 10))) {
         gpsPause();
         gps_needed = gps_needed * 1.5;
         print("Pausing, next try", gps_needed);
       }
     }
-    msg += " "+gps_dist.toFixed(1)+"km";
+  msg += " "+gps_dist.toFixed(1)+"km";
   return msg;
 }
 function inputHandler(s) {
@@ -145,10 +146,11 @@ function inputHandler(s) {
       buzz += toMorse(s);
       break;
     case 'F': gpsOff(); show("GPS off", 3); break;
-    case 'G': gpsOn(); show("GPS on", 3); break;
+    case 'G': gpsOn(); gps_limit = getTime() + 60*60*4; show("GPS on", 3); break;
     case 'L': aload("altimeter.app.js"); break;
     case 'N': mode = 1; note = ">"; mode_time = getTime(); break;
     case 'O': aload("orloj.app.js"); break;
+    case 'S': gpsOn(); gps_limit = getTime() + 60*30; gps_speed_limit = gps_limit; show("GPS on", 3); break;
     case 'T':
       s = ' T';
       d = new Date();
@@ -501,7 +503,6 @@ function aliveTask() {
     last_active = getTime();
   }
   last_acc = acc;
-  is_level = !!(acc.z < -0.95);
 
   setTimeout(aliveTask, 60000);
 }
