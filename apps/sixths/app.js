@@ -18,7 +18,7 @@ var prev_fix = null;
 var gps_dist = 0;
 
 // Is the human present?
-var is_active = false, last_active = 0;
+var is_active = false, last_active = getTime();
 
 // For altitude handling.
 var cur_altitude = 0;
