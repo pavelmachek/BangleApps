@@ -5,6 +5,7 @@ var cx = 100; cy = 105; sc = 70;
 temp = 0; alt = 0; bpm = 0;
 var buzz = "",      /* Set this to transmit morse via vibrations */
     inm = "", l = "", /* For incoming morse handling */
+    in_str = "",
     note = "(NOTEHERE)";
 var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note
 
@@ -27,6 +28,9 @@ var cur_altitude = 0;
 var cur_temperature = 0, alt_adjust = 0;
 var alt_adjust_mode = "";
 const rest_altitude = 354;
+
+// Marks
+var cur_mark = null;
 
 function toMorse(x) {
   r = "";
@@ -128,10 +132,25 @@ function gpsHandle() {
   msg += " "+gps_dist.toFixed(1)+"km";
   return msg;
 }
+function markNew() {
+  let r = {};
+  r.time = getTime();
+  r.fix = prev_fix;
+  r.steps = Bangle.getHealthStatus("day").steps;
+  r.gps_dist = gps_dist;
+  r.name = note;
+  return r;
+}
+function markHandle() {
+  let m = cur_mark;
+  msg = m.name + ">" + fmtTimeDiff(getTime()- m.time);
+  return msg;
+}
 function inputHandler(s) {
   print("Ascii: ", s);
   if (mode == 1) {
-    note = note + s;
+    in_str = in_str + s;
+    show(">"+in_str, 10);
     mode_time = getTime();
     return;
   }
@@ -144,11 +163,13 @@ function inputHandler(s) {
       else
         s = s+(bat/5);
       buzz += toMorse(s);
+      show("Bat "+bat+"%", 60);
       break;
     case 'F': gpsOff(); show("GPS off", 3); break;
     case 'G': gpsOn(); gps_limit = getTime() + 60*60*4; show("GPS on", 3); break;
     case 'L': aload("altimeter.app.js"); break;
-    case 'N': mode = 1; note = ">"; mode_time = getTime(); break;
+    case 'M': cur_mark = markNew(); break;
+    case 'N': mode = 1; show(">", 10); mode_time = getTime(); break;
     case 'O': aload("orloj.app.js"); break;
     case 'S': gpsOn(); gps_limit = getTime() + 60*30; gps_speed_limit = gps_limit; show("GPS on", 3); break;
     case 'T':
@@ -291,9 +312,11 @@ function fivemin() {
    
 }
 function every(now) {
-  if ((mode > 0) && (mode_time - getTime() > 60)) {
+  if ((mode > 0) && (getTime() - mode_time > 10)) {
     if (mode == 1) {
-      logstamp(">" + note);
+      logstamp(">" + in_str);
+      show(":" + in_str);
+      buzz += " .";
     }
     mode = 0;
   }
@@ -381,15 +404,20 @@ function draw() {
     msg = note;
   }
   g.drawString(msg, 10, 145);
+  
   if (getTime() - last_active > 60) {
-    g.drawString(alt_adjust_mode+") "+(cur_altitude - alt_adjust).toFixed(0) + "m", 10, 175);
+    msg = alt_adjust_mode+") "+(cur_altitude - alt_adjust).toFixed(0) + "m";
   } else {
     if (getTime() - last_active > 3600) {
       alt_adjust = cur_altitude - rest_altitude;
       alt_adjust_mode = "h";
     }
-    g.drawString(alt_adjust.toFixed(0) + "m " + cur_temperature.toFixed(1)+"C", 10, 175);
+    msg = alt_adjust.toFixed(0) + "m " + cur_temperature.toFixed(1)+"C";
   }
+  if (cur_mark) {
+    msg = markHandle();
+  }
+  g.drawString(msg, 10, 175);
   queueDraw();
 }
 function draw_all() {
