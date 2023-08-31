@@ -19,6 +19,7 @@ var gps_dist = 0;
 
 // Is the human present?
 var is_active = false, last_active = getTime();
+var is_level = false;
 
 // For altitude handling.
 var cur_altitude = 0;
@@ -69,7 +70,10 @@ function gpsOff() {
   gps_on = 0;
 }
 function fmtTimeDiff(d) {
-  return ""+d.toFixed(0);
+  if (d < 180)
+    return ""+d.toFixed(0);
+  d = d/60;
+  return ""+d.toFixed(0)+"m";
 }
 function gpsHandle() {
   let msg = "";
@@ -327,7 +331,9 @@ function radY(p, d) {
   return W/2 - Math.cos(a)*radD(d);
 }
 function drawBackground() {
-  if (1) {
+  acc = Bangle.getAccel();
+  is_level = !!(acc.z < -0.95);
+  if (is_level) {
     let obj = Bangle.getCompass();
     if (obj) {
       let h = 360-obj.heading;
@@ -495,6 +501,7 @@ function aliveTask() {
     last_active = getTime();
   }
   last_acc = acc;
+  is_level = !!(acc.z < -0.95);
 
   setTimeout(aliveTask, 60000);
 }

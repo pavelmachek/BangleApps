@@ -52,4 +52,6 @@ possibly allowing scrolling).
 
 Todo:
 
-*) only display compass when watch is approximately horizontal
+*) only turn on compass when needed
+
+*) adjust draw timeouts to save power
