@@ -58,7 +58,7 @@ function gpsPause() {
 function gpsOn() {
   gps_on = getTime();
   gps_needed = 1000;
-  gps_limit = 60*60*4;
+  gps_limit = getTime() + 60*60*4;
   last_fix = 0;
   prev_fix = null;
   gps_dist = 0;
@@ -68,14 +68,17 @@ function gpsOff() {
   Bangle.setGPSPower(0, "sixths");
   gps_on = 0;
 }
-function handleGPS() {
+function fmtTimeDiff(d) {
+  return ""+d.toFixed(0);
+}
+function gpsHandle() {
   let msg = "";
   if (!last_restart) {
       d = (getTime()-last_pause);
       if (last_fix)
-          msg = "PL"+ (getTime()-last_fix).toFixed(0);
+          msg = "PL"+ fmtTimeDiff(getTime()-last_fix);
       else
-          msg = "PN"+ (getTime()-gps_on).toFixed(0);
+          msg = "PN"+ fmtTimeDiff(getTime()-gps_on);
 
       print("gps on, paused ", d, gps_needed);
       if (d > gps_needed * 2) {
@@ -85,6 +88,8 @@ function handleGPS() {
       fix = Bangle.getGPSFix();
       if (fix.fix && fix.lat) {
         if (!prev_fix) {
+	  show("GPS acquired", 10);
+	  buzz += " .";
           prev_fix = fix;
         }
         msg = fix.speed.toFixed(1) + " km/h";
@@ -101,9 +106,9 @@ function handleGPS() {
         }
       } else {
         if (last_fix)
-          msg = "L"+ (getTime()-last_fix).toFixed(0);
+          msg = "L"+ fmtTimeDiff(getTime()-last_fix);
         else
-          msg = "N"+ (getTime()-gps_on).toFixed(0);
+          msg = "N"+ fmtTimeDiff(getTime()-gps_on);
       }
 
       d = (getTime()-last_restart);
@@ -135,8 +140,8 @@ function inputHandler(s) {
         s = s+(bat/5);
       buzz += toMorse(s);
       break;
-    case 'F': gpsOff(); break;
-    case 'G': gpsOn(); break;
+    case 'F': gpsOff(); show("GPS off", 3); break;
+    case 'G': gpsOn(); show("GPS on", 3); break;
     case 'L': aload("altimeter.app.js"); break;
     case 'N': mode = 1; note = ">"; mode_time = getTime(); break;
     case 'O': aload("orloj.app.js"); break;
@@ -258,6 +263,9 @@ function hourly() {
     buzz += toMorse(s);
   logstamp("");
 }
+function show(msg, timeout) {
+  note = msg;
+}
 function fivemin() {
   print("fivemin");
   s = ' B';
@@ -265,7 +273,7 @@ function fivemin() {
   if (bat < 25) {
       if (is_active)
         buzz += toMorse(s);
-      note = "Bat "+25+"%";
+      show("Bat "+bat+"%", 60);
   }
   try {
     Bangle.getPressure().then((x) => { cur_altitude = x.altitude;
@@ -283,7 +291,7 @@ function every(now) {
     }
     mode = 0;
   }
-  if (gps_on && getTime() - gps_on > gps_limit) {
+  if (gps_on && getTime() > gps_limit) {
     Bangle.setGPSPower(0, "sixths");
     gps_on = 0;
   }
@@ -360,7 +368,7 @@ function draw() {
 
   let msg = "";
   if (gps_on) {
-    msg = handleGPS();
+    msg = gpsHandle();
   } else {
     msg = note;
   }
