@@ -150,8 +150,21 @@ function markHandle() {
     + " " + fmtDist(m.gps_dist - gps_dist);
   return msg;
 }
+function entryDone() {
+  logstamp(">" + in_str);
+  show(":" + in_str);
+  buzz += " .";
+  mode = 0;
+}
 function inputHandler(s) {
-  print("Ascii: ", s);
+  print("Ascii: ", s, s[0], s[1]);
+  if (s[0] == '^') {
+    switch (s[1]) {
+    case 'E': mode = 0; break;
+    case 'T': entryDone(); break;
+    }
+    return;
+  }
   if (mode == 1) {
     in_str = in_str + s;
     show(">"+in_str, 10);
@@ -327,9 +340,7 @@ function fivemin() {
 function every(now) {
   if ((mode > 0) && (getTime() - mode_time > 10)) {
     if (mode == 1) {
-      logstamp(">" + in_str);
-      show(":" + in_str);
-      buzz += " .";
+      entryDone();
     }
     mode = 0;
   }
