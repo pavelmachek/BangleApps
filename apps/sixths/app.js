@@ -73,6 +73,8 @@ function gpsOff() {
   Bangle.setGPSPower(0, "sixths");
   gps_on = 0;
 }
+function fmtDist(km) { return km.toFixed(1) + "km"; }
+function fmtSteps(n) { return fmtDist(0.001 * 0.719 * n); }
 function fmtTimeDiff(d) {
   if (d < 180)
     return ""+d.toFixed(0);
@@ -138,12 +140,14 @@ function markNew() {
   r.fix = prev_fix;
   r.steps = Bangle.getHealthStatus("day").steps;
   r.gps_dist = gps_dist;
+  r.altitude = cur_altitude;
   r.name = note;
   return r;
 }
 function markHandle() {
   let m = cur_mark;
-  msg = m.name + ">" + fmtTimeDiff(getTime()- m.time);
+  msg = m.name + ">" + fmtTimeDiff(getTime()- m.time)
+    + " " + fmtDist(m.gps_dist - gps_dist);
   return msg;
 }
 function inputHandler(s) {
@@ -395,7 +399,8 @@ function draw() {
 
   const weekday = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
-  g.drawString(weekday[now.getDay()] + "" + now.getDate() + ". " + km.toFixed(1) + "km", 10, 115);
+  g.drawString(weekday[now.getDay()] + "" + now.getDate() + ". "
+               + fmtSteps(Bangle.getHealthStatus("day").steps), 10, 115);
 
   let msg = "";
   if (gps_on) {
