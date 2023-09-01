@@ -237,7 +237,12 @@ function asciiToMorse(char) {
   return asciiDict[char];
 }
 function morseHandler() {
-  inputHandler(morseToAscii(inm));
+  if (inm[0] == "^") {
+    inputHandler("^"+morseToAscii(inm.substr(1)));
+  } else {
+    inputHandler(morseToAscii(inm));
+  }
+
   inm = "";
   l = "";
 }
@@ -249,7 +254,14 @@ function touchHandler(d) {
     g.setColor(0.25, 0, 0);
     g.fillCircle(W-x, W-y, 5);
   }
-  if (d.b) {
+  if (!d.b) {
+    morseHandler();
+    l = "";
+    return;
+  }
+  if (y > H/2 && l == "") {
+    inm = "^";
+  }
   if (x < W/2 && y < H/2 && l != ".u") {
     inm = inm + ".";
     l = ".u";
@@ -265,10 +277,7 @@ function touchHandler(d) {
   if (x > W/2 && y > H/2 && l != "-d") {
     inm = inm + "-";
     l = "-d";
-  }
-
-  } else
-    morseHandler();
+  } 
 
   //print(inm, "drag:", d);
 }
