@@ -690,6 +690,7 @@ function fname(lon, lat, zoom) {
 function fnames(zoom) {
     var bb = [m.lon, m.lat, m.lon, m.lat];
     var r = xyz(bb, zoom, false, "WGS84");
+    let maxt = 16;
     while (1) {
       var bb2 = bbox(r.minX, r.minY, zoom, false, "WGS84");
       var os = m.latLonToXY(bb2[3], bb2[0]);
@@ -698,6 +699,9 @@ function fnames(zoom) {
       else if (os.y >= 0)
         r.minY -= 1;
       else break;
+      if (!maxt)
+        break;
+      maxt--;
     }
     while (1) {
       var bb2 = bbox(r.maxX, r.maxY, zoom, false, "WGS84");
@@ -707,7 +711,12 @@ function fnames(zoom) {
       else if (os.y <= g.getHeight())
         r.maxY += 1;
       else break;
+      if (!maxt)
+        break;
+      maxt--;
     }
+  if (!maxt)
+    print("!!! Too many tiles, not painting some");
   print(".. paint range", r);
   return r;
 }
