@@ -173,6 +173,8 @@ function paintPolygon(tags) {
     if (tags.landuse == "forest") { p.fill = "#c0ffc0"; p.attr = a_forest; }
     if (tags.natural == "water") { p.fill = "#c0c0ff"; p.attr = a_water; }
 
+    if (tags.featurecla == "Admin-0 sovereignty") p.attr = a_way;
+
     return p;
 }
 
@@ -244,7 +246,11 @@ function toGjson(name, d, tile) {
 	bin[0] = p.attr;
 	b.b = btoa(bin);
 	b.tags = {};
-	b.tags.name = a.tags.name;
+	if (a.tags.name)
+	    b.tags.name = a.tags.name;
+	if (a.tags.sr_subunit)
+	    b.tags.name = a.tags.sr_subunit;
+	
 	//delete(a.tags.highway);
 	//delete(a.tags.landuse);
 	//delete(a.tags.natural);
