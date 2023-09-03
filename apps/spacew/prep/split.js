@@ -58,7 +58,10 @@ function binGeom(tile, geom) {
 function zoomPoint(tags) {
     var z = 99;
 
-    if (tags.scalerank == 0) z = 0;
+    if (tags.featurecla == "Admin-0 scale ranksscalerank") z = 2;
+    if (tags.featurecla == "Admin-0 capital") z = 3;
+    if (tags.featurecla == "Admin-1 capital") z = 4;
+    if (tags.featurecla == "Populated place") z = 5;
 
     if (tags.place == "city") z = 4;
     if (tags.place == "town") z = 8;
