@@ -296,7 +296,7 @@ if (process.argv[2] == "--maxz") {
 }
 if (process.argv[2] == "--world") {
     console.log("Loading world");
-    meta.max_zoom = 5;
+    meta.max_zoom = 4;
     var g_sovereign = require("./ne_10m_admin_0_sovereignty.json");
     var g_labels = require("./ne_10m_admin_0_label_points.json");
     var g_places = require("./ne_10m_populated_places_simple.json");
@@ -315,7 +315,7 @@ var index = split(gjs, Object.assign({
     maxZoom: meta.max_zoom,
     indexMaxZoom: meta.max_zoom,
     indexMaxPoints: 0,
-    tolerance: 30,
+    tolerance: 10,
     buffer: 0,
 }), {});
 console.log("Producing output");
