@@ -251,6 +251,8 @@ function toGjson(name, d, tile) {
 	b.tags = {};
 	if (a.tags.name)
 	    b.tags.name = a.tags.name;
+	if (a.tags.nameascii)
+	    b.tags.name = a.tags.nameascii;
 	if (a.tags.sr_subunit)
 	    b.tags.name = a.tags.sr_subunit;
 	
