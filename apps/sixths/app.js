@@ -106,6 +106,10 @@ function gpsHandle() {
           prev_fix = fix;
         }
         msg = fix.speed.toFixed(1) + " km/h";
+        
+        alt_adjust = cur_altitude - (fix.alt + geoid_to_sea_level);
+        alt_adjust_mode = "g";
+
         if (!last_fstart)
           last_fstart = getTime();
         last_fix = getTime();
