@@ -1,3 +1,7 @@
+// Options you'll want to edit
+const rest_altitude = 354;
+const geoid_to_sea_level = -60;
+
 const W = g.getWidth();
 const H = g.getHeight();
 
@@ -7,7 +11,7 @@ var buzz = "",      /* Set this to transmit morse via vibrations */
     inm = "", l = "", /* For incoming morse handling */
     in_str = "",
     note = "(NOTEHERE)";
-var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note
+var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note, 2.. mark name
 
 // GPS handling
 var gps_on = 0, // time GPS was turned on
@@ -27,7 +31,6 @@ var is_level = false;
 var cur_altitude = 0;
 var cur_temperature = 0, alt_adjust = 0;
 var alt_adjust_mode = "";
-const rest_altitude = 354;
 
 // Marks
 var cur_mark = null;
@@ -141,7 +144,7 @@ function markNew() {
   r.steps = Bangle.getHealthStatus("day").steps;
   r.gps_dist = gps_dist;
   r.altitude = cur_altitude;
-  r.name = note;
+  r.name = "auto";
   return r;
 }
 function markHandle() {
@@ -151,9 +154,12 @@ function markHandle() {
   return msg;
 }
 function entryDone() {
-  logstamp(">" + in_str);
   show(":" + in_str);
   buzz += " .";
+  switch (mode) {
+  case 1: logstamp(">" + in_str); break;
+  case 2: cur_mark.name = in_str; break;
+  }
   mode = 0;
 }
 function inputHandler(s) {
@@ -165,7 +171,7 @@ function inputHandler(s) {
     }
     return;
   }
-  if (mode == 1) {
+  if ((mode == 1) || (mode == 2)){
     in_str = in_str + s;
     show(">"+in_str, 10);
     mode_time = getTime();
@@ -185,7 +191,7 @@ function inputHandler(s) {
     case 'F': gpsOff(); show("GPS off", 3); break;
     case 'G': gpsOn(); gps_limit = getTime() + 60*60*4; show("GPS on", 3); break;
     case 'L': aload("altimeter.app.js"); break;
-    case 'M': cur_mark = markNew(); break;
+    case 'M': mode = 2; show("M>", 10); cur_mark = markNew(); mode_time = getTime(); break;
     case 'N': mode = 1; show(">", 10); mode_time = getTime(); break;
     case 'O': aload("orloj.app.js"); break;
     case 'S': gpsOn(); gps_limit = getTime() + 60*30; gps_speed_limit = gps_limit; show("GPS on", 3); break;
