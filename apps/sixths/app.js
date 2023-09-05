@@ -273,9 +273,12 @@ function touchHandler(d) {
   let x = Math.floor(d.x);
   let y = Math.floor(d.y);
 
-  if (0) { /* Just a debugging feature */
+  if (1) { /* Just a debugging feature */
     g.setColor(0.25, 0, 0);
-    g.fillCircle(W-x, W-y, 5);
+    if (0)
+      g.fillCircle(W-x, W-y, 5);
+    else
+      g.fillCircle(x, y, 5);
   }
   if (!d.b) {
     morseHandler();
