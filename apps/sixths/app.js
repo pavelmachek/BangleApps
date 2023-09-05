@@ -350,7 +350,7 @@ function every(now) {
     }
     mode = 0;
   }
-  if (gps_on && getTime() > gps_limit) {
+  if (gps_on && getTime() > gps_limit && getTime() > gps_speed_limit) {
     Bangle.setGPSPower(0, "sixths");
     gps_on = 0;
   }
@@ -436,15 +436,14 @@ function draw() {
   }
   g.drawString(msg, 10, 145);
   
-  if (getTime() - last_active > 60) {
-    msg = alt_adjust_mode+") "+(cur_altitude - alt_adjust).toFixed(0) + "m";
+  if (getTime() - last_active > 3600) {
+    alt_adjust = cur_altitude - rest_altitude;
+    alt_adjust_mode = "h";
+    msg = "H)" + alt_adjust.toFixed(0) + "m";
   } else {
-    if (getTime() - last_active > 3600) {
-      alt_adjust = cur_altitude - rest_altitude;
-      alt_adjust_mode = "h";
-    }
-    msg = alt_adjust.toFixed(0) + "m " + cur_temperature.toFixed(1)+"C";
+    msg = alt_adjust_mode+")"+(cur_altitude - alt_adjust).toFixed(0) + "m";
   }
+  msg = msg + " " + cur_temperature.toFixed(1)+"C";
   if (cur_mark) {
     msg = markHandle();
   }
@@ -546,7 +545,7 @@ function buzzTask() {
       setTimeout(buzzTask, 6*dot);
     } else print("Unknown character -- ", now, buzz);
   } else
-  setTimeout(buzzTask, 60000);
+  setTimeout(buzzTask, 1000);
 }
 function aliveTask() {
   function cmp(s) {
