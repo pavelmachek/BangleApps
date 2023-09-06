@@ -12,6 +12,7 @@ var buzz = "",      /* Set this to transmit morse via vibrations */
     in_str = "",
     note = "(NOTEHERE)";
 var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note, 2.. mark name
+var disp_mode = 0;  // 0 .. normal, 1 .. small time
 
 // GPS handling
 var gps_on = 0, // time GPS was turned on
@@ -191,6 +192,12 @@ function inputHandler(s) {
         s = s+(bat/5);
       buzz += toMorse(s);
       show("Bat "+bat+"%", 60);
+      break;
+    case 'E': 
+      disp_mode += 1; 
+      if (disp_mode == 3) {
+        disp_mode = 0;
+      }
       break;
     case 'F': gpsOff(); show("GPS off", 3); break;
     case 'G': gpsOn(); gps_limit = getTime() + 60*60*4; show("GPS on", 3); break;
@@ -407,21 +414,31 @@ function drawBackground() {
     }
   }
 }
+function drawTime(now) {
+  if (disp_mode == 0) 
+    g.setFont('Vector', 60);
+  else
+    g.setFont('Vector', 26);  
+  g.setFontAlign(1, 1);
+  g.drawString(now.getHours() + ":" + add0(now.getMinutes()), W, 90);
+}
 function draw() {
+  if (disp_mode == 2) {
+    draw_all();
+    return;
+  }
   g.setColor(1, 1, 1);
-  g.fillRect(0, 25, W, H);
-  g.setFont('Vector', 60);
+  g.fillRect(0, 24, W, H);
 
   if (0) {
     g.setColor(0.25, 1, 1);
-    g.fillPoly([ W/2, 25, W, 80, 0, 80 ]);
+    g.fillPoly([ W/2, 24, W, 80, 0, 80 ]);
   }
   drawBackground();
 
-  g.setColor(0, 0, 0);
-  g.setFontAlign(1, 1);
   let now = new Date();
-  g.drawString(now.getHours() + ":" + add0(now.getMinutes()), W, 90);
+  g.setColor(0, 0, 0);
+  drawTime(now);
 
   every(now);
 
@@ -506,7 +523,7 @@ function draw_all() {
 
   g.setFont('Vector', 22);
   g.drawString(now.getDate()+"."+(now.getMonth()+1)+" "+now.getDay(), 3, 60);
-  g.drawString(msg, 3, 80);
+  g.drawString("(message here)", 3, 80);
   g.drawString("S" + step + " B" + Math.round(bat/10) + (Bangle.isCharging()?"c":""), 3, 100);
   g.drawString("A" + Math.round(alt) + " T" + Math.round(temp), 3, 120);
   g.drawString("C" + Math.round(co.heading) + " B" + bpm, 3, 140);
