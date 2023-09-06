@@ -10,7 +10,8 @@ temp = 0; alt = 0; bpm = 0;
 var buzz = "",      /* Set this to transmit morse via vibrations */
     inm = "", l = "", /* For incoming morse handling */
     in_str = "",
-    note = "(NOTEHERE)";
+    note = "(NOTEHERE)",
+    debug = "(debugmsg)", debug2 = "(otherdb)", debug3 = "(short)";
 var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note, 2.. mark name
 var disp_mode = 0;  // 0 .. normal, 1 .. small time
 
@@ -472,6 +473,13 @@ function draw() {
     msg = markHandle();
   }
   g.drawString(msg, 10, 175);
+  
+  if (disp_mode == 1) {
+    g.drawString(debug, 10, 45);
+    g.drawString(debug2, 10, 65);
+    g.drawString(debug3, 10, 85);
+  }
+    
   queueDraw();
 }
 function draw_all() {
