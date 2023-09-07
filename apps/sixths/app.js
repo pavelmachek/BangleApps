@@ -86,6 +86,30 @@ function fmtTimeDiff(d) {
   d = d/60;
   return ""+d.toFixed(0)+"m";
 }
+function gpsHandleFix(fix) {
+  if (!prev_fix) {
+    show("GPS acquired", 10);
+    buzz += " .";
+    prev_fix = fix;
+  }
+  alt_adjust = cur_altitude - (fix.alt + geoid_to_sea_level);
+  alt_adjust_mode = "g";
+  if (1) {
+    debug = ""+fix.alt+"m "+alt_adjust;
+    let now1 = Date.now();
+    let now2 = fix.time;
+    n1 = now1.getMinutes() * 60 + now1.getSeconds();
+    n2 = now2.getMinutes() * 60 + now2.getSeconds();
+    debug2 = "te "+(n2-n1)+"s";
+  }
+  loggps(fix);
+  print("GPS FIX", msg);
+  d = calcDistance(fix, prev_fix);
+  if (d > 30) {
+    prev_fix = fix;
+    gps_dist += d/1000;
+  }
+}
 function gpsHandle() {
   let msg = "";
   if (!last_restart) {
@@ -102,27 +126,13 @@ function gpsHandle() {
     } else {
       fix = Bangle.getGPSFix();
       if (fix.fix && fix.lat) {
-        if (!prev_fix) {
-          show("GPS acquired", 10);
-          buzz += " .";
-          prev_fix = fix;
-        }
+        gpsHandleFix(fix);
         msg = fix.speed.toFixed(1) + " km/h";
         
-        alt_adjust = cur_altitude - (fix.alt + geoid_to_sea_level);
-        alt_adjust_mode = "g";
-
         if (!last_fstart)
           last_fstart = getTime();
         last_fix = getTime();
         gps_needed = 60;
-        loggps(fix);
-        print("GPS FIX", msg);
-        d = calcDistance(fix, prev_fix);
-        if (d > 30) {
-          prev_fix = fix;
-          gps_dist += d/1000;
-        }
       } else {
         if (last_fix)
           msg = "L"+ fmtTimeDiff(getTime()-last_fix);
