@@ -103,7 +103,6 @@ function gpsHandleFix(fix) {
     debug2 = "te "+(n2-n1)+"s";
   }
   loggps(fix);
-  print("GPS FIX", msg);
   d = calcDistance(fix, prev_fix);
   if (d > 30) {
     prev_fix = fix;
@@ -128,6 +127,7 @@ function gpsHandle() {
       if (fix.fix && fix.lat) {
         gpsHandleFix(fix);
         msg = fix.speed.toFixed(1) + " km/h";
+        print("GPS FIX", msg);
         
         if (!last_fstart)
           last_fstart = getTime();
@@ -471,7 +471,7 @@ function draw() {
   }
   g.drawString(msg, 10, 145);
   
-  if (getTime() - last_active > 3600) {
+  if (getTime() - last_active > 15*60) {
     alt_adjust = cur_altitude - rest_altitude;
     alt_adjust_mode = "h";
     msg = "H)" + alt_adjust.toFixed(0) + "m";
