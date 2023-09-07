@@ -96,6 +96,8 @@ function gpsHandleFix(fix) {
   alt_adjust_mode = "g";
   if (1) {
     debug = ""+fix.alt+"m "+alt_adjust;
+  }
+  if (0) {
     let now1 = Date.now();
     let now2 = fix.time;
     n1 = now1.getMinutes() * 60 + now1.getSeconds();
