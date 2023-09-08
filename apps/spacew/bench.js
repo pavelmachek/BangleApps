@@ -50,26 +50,34 @@ function linearRead() {
     let pos = i;
     //let pos = size-i;
     let d = require("Storage").read("delme.mtar", pos, block);
-    sum += checksum(E.toUint8Array(d));
+    //sum += checksum(E.toUint8Array(d));
     i += block;
     ops ++;
   }
   print(ops, "ops", sum);
 }
-function runBench(b, name) {
-  g.reset().clearRect(R);
+function drawBench(name) {
   g.setColor(0,0,0).setFont("Vector",25);
   g.setFontAlign(0,0);
   g.drawString(name, 85,35);
   g.setColor(0,0,0).setFont("Vector",18);
   g.drawString("Running", 85,55);
   g.flip();
+}
+function runBench(b, name) {
+  drawBench(name);
+  g.reset().clearRect(R);
 
   let t1 = getTime();
   print("--------------------------------------------------");
   print("Running",name);
   b();
-  print("..done in", getTime()-t1, "seconds");
+  let m = (getTime()-t1) + " sec";
+  print("..done in", m);
+  drawBench(name);
+  g.setColor(0,0,0).setFont("Vector",18);
+  g.drawString(m, 85,85);
+
 }
 function redraw() {
   //runBench(lineBench, "Lines");
