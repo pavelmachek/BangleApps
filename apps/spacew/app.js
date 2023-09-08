@@ -614,7 +614,6 @@ function newPolygon(tile, a, bin) {
     step = log2(len) - 5;
     step = 1<<step;
   }
-  step = step;
   var p1 = toScreen(tile, xy);
   let pol = [p1.x, p1.y];
   while (i < len) {  
