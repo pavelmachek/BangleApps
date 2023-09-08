@@ -20,6 +20,21 @@ function lineBench() {
     //g.flip();
   }
 }
+function polyBench() {
+  /* 275 hollow polygons a second on hardware, 99 with flip */
+  /* 261 filled polygons a second on hardware, 99 with flip */
+  for (let i=0; i<1000; i++) {
+    let x1 = Math.random() * 160;
+    let y1 = Math.random() * 160;
+    let x2 = Math.random() * 160;
+    let y2 = Math.random() * 160;
+    let c = Math.random();
+    
+    g.setColor(c, c, c);
+    g.fillPoly([80, x1, y1, 80, 80, x2, y2, 80], true);
+    //g.flip();
+  }
+}
 function checksum(d) {
   let sum = 0;
   for (i=0; i<d.length; i++) {
@@ -81,7 +96,8 @@ function runBench(b, name) {
 }
 function redraw() {
   //runBench(lineBench, "Lines");
-  runBench(linearRead, "Linear read");
+  runBench(polyBench, "Polygons");
+  //runBench(linearRead, "Linear read");
 }
 function showMap() {
   g.reset().clearRect(R);
