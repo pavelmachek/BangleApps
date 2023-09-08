@@ -20,6 +20,13 @@ function lineBench() {
     //g.flip();
   }
 }
+function checksum(d) {
+  let sum = 0;
+  for (i=0; i<d.length; i++) {
+    sum += (d[i]*1);
+  }
+  return sum;
+}
 function linearRead() {
   /* 10000b block -> 8.3MB/sec, 781..877 IOPS
       1000b block -> 920K/sec, 909 IOPS, 0.55 sec
@@ -30,21 +37,24 @@ function linearRead() {
        100b block -- 5.93.
                   backwards -- 6.27
                   random -- 7.13
+     checksum 5.97 -> 351 seconds with checksum. 1400bytes/second
    */
      
   let size = 500000;
   let block = 100;
   let i = 0;
   let ops = 0;
+  let sum = 0;
   while (i < size) {
     //let pos = Math.random() * size;
     let pos = i;
     //let pos = size-i;
     let d = require("Storage").read("delme.mtar", pos, block);
+    sum += checksum(E.toUint8Array(d));
     i += block;
     ops ++;
   }
-  print(ops, "ops");
+  print(ops, "ops", sum);
 }
 function runBench(b, name) {
   g.reset().clearRect(R);
