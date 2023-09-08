@@ -30,10 +30,10 @@ function writeTar(tar, dir) {
     for (f of files) {
         let f_rec = {};
         d = fs.readFileSync(dir+f);
-	if (0) {
+        if (0) {
             cs = hs.compress(d);
-	    f_rec.comp = "hs";
-	} else
+            f_rec.comp = "hs";
+        } else
             cs = d;
         print("Processing", f, cur, d.length, cs.length);
         data.push(cs);
@@ -58,7 +58,7 @@ function writeTar(tar, dir) {
     }
     fs.writeFileSync(tar, header);
     for (d of data)
-	fs.appendFileSync(tar, Buffer.from(d));
+        fs.appendFileSync(tar, Buffer.from(d));
     fs.appendFileSync(tar, directory);
 }
 

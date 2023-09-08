@@ -445,7 +445,7 @@ function loadVector(name) {
   var t1 = getTime();
   print(".. Read", name);
     //s = require("Storage").read(name);
-  var s = readTarFile("delme.mtar", name);
+  var s = readTarFile("world.mtar", name);
   if (s == undefined) {
     print("Don't have file", name);
     return null;

@@ -32,9 +32,9 @@ function convGeom(tile, geom) {
 
 function clamp(i) {
     if (i<0)
-	return 0;
+        return 0;
     if (i>4095)
-	return 4095;
+        return 4095;
     return i;
 }
 
@@ -45,11 +45,11 @@ function binGeom(tile, geom) {
     for (i = 0; i< geom.length; i++) {
         let x = geom[i][0];
         let y = geom[i][1];
-	x = clamp(x);
-	y = clamp(y);
-	r[j++] = x >> 4;
-	r[j++] = y >> 4;
-	r[j++] = (x & 0x0f) + ((y & 0x0f) << 4);
+        x = clamp(x);
+        y = clamp(y);
+        r[j++] = x >> 4;
+        r[j++] = y >> 4;
+        r[j++] = (x & 0x0f) + ((y & 0x0f) << 4);
     }
 
     return r;
@@ -184,14 +184,14 @@ function paintPolygon(tags) {
 function writeFeatures(name, feat)
 {
     if (0) {
-	var n = {};
-	n.type = "FeatureCollection";
-	n.features = feat;
+        var n = {};
+        n.type = "FeatureCollection";
+        n.features = feat;
     
-	fs.writeFile(name+'.json', JSON.stringify(n), on_error);
+        fs.writeFile(name+'.json', JSON.stringify(n), on_error);
     } else {
-	if (feat.length > 0)
-	    fs.writeFile(name+'.json', JSON.stringify(feat), on_error);
+        if (feat.length > 0)
+            fs.writeFile(name+'.json', JSON.stringify(feat), on_error);
     }
 }
 
@@ -205,40 +205,40 @@ function toGjson(name, d, tile) {
     var cnt = 0;
     var feat = [];
     for (var a of d) {
-        let f = {};	// geojson output
-	let b = {};     // moving towards binary output 
+        let f = {};        // geojson output
+        let b = {};     // moving towards binary output 
         var zoom = 99;
         var p = {};
-	var bin = [];
-	if (!a.tags)
-	    a.tags = a.properties;
+        var bin = [];
+        if (!a.tags)
+            a.tags = a.properties;
         f.properties = a.tags;
         f.type = "Feature";
         f.geometry = {};
         if (a.type == 1) {
             f.geometry.type = "Point";
             f.geometry.coordinates = convGeom(tile, a.geometry)[0];
-	    bin = binGeom(tile, a.geometry);
+            bin = binGeom(tile, a.geometry);
             zoom = zoomPoint(a.tags);
             p = paintPoint(a.tags);
         } else if (a.type == 2) {
             f.geometry.type = "LineString";
             f.geometry.coordinates = convGeom(tile, a.geometry[0]);
-	    bin = binGeom(tile, a.geometry[0]);
+            bin = binGeom(tile, a.geometry[0]);
             zoom = zoomWay(a.tags);
-            p = paintWay(a.tags);	    
-	    if (zoom == 99) {
-		f.geometry.type = "Polygon";
-		zoom = zoomPolygon(a.tags);
-		p = paintPolygon(a.tags);
-	    }
+            p = paintWay(a.tags);            
+            if (zoom == 99) {
+                f.geometry.type = "Polygon";
+                zoom = zoomPolygon(a.tags);
+                p = paintPolygon(a.tags);
+            }
         } else if (a.type == 3) {
             f.geometry.type = "Polygon";
             f.geometry.coordinates = convGeom(tile, a.geometry[0]);
-	    bin = binGeom(tile, a.geometry[0]);
+            bin = binGeom(tile, a.geometry[0]);
             zoom = zoomPolygon(a.tags);
             p = paintPolygon(a.tags);
-	} else {
+        } else {
             console.log("Unknown type", a.type);
         }
         //zoom -= 4; // Produces way nicer map, at expense of space.
@@ -246,22 +246,22 @@ function toGjson(name, d, tile) {
             continue;
         f.properties = Object.assign({}, f.properties, p);
         //feat.push(f); FIXME
-	bin[0] = p.attr;
-	b.b = btoa(bin);
-	b.tags = {};
-	if (a.tags.name)
-	    b.tags.name = a.tags.name;
-	if (a.tags.nameascii)
-	    b.tags.name = a.tags.nameascii;
-	if (a.tags.sr_subunit)
-	    b.tags.name = a.tags.sr_subunit;
-	
-	//delete(a.tags.highway);
-	//delete(a.tags.landuse);
-	//delete(a.tags.natural);
-	//delete(a.tags.place);
-	//        b.properties = p
-	feat.push(b);
+        bin[0] = p.attr;
+        b.b = btoa(bin);
+        b.tags = {};
+        if (a.tags.name)
+            b.tags.name = a.tags.name;
+        if (a.tags.nameascii)
+            b.tags.name = a.tags.nameascii;
+        if (a.tags.sr_subunit)
+            b.tags.name = a.tags.sr_subunit;
+        
+        //delete(a.tags.highway);
+        //delete(a.tags.landuse);
+        //delete(a.tags.natural);
+        //delete(a.tags.place);
+        //        b.properties = p
+        feat.push(b);
         var s = JSON.stringify(feat);
         if (s.length > 6000) {
             console.log("tile too big, splitting", cnt);
@@ -287,7 +287,7 @@ console.log("Splitting data");
 meta.min_zoom = 0;
 meta.max_zoom = 16; // HERE
                  // = 16 ... split3 takes > 30 minutes
-		 // = 13 ... 2 minutes
+                 // = 13 ... 2 minutes
 if (process.argv[2] == "-h") {
     console.log("help here");
     process.exit(0);
