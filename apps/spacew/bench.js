@@ -18,8 +18,12 @@ function lineBench() {
     g.drawLine(x1, y1, x2, y2);
   }
 }
-function runBench(b) {
+function runBench(b, name) {
+  let t1 = getTime();
+  print("--------------------------------------------------");
+  print("Running",name);
   b();
+  print("..done in", getTime()-t1, "seconds");
 }
 function redraw() {
   g.reset().clearRect(R);
@@ -29,7 +33,7 @@ function redraw() {
   g.setColor(0,0,0).setFont("Vector",18);
   g.drawString("Press button", 85,55);
   
-  runBench(lineBench);
+  runBench(lineBench, "Lines");
 }
 function showMap() {
   g.reset().clearRect(R);
