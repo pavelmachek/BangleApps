@@ -9,6 +9,7 @@ function introScreen() {
   g.drawString("Press button", 85,55);
 }
 function lineBench() {
+  /* 500 lines a second on hardware, 125 lines with flip */
   for (let i=0; i<1000; i++) {
     let x1 = Math.random() * 160;
     let y1 = Math.random() * 160;
@@ -16,9 +17,44 @@ function lineBench() {
     let y2 = Math.random() * 160;
     
     g.drawLine(x1, y1, x2, y2);
+    //g.flip();
   }
 }
+function linearRead() {
+  /* 10000b block -> 8.3MB/sec, 781..877 IOPS
+      1000b block -> 920K/sec, 909 IOPS, 0.55 sec
+       100b block -> 100K/sec
+        10b block -> 10K/sec, 1020 IOPS, 914 IOPS with ops counting
+        
+      1000b block backwards -- 0.59 sec.
+       100b block -- 5.93.
+                  backwards -- 6.27
+                  random -- 7.13
+   */
+     
+  let size = 500000;
+  let block = 100;
+  let i = 0;
+  let ops = 0;
+  while (i < size) {
+    //let pos = Math.random() * size;
+    let pos = i;
+    //let pos = size-i;
+    let d = require("Storage").read("delme.mtar", pos, block);
+    i += block;
+    ops ++;
+  }
+  print(ops, "ops");
+}
 function runBench(b, name) {
+  g.reset().clearRect(R);
+  g.setColor(0,0,0).setFont("Vector",25);
+  g.setFontAlign(0,0);
+  g.drawString(name, 85,35);
+  g.setColor(0,0,0).setFont("Vector",18);
+  g.drawString("Running", 85,55);
+  g.flip();
+
   let t1 = getTime();
   print("--------------------------------------------------");
   print("Running",name);
@@ -26,14 +62,8 @@ function runBench(b, name) {
   print("..done in", getTime()-t1, "seconds");
 }
 function redraw() {
-  g.reset().clearRect(R);
-  g.setColor(0,0,0).setFont("Vector",25);
-  g.setFontAlign(0,0);
-  g.drawString("Running", 85,35);
-  g.setColor(0,0,0).setFont("Vector",18);
-  g.drawString("Press button", 85,55);
-  
-  runBench(lineBench, "Lines");
+  //runBench(lineBench, "Lines");
+  runBench(linearRead, "Linear read");
 }
 function showMap() {
   g.reset().clearRect(R);
