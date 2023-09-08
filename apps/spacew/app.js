@@ -499,7 +499,6 @@ function drawLine(a, qual) {
       i = len-1;
     points ++;
     p1 = p2;
-    g.flip();
   }
 }
 function drawPolygon(a, qual) {
@@ -604,7 +603,6 @@ function newLine(tile, a, bin) {
       i = len-1;
     points ++;
     p1 = p2;
-    g.flip();
   }
 }
 function newPolygon(tile, a, bin) {
@@ -654,6 +652,7 @@ function newVector(tile, rec) {
   } else if (a.type == 3) {
     newPolygon(tile, a, bin);
   } else print("Unknown record", a);
+  g.flip();
 }
 function drawVector(gjson, tile, qual) {
   var d = gjson;
@@ -789,7 +788,7 @@ function introScreen() {
 }
 
 
-m.scale = 76;
+m.scale = 7600;
 m.lat = 50.001;
 m.lon = 14.759;
 
