@@ -209,14 +209,14 @@ function inputHandler(s) {
       buzz += toMorse(s);
       show("Bat "+bat+"%", 60);
       break;
-    case 'E': 
+    case 'F': gpsOff(); show("GPS off", 3); break;
+    case 'G': gpsOn(); gps_limit = getTime() + 60*60*4; show("GPS on", 3); break;
+    case 'I':
       disp_mode += 1; 
-      if (disp_mode == 3) {
+      if (disp_mode == 2) {
         disp_mode = 0;
       }
       break;
-    case 'F': gpsOff(); show("GPS off", 3); break;
-    case 'G': gpsOn(); gps_limit = getTime() + 60*60*4; show("GPS on", 3); break;
     case 'L': aload("altimeter.app.js"); break;
     case 'M': mode = 2; show("M>", 10); cur_mark = markNew(); mode_time = getTime(); break;
     case 'N': mode = 1; show(">", 10); mode_time = getTime(); break;
