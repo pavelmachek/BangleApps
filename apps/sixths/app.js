@@ -1,6 +1,6 @@
 // Options you'll want to edit
 const rest_altitude = 354;
-const geoid_to_sea_level = -60;
+const geoid_to_sea_level = 0; // Maybe BangleJS2 already compensates?
 
 const W = g.getWidth();
 const H = g.getHeight();
@@ -92,8 +92,11 @@ function gpsHandleFix(fix) {
     buzz += " .";
     prev_fix = fix;
   }
-  alt_adjust = cur_altitude - (fix.alt + geoid_to_sea_level);
-  alt_adjust_mode = "g";
+  if (0) {
+    /* GPS altitude fluctuates a lot, not really usable */
+    alt_adjust = cur_altitude - (fix.alt + geoid_to_sea_level);
+    alt_adjust_mode = "g";
+  }
   if (1) {
     debug = ""+fix.alt+"m "+alt_adjust;
   }
