@@ -1,3 +1,5 @@
+// Sixth sense
+
 // Options you'll want to edit
 const rest_altitude = 354;
 const geoid_to_sea_level = 0; // Maybe BangleJS2 already compensates?
