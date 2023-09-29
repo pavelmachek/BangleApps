@@ -174,6 +174,10 @@ function markHandle() {
   let m = cur_mark;
   msg = m.name + ">" + fmtTimeDiff(getTime()- m.time)
     + " " + fmtDist(m.gps_dist - gps_dist);
+  if (1) {
+    debug = "wp>" + fmtDist(mark.fix, prev_fix) + "km";
+    debug2 = "wp>" + bearing(mark.fix, prev_fix);
+  }
   return msg;
 }
 function entryDone() {
@@ -407,6 +411,17 @@ function calcDistance(a,b) {
   var y = radians(b.lat-a.lat);
   return Math.sqrt(x*x + y*y) * 6371000;
 }
+// thanks to waypointer
+function calcBearing(a,b){
+  var delta = radians(b.lon-a.lon);
+  var alat = radians(a.lat);
+  var blat = radians(b.lat);
+  var y = Math.sin(delta) * Math.cos(blat);
+  var x = Math.cos(alat)*Math.sin(blat) -
+        Math.sin(alat)*Math.cos(blat)*Math.cos(delta);
+  return Math.round(degrees(Math.atan2(y, x)));
+}
+
 function radA(p) { return p*(Math.PI*2); }
 function radD(d) { return d*(H/2); }
 function radX(p, d) {
