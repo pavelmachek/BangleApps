@@ -125,7 +125,7 @@ function gpsHandle() {
       if (last_fix)
           msg = "PL"+ fmtTimeDiff(getTime()-last_fix);
       else
-          msg = "PN"+ fmtTimeDiff(getTime()-gps_on) + " ";
+          msg = "PN"+ fmtTimeDiff(getTime()-gps_on);
 
       print("gps on, paused ", d, gps_needed);
       if (d > gps_needed * 2) {
@@ -148,7 +148,7 @@ function gpsHandle() {
         else {
           msg = "N"+ fmtTimeDiff(getTime()-gps_on);
           if (fix) {
-            msg += fix.satellites + "sats";
+            msg += " " + fix.satellites + "sats";
           }
         }
       }
@@ -182,7 +182,8 @@ function markHandle() {
     + " " + fmtDist(m.gps_dist - gps_dist);
   if (1) {
     debug = "wp>" + fmtDist(mark.fix, prev_fix) + "km";
-    debug2 = "wp>" + bearing(mark.fix, prev_fix);
+    mark_heading = bearing(mark.fix, prev_fix);
+    debug2 = "wp>" + mark_heading;
   }
   return msg;
 }
@@ -457,6 +458,10 @@ function drawBackground() {
   }
   if (prev_fix && prev_fix.fix) {
     g.setColor(0.5, 1, 0.5);
+    drawDot(h, 0.5, 6);
+  }
+  if (mark_heading != -1) {
+    g.setColor(1, 0.5, 0.5);
     drawDot(h, 0.6, 8);
   }
 }
