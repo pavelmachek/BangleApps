@@ -27,6 +27,8 @@ var gps_needed = 0, // how long to wait for a fix
 var prev_fix = null;
 var gps_dist = 0;
 
+var mark_heading = -1;
+
 // Is the human present?
 var is_active = false, last_active = getTime();
 var is_level = false;
@@ -123,7 +125,7 @@ function gpsHandle() {
       if (last_fix)
           msg = "PL"+ fmtTimeDiff(getTime()-last_fix);
       else
-          msg = "PN"+ fmtTimeDiff(getTime()-gps_on);
+          msg = "PN"+ fmtTimeDiff(getTime()-gps_on) + " ";
 
       print("gps on, paused ", d, gps_needed);
       if (d > gps_needed * 2) {
@@ -131,7 +133,7 @@ function gpsHandle() {
       }
     } else {
       fix = Bangle.getGPSFix();
-      if (fix.fix && fix.lat) {
+      if (fix && fix.fix && fix.lat) {
         gpsHandleFix(fix);
         msg = fix.speed.toFixed(1) + " km/h";
         print("GPS FIX", msg);
@@ -143,8 +145,12 @@ function gpsHandle() {
       } else {
         if (last_fix)
           msg = "L"+ fmtTimeDiff(getTime()-last_fix);
-        else
+        else {
           msg = "N"+ fmtTimeDiff(getTime()-gps_on);
+          if (fix) {
+            msg += fix.satellites + "sats";
+          }
+        }
       }
 
       d = (getTime()-last_restart);
@@ -432,19 +438,26 @@ function radY(p, d) {
   let a = radA(p);
   return W/2 - Math.cos(a)*radD(d);
 }
+function drawDot(h, d, s) {
+  let x = radX(h/360, d);
+  let y = radY(h/360, d);
+  g.fillCircle(x,y, 10);
+}
 function drawBackground() {
   acc = Bangle.getAccel();
-  is_level = !!(acc.z < -0.95);
+  is_level = (acc.z < -0.95);
   if (is_level) {
     let obj = Bangle.getCompass();
     if (obj) {
       let h = 360-obj.heading;
       print("Compass", h);
-      let x = radX(h/360, 0.7);
-      let y = radY(h/360, 0.7);
       g.setColor(0.5, 0.5, 1);
-      g.fillCircle(x,y, 10);
+      drawDot(h, 0.7, 10);
     }
+  }
+  if (prev_fix && prev_fix.fix) {
+    g.setColor(0.5, 1, 0.5);
+    drawDot(h, 0.6, 8);
   }
 }
 function drawTime(now) {
@@ -467,6 +480,12 @@ function draw() {
     g.setColor(0.25, 1, 1);
     g.fillPoly([ W/2, 24, W, 80, 0, 80 ]);
   }
+  let msg = "";
+  if (gps_on) {
+    msg = gpsHandle();
+  } else {
+    msg = note;
+  }
   drawBackground();
 
   let now = new Date();
@@ -485,12 +504,6 @@ function draw() {
   g.drawString(weekday[now.getDay()] + "" + now.getDate() + ". "
                + fmtSteps(Bangle.getHealthStatus("day").steps), 10, 115);
 
-  let msg = "";
-  if (gps_on) {
-    msg = gpsHandle();
-  } else {
-    msg = note;
-  }
   g.drawString(msg, 10, 145);
   
   if (getTime() - last_active > 15*60) {
