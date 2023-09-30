@@ -13,7 +13,7 @@ var buzz = "",      /* Set this to transmit morse via vibrations */
     inm = "", l = "", /* For incoming morse handling */
     in_str = "",
     note = "(NOTEHERE)",
-    debug = "(debugmsg)", debug2 = "(otherdb)", debug3 = "(short)";
+    debug = "v930", debug2 = "(otherdb)", debug3 = "(short)";
 var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note, 2.. mark name
 var disp_mode = 0;  // 0 .. normal, 1 .. small time
 
@@ -181,8 +181,9 @@ function markHandle() {
   msg = m.name + ">" + fmtTimeDiff(getTime()- m.time)
     + " " + fmtDist(m.gps_dist - gps_dist);
   if (1) {
-    debug = "wp>" + fmtDist(mark.fix, prev_fix) + "km";
-    mark_heading = bearing(mark.fix, prev_fix);
+    debug = "wp>" + fmtDist(calcDistance(m.fix, prev_fix)) + "km";
+    //mark_heading = calcBearing(m.fix, prev_fix);
+    mark_heading = 90;
     debug2 = "wp>" + mark_heading;
   }
   return msg;
@@ -458,11 +459,11 @@ function drawBackground() {
   }
   if (prev_fix && prev_fix.fix) {
     g.setColor(0.5, 1, 0.5);
-    drawDot(h, 0.5, 6);
+    drawDot(prev_fix.course, 0.5, 6);
   }
   if (mark_heading != -1) {
     g.setColor(1, 0.5, 0.5);
-    drawDot(h, 0.6, 8);
+    drawDot(mark_heading, 0.6, 8);
   }
 }
 function drawTime(now) {
