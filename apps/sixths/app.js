@@ -182,8 +182,8 @@ function markHandle() {
     + " " + fmtDist(m.gps_dist - gps_dist);
   if (1) {
     debug = "wp>" + fmtDist(calcDistance(m.fix, prev_fix)) + "km";
-    //mark_heading = calcBearing(m.fix, prev_fix);
-    mark_heading = 90;
+    mark_heading = calcBearing(m.fix, prev_fix);
+    //mark_heading = 90;
     debug2 = "wp>" + mark_heading;
   }
   return msg;
@@ -410,11 +410,12 @@ function every(now) {
 
 }
 
+function radians(a) { return a*Math.PI/180; }
+function degrees(a) { return a*180/Math.PI; }
 // distance between 2 lat and lons, in meters, Mean Earth Radius = 6371km
 // https://www.movable-type.co.uk/scripts/latlong.html
 // (Equirectangular approximation)
 function calcDistance(a,b) {
-  function radians(a) { return a*Math.PI/180; }
   var x = radians(b.lon-a.lon) * Math.cos(radians((a.lat+b.lat)/2));
   var y = radians(b.lat-a.lat);
   return Math.sqrt(x*x + y*y) * 6371000;
@@ -428,6 +429,12 @@ function calcBearing(a,b){
   var x = Math.cos(alat)*Math.sin(blat) -
         Math.sin(alat)*Math.cos(blat)*Math.cos(delta);
   return Math.round(degrees(Math.atan2(y, x)));
+}
+function testBearing() {
+  let p1 = {}, p2 = {};
+  p1.lat = 40; p2.lat = 50;
+  p1.lon = 14; p2.lon = 14;
+  print("bearing = ", calcBearing(p1, p2));
 }
 
 function radA(p) { return p*(Math.PI*2); }
@@ -694,4 +701,7 @@ Bangle.loadWidgets();
 Bangle.drawWidgets();
 let logfile = require("Storage").open("sixths.egt", "a");
 
-start();
+if (0) {
+  testBearing();
+} else
+  start();
