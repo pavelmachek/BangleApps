@@ -180,7 +180,7 @@ function markHandle() {
   let m = cur_mark;
   msg = m.name + ">" + fmtTimeDiff(getTime()- m.time);
   if (m.fix && m.fix.fix) {
-    let s = fmtDist(calcDistance(m.fix, prev_fix)) + "km";
+    let s = fmtDist(calcDistance(m.fix, prev_fix)/1000) + "km";
     msg += " " + s;
     debug = "wp>" + s;
     mark_heading = 180 + calcBearing(m.fix, prev_fix);
@@ -197,6 +197,7 @@ function entryDone() {
   case 1: logstamp(">" + in_str); break;
   case 2: cur_mark.name = in_str; break;
   }
+  in_str = 0;
   mode = 0;
 }
 function inputHandler(s) {
