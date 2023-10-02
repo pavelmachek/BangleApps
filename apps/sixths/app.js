@@ -178,13 +178,15 @@ function markNew() {
 }
 function markHandle() {
   let m = cur_mark;
-  msg = m.name + ">" + fmtTimeDiff(getTime()- m.time)
-    + " " + fmtDist(m.gps_dist - gps_dist);
-  if (1) {
-    debug = "wp>" + fmtDist(calcDistance(m.fix, prev_fix)) + "km";
-    mark_heading = calcBearing(m.fix, prev_fix);
-    //mark_heading = 90;
+  msg = m.name + ">" + fmtTimeDiff(getTime()- m.time);
+  if (m.fix && m.fix.fix) {
+    let s = fmtDist(calcDistance(m.fix, prev_fix)) + "km";
+    msg += " " + s;
+    debug = "wp>" + s;
+    mark_heading = 180 + calcBearing(m.fix, prev_fix);
     debug2 = "wp>" + mark_heading;
+  } else {
+    msg += " w" + fmtDist(gps_dist - m.gps_dist);
   }
   return msg;
 }
