@@ -13,6 +13,9 @@ var wp = require('Storage').readJSON("waypoints.json", true) || [];
    2 .. DD MM'ss"
 */
 var mode = 1;
+var key; /* Shared between functions, typically wp name */
+var fix; /* GPS fix */
+var cancel_gps;
 
 function writeWP() {
   require('Storage').writeJSON("waypoints.json", wp);
@@ -35,12 +38,11 @@ function mainMenu() {
   E.showMenu(menu);
 }
 
-function touchGps(e) {
-  print("Should mark point", key, fix);
-}
-
 function updateGps() {
   let have = false;
+  
+  if (cancel_gps)
+    return;
   fix = Bangle.getGPSFix();
   
   if (fix && fix.fix && fix.lat) {
@@ -48,21 +50,34 @@ function updateGps() {
     have = true;
   }
   
-  g.reset().clear().setFont("Vector", 20)
+  g.reset().setFont("Vector", 20)
     .setColor(1,1,1)
-    .fillRect(0, 0, 176, 176)
+    .fillRect(0, 0, 176, 60)
     .setColor(0,0,0)
-    .drawString(key, 0, 40)
-    .drawString(2106968079 - getTime(), 0, 80)
-    .drawString(have, 0, 120);
+    .drawString(key, 0, 0)
+    .drawString(2106968079 - getTime(), 0, 20)
+    .drawString(have, 0, 40);
 
   setTimeout(updateGps, 100);
 }
 
+function confirmGps() {
+   var la = new Layout (
+        {type:"v", c: [
+          {type:"txt", font:"15%", pad:1, fillx:1, filly:1, label:""},
+          {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: "Mark", cb:l=>{ cancel_gps=true; print("should mark", mark, fix); mainMenu(); }},
+          {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: "Cancel", cb:l=>{ cancel_gps = true; mainMenu(); }},
+        ], lazy:true});
+  g.clear();
+  la.render();
+  updateGps();
+}
+
 function markGps() {
+  cancel_gps = false;
   Bangle.setGPSPower(1, "sixths");
-  Bangle.on("drag", touchGps);
-  showNumpad("mkXX", "mark", updateGps);
+ 
+  showNumpad("mkXX", "mark", confirmGps);
 }
 
 function setFormat() {
