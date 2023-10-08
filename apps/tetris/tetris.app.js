@@ -36,6 +36,12 @@ const tiles = [
 const ox = 176/2 - 5*8;
 const oy = 8;
 
+/* 0 .. simulated arrows
+   1 .. drag piece
+   2 .. accelerometer
+ */
+const control = 1; 
+
 var pf = Array(23).fill().map(()=>Array(12).fill(0)); // field is really 10x20, but adding a border for collision checks
 pf[20].fill(1);
 pf[21].fill(1);
@@ -169,7 +175,22 @@ function move(x, y) {
   }
 }
 
+function linear(x) {
+  print("Linear: ", x);
+  x = x * 10;
+  if (x < px)
+    move(-1, 0);
+  else
+    move(1, 0);
+}
+
 Bangle.setUI();
+if (control == 2) {
+  Bangle.on("accel", (e) => {
+    print(e.x);
+    linear((0.2-e.x) * 2.5);
+  });
+}
 Bangle.on("drag", (e) => {
   let h = 176/2;
   if (!e.b)
@@ -185,6 +206,10 @@ Bangle.on("drag", (e) => {
       }
     }
   } else {
+    if (control == 1)
+      linear(e.x / 176);
+    if (control != 0)
+      return;
     if (e.x < h)
       move(-1, 0);
     else
