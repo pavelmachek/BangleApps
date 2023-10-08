@@ -38,9 +38,9 @@ const oy = 8;
 
 /* 0 .. simulated arrows
    1 .. drag piece
-   2 .. accelerometer
+   2 .. accelerometer. 12 lines record.
  */
-const control = 1; 
+const control = 2; 
 
 var pf = Array(23).fill().map(()=>Array(12).fill(0)); // field is really 10x20, but adding a border for collision checks
 pf[20].fill(1);
@@ -177,10 +177,10 @@ function move(x, y) {
 
 function linear(x) {
   print("Linear: ", x);
-  x = x * 10;
-  if (x < px)
+  let now = px / 10;
+  if (x < now-0.06)
     move(-1, 0);
-  else
+  if (x > now+0.06)
     move(1, 0);
 }
 
