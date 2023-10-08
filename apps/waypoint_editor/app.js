@@ -39,14 +39,17 @@ function mainMenu() {
 }
 
 function updateGps() {
-  let have = false;
+  let have = false, lat = "lat", lon = "lon", alt = "alt", speed = "speed";
   
   if (cancel_gps)
     return;
   fix = Bangle.getGPSFix();
   
   if (fix && fix.fix && fix.lat) {
-  	msg = fix.speed.toFixed(1) + " km/h";
+    lat = "" + fix.lat;
+    lon = "" + fix.lon;
+    alt = "" + fix.alt;
+    speed = "" + fix.speed;
     have = true;
   }
   
@@ -55,8 +58,10 @@ function updateGps() {
     .fillRect(0, 0, 176, 60)
     .setColor(0,0,0)
     .drawString(key, 0, 0)
-    .drawString(2106968079 - getTime(), 0, 20)
-    .drawString(have, 0, 40);
+    .drawString(lat, 0, 20)
+    .drawString(lon, 0, 40)
+    .drawString(alt, 0, 60)
+    .drawString(speed, 0, 80);
 
   setTimeout(updateGps, 100);
 }
@@ -69,7 +74,6 @@ function confirmGps() {
             {type:"h", c: [
               {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: "YES", cb:l=>{
                 cancel_gps=true; print("should mark", key, fix); createWP(fix.lat, fix.lon, key); mainMenu();
-                
               }},
               {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: " NO", cb:l=>{ cancel_gps=true; mainMenu(); }}
             ]}
