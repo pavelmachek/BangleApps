@@ -65,7 +65,7 @@ function confirmGps() {
    var la = new Layout (
         {type:"v", c: [
           {type:"txt", font:"15%", pad:1, fillx:1, filly:1, label:""},
-          {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: "Mark", cb:l=>{ cancel_gps=true; print("should mark", mark, fix); mainMenu(); }},
+          {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: "Mark", cb:l=>{ cancel_gps=true; print("should mark", key, fix); createWP(fix.lat, fix.lon, key); mainMenu(); }},
           {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: "Cancel", cb:l=>{ cancel_gps = true; mainMenu(); }},
         ], lazy:true});
   g.clear();
@@ -283,6 +283,16 @@ function askPosition(callback) {
   });
 }
 
+function createWP(lat, lon, name) {
+      let n = {};
+      n["name"] = result;
+      n["lat"] = lat;
+      n["lon"] = lon;
+      wp.push(n);
+      print("add -- waypoints", wp);
+      writeWP();
+}
+
 function addCard() {
   showNumpad("wpXX", "wp", function() {
     result = key;
@@ -303,13 +313,7 @@ function addCard() {
     g.clear();
     askPosition(function(lat, lon) {
       print("position -- ", lat, lon);
-      let n = {};
-      n["name"] = result;
-      n["lat"] = lat;
-      n["lon"] = lon;
-      wp.push(n);
-      print("add -- waypoints", wp);
-      writeWP();
+      createWP(lat, lon, result);
       mainMenu();
     });
   });
