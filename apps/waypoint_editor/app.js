@@ -62,12 +62,18 @@ function updateGps() {
 }
 
 function confirmGps() {
-   var la = new Layout (
-        {type:"v", c: [
-          {type:"txt", font:"15%", pad:1, fillx:1, filly:1, label:""},
-          {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: "Mark", cb:l=>{ cancel_gps=true; print("should mark", key, fix); createWP(fix.lat, fix.lon, key); mainMenu(); }},
-          {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: "Cancel", cb:l=>{ cancel_gps = true; mainMenu(); }},
-        ], lazy:true});
+        var la = new Layout (
+          {type:"v", c: [
+            {type:"txt", font:"15%", pad:1, fillx:1, filly:1, label:""},
+            {type:"txt", font:"15%", pad:1, fillx:1, filly:1, label:""},
+            {type:"h", c: [
+              {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: "YES", cb:l=>{
+                cancel_gps=true; print("should mark", key, fix); createWP(fix.lat, fix.lon, key); mainMenu();
+                
+              }},
+              {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: " NO", cb:l=>{ cancel_gps=true; mainMenu(); }}
+            ]}
+          ], lazy:true});
   g.clear();
   la.render();
   updateGps();
