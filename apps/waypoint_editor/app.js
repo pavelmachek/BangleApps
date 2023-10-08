@@ -30,8 +30,39 @@ function mainMenu() {
   menu["Add"]=addCard;
   menu["Remove"]=removeCard;
   menu["Format"]=setFormat;
+  menu["Mark GPS"]=markGps;
   g.clear();
   E.showMenu(menu);
+}
+
+function touchGps(e) {
+  print("Should mark point", key, fix);
+}
+
+function updateGps() {
+  let have = false;
+  fix = Bangle.getGPSFix();
+  
+  if (fix && fix.fix && fix.lat) {
+  	msg = fix.speed.toFixed(1) + " km/h";
+    have = true;
+  }
+  
+  g.reset().clear().setFont("Vector", 20)
+    .setColor(1,1,1)
+    .fillRect(0, 0, 176, 176)
+    .setColor(0,0,0)
+    .drawString(key, 0, 40)
+    .drawString(2106968079 - getTime(), 0, 80)
+    .drawString(have, 0, 120);
+
+  setTimeout(updateGps, 100);
+}
+
+function markGps() {
+  Bangle.setGPSPower(1, "sixths");
+  Bangle.on("drag", touchGps);
+  showNumpad("mkXX", "mark", updateGps);
 }
 
 function setFormat() {
