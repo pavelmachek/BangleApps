@@ -35,7 +35,7 @@ function mainMenu() {
 }
 
 function setFormat() {
-  var confirmRemove = new Layout (
+  var la = new Layout (
         {type:"v", c: [
           {type:"txt", font:"15%", pad:1, fillx:1, filly:1, label:"Format"},
           {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: "DD.dddd", cb:l=>{  mode = 0; mainMenu(); }},
@@ -43,7 +43,7 @@ function setFormat() {
           {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: "DD MM'ss"+'"', cb:l=>{  mode = 2; mainMenu(); }},
         ], lazy:true});
   g.clear();
-  confirmRemove.render();
+  la.render();
 }
 
 function format(x) {
@@ -87,14 +87,14 @@ function lon(x) {
 function decode(pin) {
       print(pin);
       var i = wp[pin];
-      var pinDecrypted=i["name"] + "\n" + lat(i["lat"]) + "\n" + lon(i["lon"]);
-      var showPin = new Layout ({
+      var l = i["name"] + "\n" + lat(i["lat"]) + "\n" + lon(i["lon"]);
+      var la = new Layout ({
         type:"v", c: [
-          {type:"txt", font:"10%", pad:1, fillx:1, filly:1, label: pinDecrypted},
+          {type:"txt", font:"10%", pad:1, fillx:1, filly:1, label: l},
           {type:"btn", font:"10%", pad:1, fillx:1, filly:1, label:"OK", cb:l=>{mainMenu();}}
         ], lazy:true});
       g.clear();
-      showPin.render();
+      la.render();
 }
 
 function showNumpad(text, key_, callback) {
@@ -155,10 +155,10 @@ function showNumpad(text, key_, callback) {
 
 function removeCard() {
   var menu = {
-    "" : {title : "select card"},
+    "" : {title : "Select WP"},
     "< Back" : mainMenu
   };
-  if (Object.keys(wp).length==0) Object.assign(menu, {"NO CARDS":""});
+  if (Object.keys(wp).length==0) Object.assign(menu, {"No WPs":""});
   else {
     wp.forEach((val, card) => {
       const name = wp[card].name;
@@ -186,14 +186,14 @@ function removeCard() {
 }
 
 function ask01(t, cb) {
-  var confirmRemove = new Layout (
+  var la = new Layout (
         {type:"v", c: [
-          {type:"txt", font:"15%", pad:1, fillx:1, filly:1, label:"Format"},
+          {type:"txt", font:"15%", pad:1, fillx:1, filly:1, label:"Select"},
           {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: t[0], cb:l=>{ cb(1); }},
           {type:"btn", font:"15%", pad:1, fillx:1, filly:1, label: t[1], cb:l=>{ cb(-1); }},
         ], lazy:true});
   g.clear();
-  confirmRemove.render();
+  la.render();
 }
 
 
