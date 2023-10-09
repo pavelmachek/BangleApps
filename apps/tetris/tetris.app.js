@@ -42,14 +42,22 @@ const oy = 8;
    3 .. altimeter
  */
 var control = 0;
+/* 0 .. menu
+   1 .. game
+   2 .. game over */
+var state = 0;
 
 var alt_start = -9999;
 
-var pf = Array(23).fill().map(()=>Array(12).fill(0)); // field is really 10x20, but adding a border for collision checks
-pf[20].fill(1);
-pf[21].fill(1);
-pf[22].fill(1);
-pf.forEach((x,i) => { pf[i][0] = 1; pf[i][11] = 1; });
+var pf;
+
+function initGame() {
+  pf = Array(23).fill().map(()=>Array(12).fill(0)); // field is really 10x20, but adding a border for collision checks
+  pf[20].fill(1);
+  pf[21].fill(1);
+  pf[22].fill(1);
+  pf.forEach((x,i) => { pf[i][0] = 1; pf[i][11] = 1; });
+}
 
 function rotateTile(t, r) {
   var nt = JSON.parse(JSON.stringify(t));
@@ -107,6 +115,7 @@ function redrawPF(ly) {
 function gameOver() {
   g.setColor(1, 1, 1).setFontAlign(0, 1, 0).setFont("Vector",22)
   .drawString("Game Over", 176/2, 76);
+  state = 2;
 }
 
 function insertAndCheck() {
@@ -147,6 +156,8 @@ function moveOk(t, dx, dy) {
 }
 
 function gameStep() {
+  if (state != 1)
+    return;
   if (Date.now()-time > dropInterval) { // drop one step
     time = Date.now();
     if (moveOk(ct, 0, 1)) {
@@ -191,6 +202,7 @@ function newGame() {
   Bangle.setUI();
   if (control == 2) {
     Bangle.on("accel", (e) => {
+      if (state != 1) return;
       if (control != 2) return;
       print(e.x);
       linear((0.2-e.x) * 2.5);
@@ -199,6 +211,7 @@ function newGame() {
   if (control == 3) {
    Bangle.setBarometerPower(true);
    Bangle.on("pressure", (e) => {
+     if (state != 1) return;
      if (control != 3) return;
     let a = e.altitude;
     if (alt_start == -9999)
@@ -212,6 +225,10 @@ function newGame() {
    let h = 176/2;
    if (!e.b)
     return;
+   if (state == 0) return;
+   if (state == 2) {
+     selectGame();
+   }
    if (e.y < h) {
     if (e.x < h)
       rotate();
@@ -234,7 +251,9 @@ function newGame() {
    }
   });
 
+  initGame();
   drawGame();
+  state = 1;
   var gi = setInterval(gameStep, 20);
 }
 
@@ -249,6 +268,9 @@ function drawGame() {
 }
 
 function selectGame() {
+  state = 0;
+  print("Game selection menu");
+  
   var menu = {
     "< Back" : Bangle.load
   };
