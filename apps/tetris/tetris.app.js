@@ -41,7 +41,7 @@ const oy = 8;
    2 .. accelerometer. 12 lines record.
    3 .. altimeter
  */
-const control = 3; 
+var control = 0;
 
 var alt_start = -9999;
 
@@ -191,6 +191,7 @@ function newGame() {
   Bangle.setUI();
   if (control == 2) {
     Bangle.on("accel", (e) => {
+      if (control != 2) return;
       print(e.x);
       linear((0.2-e.x) * 2.5);
     });
@@ -198,6 +199,7 @@ function newGame() {
   if (control == 3) {
    Bangle.setBarometerPower(true);
    Bangle.on("pressure", (e) => {
+     if (control != 3) return;
     let a = e.altitude;
     if (alt_start == -9999)
       alt_start = a;
@@ -232,10 +234,6 @@ function newGame() {
    }
   });
 
-  Bangle.on("swipe", (x,y) => {
-    if (y<0) y = 0;
-    move(x, y);
-  });
   drawGame();
   var gi = setInterval(gameStep, 20);
 }
@@ -250,4 +248,15 @@ function drawGame() {
     .setColor(1, 1, 1).drawString(nlines.toString(), 22, 50);
 }
 
-newGame();
+function selectGame() {
+  var menu = {
+    "< Back" : Bangle.load
+  };
+  menu["Normal"] = () => { control = 0; newGame(); };
+  menu["Drag"] = () => { control = 1; newGame(); };
+  menu["Tilt"] = () => { control = 2; newGame(); };
+  menu["Move"] = () => { control = 3; newGame(); };
+  E.showMenu(menu);
+}
+
+selectGame();
