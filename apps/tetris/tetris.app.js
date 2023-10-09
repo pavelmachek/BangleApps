@@ -42,12 +42,11 @@ const oy = 8;
    3 .. altimeter
  */
 var control = 0;
+var alt_start = -9999; /* For altimeter control */
 /* 0 .. menu
    1 .. game
    2 .. game over */
 var state = 0;
-
-var alt_start = -9999;
 
 var pf;
 
@@ -100,7 +99,7 @@ var ctn = Math.floor(Math.random()*7); // current tile number
 var ntn = Math.floor(Math.random()*7); // next tile number
 var ntr = Math.floor(Math.random()*4); // next tile rotation
 var ct = rotateTile(tiles[ctn], Math.floor(Math.random()*4)); // current tile (rotated)
-var dropInterval = 450;
+var dropInterval = 15; // 450;
 var nlines = 0;
 
 function redrawPF(ly) {
@@ -115,7 +114,8 @@ function redrawPF(ly) {
 function gameOver() {
   g.setColor(1, 1, 1).setFontAlign(0, 1, 0).setFont("Vector",22)
   .drawString("Game Over", 176/2, 76);
-  state = 2;
+  state = 0;
+  E.showAlert("Game Over").then(selectGame, print);
 }
 
 function insertAndCheck() {
@@ -199,6 +199,7 @@ function linear(x) {
 }
 
 function newGame() {
+  E.showMenu();
   Bangle.setUI();
   if (control == 2) {
     Bangle.on("accel", (e) => {
@@ -223,12 +224,14 @@ function newGame() {
   }
   Bangle.on("drag", (e) => {
    let h = 176/2;
+   if (state == 2) {
+     if (e.b)
+       selectGame();
+     return;
+   }
    if (!e.b)
     return;
    if (state == 0) return;
-   if (state == 2) {
-     selectGame();
-   }
    if (e.y < h) {
     if (e.x < h)
       rotate();
@@ -270,10 +273,9 @@ function drawGame() {
 function selectGame() {
   state = 0;
   print("Game selection menu");
+  //for (let i = 0; i < 100000; i++) ;
   
-  var menu = {
-    "< Back" : Bangle.load
-  };
+  var menu = {};
   menu["Normal"] = () => { control = 0; newGame(); };
   menu["Drag"] = () => { control = 1; newGame(); };
   menu["Tilt"] = () => { control = 2; newGame(); };
