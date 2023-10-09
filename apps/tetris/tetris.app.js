@@ -187,29 +187,30 @@ function linear(x) {
     move(1, 0);
 }
 
-Bangle.setUI();
-if (control == 2) {
-  Bangle.on("accel", (e) => {
-    print(e.x);
-    linear((0.2-e.x) * 2.5);
-  });
-}
-if (control == 3) {
-  Bangle.setBarometerPower(true);
-  Bangle.on("pressure", (e) => {
+function newGame() {
+  Bangle.setUI();
+  if (control == 2) {
+    Bangle.on("accel", (e) => {
+      print(e.x);
+      linear((0.2-e.x) * 2.5);
+    });
+  }
+  if (control == 3) {
+   Bangle.setBarometerPower(true);
+   Bangle.on("pressure", (e) => {
     let a = e.altitude;
     if (alt_start == -9999)
       alt_start = a;
     a = a - alt_start;
       print(e.altitude, a);
     linear(a);
-  });
-}
-Bangle.on("drag", (e) => {
-  let h = 176/2;
-  if (!e.b)
+   });
+  }
+  Bangle.on("drag", (e) => {
+   let h = 176/2;
+   if (!e.b)
     return;
-  if (e.y < h) {
+   if (e.y < h) {
     if (e.x < h)
       rotate();
     else {
@@ -219,7 +220,7 @@ Bangle.on("drag", (e) => {
         g.flip();
       }
     }
-  } else {
+   } else {
     if (control == 1)
       linear(e.x / 176);
     if (control != 0)
@@ -228,16 +229,25 @@ Bangle.on("drag", (e) => {
       move(-1, 0);
     else
       move(1, 0);
-  }
-});
+   }
+  });
 
-Bangle.on("swipe", (x,y) => {
-  if (y<0) y = 0;
-  move(x, y);
-});
+  Bangle.on("swipe", (x,y) => {
+    if (y<0) y = 0;
+    move(x, y);
+  });
+  drawGame();
+  var gi = setInterval(gameStep, 20);
+}
 
-drawBoundingBox();
-g.setColor(1, 1, 1).setFontAlign(0, 1, 0).setFont("6x15", 1).drawString("Lines", 22, 30).drawString("Next", 176-22, 30);
-showNext(ntn, ntr);
-g.setColor(0).fillRect(5, 30, 41, 80).setColor(1, 1, 1).drawString(nlines.toString(), 22, 50);
-var gi = setInterval(gameStep, 20);
+function drawGame() {
+  drawBoundingBox();
+  g.setColor(1, 1, 1).setFontAlign(0, 1, 0)
+    .setFont("6x15", 1).drawString("Lines", 22, 30)
+    .drawString("Next", 176-22, 30);
+  showNext(ntn, ntr);
+  g.setColor(0).fillRect(5, 30, 41, 80)
+    .setColor(1, 1, 1).drawString(nlines.toString(), 22, 50);
+}
+
+newGame();
