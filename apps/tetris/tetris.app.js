@@ -39,8 +39,11 @@ const oy = 8;
 /* 0 .. simulated arrows
    1 .. drag piece
    2 .. accelerometer. 12 lines record.
+   3 .. altimeter
  */
-const control = 2; 
+const control = 3; 
+
+var alt_start = -9999;
 
 var pf = Array(23).fill().map(()=>Array(12).fill(0)); // field is really 10x20, but adding a border for collision checks
 pf[20].fill(1);
@@ -189,6 +192,17 @@ if (control == 2) {
   Bangle.on("accel", (e) => {
     print(e.x);
     linear((0.2-e.x) * 2.5);
+  });
+}
+if (control == 3) {
+  Bangle.setBarometerPower(true);
+  Bangle.on("pressure", (e) => {
+    let a = e.altitude;
+    if (alt_start == -9999)
+      alt_start = a;
+    a = a - alt_start;
+      print(e.altitude, a);
+    linear(a);
   });
 }
 Bangle.on("drag", (e) => {
