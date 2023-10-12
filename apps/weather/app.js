@@ -3,6 +3,13 @@ const locale = require('locale');
 const weather = require('weather');
 let current = weather.get();
 
+const storage = require('Storage');
+
+let allw = storage.readJSON('weather.json')||[];
+var page = -1;
+forecast = allw.forecast;
+forecast[-1] = current;
+
 Bangle.loadWidgets();
 
 
@@ -73,13 +80,13 @@ var layout = new Layout({type:"v", bgCol: g.theme.bg, c: [
 
 function formatDuration(millis) {
   let pluralize = (n, w) => n + " " + w + (n == 1 ? "" : "s");
-  if (millis < 60000) return /*LANG*/"< 1 minute";
-  if (millis < 3600000) return pluralize(Math.floor(millis/60000), /*LANG*/"minute");
-  if (millis < 86400000) return pluralize(Math.floor(millis/3600000), /*LANG*/"hour");
+  if (millis > -60000 && millis < 60000) return /*LANG*/"< 1 minute";
+  if (millis > -3600000 && millis < 3600000) return pluralize(Math.floor(millis/60000), /*LANG*/"minute");
+  if (millis > -86400000 && millis < 86400000) return pluralize(Math.floor(millis/3600000), /*LANG*/"hour");
   return pluralize(Math.floor(millis/86400000), /*LANG*/"day");
 }
 
-function draw() {
+function draw(current) {
   layout.icon.txt = current.txt;
   layout.icon.code = current.code;
   const temp = locale.temp(current.temp-273.15).match(/^(\D*\d*)(.*)$/);
@@ -108,7 +115,7 @@ function update() {
   current = weather.get();
   NRF.removeListener("connect", update);
   if (current) {
-    draw();
+    draw(current);
   } else {
     layout.forgetLazyState();
     if (NRF.getSecurityStatus().connected) {
@@ -138,7 +145,13 @@ update();
 
 // We want this app to behave like a clock:
 // i.e. show launcher when middle button pressed
-Bangle.setUI("clock");
+Bangle.setUI("clockupdown", btn=> {
+  if (btn<0) page--;
+  if (btn>0) page++;
+  if (page<-1) page=-1;
+  draw(forecast[page]);
+});
+
 // But the app is not actually a clock
 // This matters for widgets that hide themselves for clocks, like widclk or widclose
 delete Bangle.CLOCK;
