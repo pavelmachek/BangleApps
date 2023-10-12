@@ -1,6 +1,8 @@
 Bangle.setLCDPower(1);
 Bangle.setLCDTimeout(0);
 var numberofHearts = 3;
+//var v2 = (process.env.HWVERSION==2);
+var v2 = 1;
 
 Bangle.setLCDMode("doublebuffered");
 
@@ -381,4 +383,4 @@ setWatch(() => {
     level = 1;
     checkForNextLevel();
   }
-}, BTN2, {repeat:true});
+}, v2? BTN1 : BTN2, {repeat:true});

@@ -4,9 +4,10 @@
   "shortName": "Car Crazy",
   "version": "0.04",
   "description": "A simple car game where you try to avoid the other cars by tilting your wrist left and right. Hold down button 2 to start.",
+  "allow_emulator":true,
   "icon": "carcrash.png",
   "tags": "game",
-  "supports": ["BANGLEJS"],
+  "supports": ["BANGLEJS", "BANGLEJS2"],
   "readme": "README.md",
   "storage": [
     {"name":"carcrazy.app.js","url":"app.js"},
