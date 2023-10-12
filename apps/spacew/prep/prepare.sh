@@ -23,9 +23,22 @@ Z=
 #BBOX=14.25,50.17,14.61,49.97
 #Z="--maxz 14"
 # Zernovka small -- 3.5 delme.pbf, ~850K result.
-BBOX=14.7,49.9,14.8,50.1
+#BBOX=14.7,49.9,14.8,50.1
 # Zernovka big
 #BBOX=14.6,49.7,14.9,50.1
+# Trebenice -- 7MB
+#BBOX=13.75,50.2,14.25,50.7
+# Trebenice -- 4MB
+#BBOX=13.75,50.4,14.15,50.7
+# Varhost
+#BBOX=14.05,50.5,14.15,50.6
+# Blizke okoli trebenic
+#BBOX=13.94,50.42,14.02,50.51
+# Trebencie az Dubice
+#BBOX=13.94,50.42,14.04,50.6
+# Huculi sumava
+BBOX=14.64,48.64,14.84,48.84
+
 
 if [ ".$1" == ".-f" ]; then
     I=/data/gis/osm/dumps/czech_republic-2023-07-24.osm.pbf
