@@ -1,6 +1,10 @@
 const isB2 = process.env.HWVERSION === 2;
 
 // Bangle.js 1 runs just too fast in direct mode??? (also no getPixel)
+
+/* Don't know how to get it to work. Comment this out to work on b1,
+ * but.... no getpixel */
+
 if (!isB2) Bangle.setLCDMode("120x120");
 
 const options = Bangle.getOptions();
