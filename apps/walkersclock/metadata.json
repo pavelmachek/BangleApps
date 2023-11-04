@@ -7,7 +7,8 @@
   "icon": "walkersclock48.png",
   "type": "clock",
   "tags": "clock,gps,tools,outdoors",
-  "supports": ["BANGLEJS"],
+  "supports": ["BANGLEJS", "BANGLEJS2"],
+  "allow_emulator": true,
   "readme": "README.md",
   "storage": [
     {"name":"walkersclock.app.js","url":"app.js"},
