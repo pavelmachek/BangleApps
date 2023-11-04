@@ -6,7 +6,8 @@
   "icon": "kitchen.png",
   "type": "clock",
   "tags": "tool,outdoors,gps",
-  "supports": ["BANGLEJS"],
+  "supports": ["BANGLEJS", "BANGLEJS2"],
+  "allow_emulator": true,
   "readme": "README.md",
   "dependencies" : { "waypoints":"app" },
   "storage": [
