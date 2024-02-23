@@ -36,8 +36,10 @@ Z=
 #BBOX=13.94,50.42,14.02,50.51
 # Trebencie az Dubice
 #BBOX=13.94,50.42,14.04,50.6
-# Huculi sumava
-BBOX=14.64,48.64,14.84,48.84
+# Huculi Sumava
+#BBOX=14.64,48.64,14.84,48.84
+# Zelezna ruda
+BBOX=12.99,48.95,13.45,49.30
 
 
 if [ ".$1" == ".-f" ]; then
