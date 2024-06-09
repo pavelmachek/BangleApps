@@ -39,7 +39,7 @@ function mainMenu() {
   }
   menu["Remove"]=removeCard;
   menu["Format"]=setFormat;
-  if (textInputInstalled) {
+  if (textInputInstalled && BANGLEJS2) {
     menu["Mark GPS"]=markGps;
   }
   g.clear();
@@ -53,7 +53,7 @@ function updateGps() {
     return;
   fix = Bangle.getGPSFix();
   
-  speed = "no fix for " + (getTime() - gps_start).toFixed(0) + "s";
+  speed = "no fix (" + (getTime() - gps_start).toFixed(0) + "s)";
   
   if (fix && fix.fix && fix.lat) {
     pos = "" + lat(fix.lat) + " " + lon(fix.lon);
