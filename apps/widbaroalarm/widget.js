@@ -92,13 +92,13 @@ function handlePressureValue(pressure) {
   history3.push(d);
 
   // delete oldest entries until we have max 50
-  while (history3.length > 50) {
+  while (history3.length > 500) {
     history3.shift();
   }
 
   // delete entries older than 3h
   for (let i = 0; i < history3.length; i++) {
-    if (history3[i]["ts"] < ts - (3 * 60 * 60)) {
+    if (history3[i]["ts"] < ts - (48 * 60 * 60)) {
       history3.shift();
     } else {
       break;
