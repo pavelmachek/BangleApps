@@ -46,6 +46,8 @@
     currentUpdateInterval = settings.updateInterval;
     setTimeout(clockCheck, lastClockCheckTime + currentUpdateInterval - Date.now());
 
+    if (!settings.usePPM)
+      return;
     // If elapsed time differs a lot from expected,
     // some other app probably used setTime to change clock significantly.
     // -> reset clock error since elapsed time can't be trusted
@@ -103,6 +105,7 @@
       advanced: false,
       saveState: true,
       debugLog: true,
+      usePPM: true,	
       useGPS: true,
       ppm: 0,
       ppm0: 0,
@@ -201,20 +204,13 @@
     debug(
         new Date().toISOString() + ' GPS callback'
     );
-
-    if (false && fix.fix && fix.time) {
-      var curTime = fix.time.getTime()/1000;
-      setTime(curTime);
-      lastTimeSet = curTime;
-
-      WIDGETS["gpsAutoTime"].draw(WIDGETS["gpsAutoTime"]);
-    }
-    if (fix.fix && fix.time) {
+    if (settings.useGPS && fix.fix && fix.time) {
       let gt = fix.time.getTime()/1000;
       let st = getTime();	
       debug(
         new Date().toISOString() + ' GPS available (' + gt + ',' + st + ')'
       );
+      setTime(gt);
     }
   }
 
