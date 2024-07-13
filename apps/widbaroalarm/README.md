@@ -1,7 +1,7 @@
 # Barometer alarm widget
 
-Get a notification when the pressure reaches defined thresholds.
-
+Get a notification when the pressure reaches defined thresholds. It
+also shows current pressure in applet and can show pressure history.
 
 ## Settings
 * Interval: check interval of sensor data in minutes. 0 to disable automatic check.
