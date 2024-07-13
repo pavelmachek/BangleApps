@@ -15,6 +15,8 @@
     advanced: false,
     saveState: true,
     debugLog: false,
+    useGPS: false,
+    usePPM: true,      
     ppm: 0,
     adjustThreshold: DEFAULT_ADJUST_THRESHOLD,
     updateInterval: DEFAULT_UPDATE_INTERVAL,
@@ -109,6 +111,16 @@
       onchange: v => settings.debugLog = v,
     },
 
+    'Use GPS': {
+      value: settings.useGPS,
+      onchange: v => settings.useGPS = v,
+    },
+
+    'Use PPM': {
+      value: settings.usePPM,
+      onchange: v => settings.usePPM = v,
+    },
+      
     'Hide Widget': {
       value: settings.hide || false,
       onchange: v => settings.hide = v,
