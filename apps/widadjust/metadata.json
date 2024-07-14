@@ -4,7 +4,6 @@
   "icon": "icon.png",
   "version": "0.04",
   "description": "Adjusts clock continually in the background to counter clock drift",
-  "type": "widget",
   "tags": "widget",
   "supports": [ "BANGLEJS", "BANGLEJS2" ],
   "readme": "README.md",
