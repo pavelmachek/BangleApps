@@ -180,7 +180,6 @@ let gps = {
   },
 };
 
-
 var start_time = -5, start_delta;
 
 function updateTime(fix, now) {
