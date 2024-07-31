@@ -46,12 +46,49 @@ Bangle.on('pressure', function(e) {
 });
 
 function setPressure(m, a) {
-  var o = Bangle.getOptions();
-  //print(o);
-  o.seaLevelPressure = o.seaLevelPressure * m + a;
+  o = Bangle.getOptions();
+  print(o);
+  if (m)
+    o.seaLevelPressure = o.seaLevelPressure + a;
+  else
+    o.seaLevelPressure = a;
   Bangle.setOptions(o);
   avr = [];
 }
+
+/* numin library v 0.1 */
+let numin = {
+  h: 176,
+  w: 176,
+  wi: 32,
+  last: { b: 0 },
+  touchHandler: function(d) {
+    let x = Math.floor(d.x);
+    let y = Math.floor(d.y);
+
+    print("last", this.last, d);
+        if (d.dy == 0 && d.dx == 0 && d.b == 0) {
+          print("set std");
+          setPressure(0, 1013.25);
+          return;
+        }
+     if (d.b != 1) {
+             this.last = d;
+             return;
+    }
+
+    //print("touch", x, y, this.h, this.w);
+    let scale = 5 * (d.x / this.w);
+    let move = (1 << scale) * d.dy;
+    this.last = d;
+    print("scale", scale, "move", move);
+    setPressure(1, -move / 100);
+    },
+  init: function() {
+  }
+};
+
+numin.init();
 
 function start() {
   g.reset();
@@ -74,3 +111,10 @@ function start() {
   });
 }
 start();
+
+Bangle.on("drag", (d) => numin.touchHandler(d));
+Bangle.setUI({
+  mode : "custom",
+  swipe : (s) => ui.onSwipe(s),
+  clock : 0
+});
