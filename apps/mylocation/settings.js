@@ -22,16 +22,16 @@ function saveSettings() {
   require('Storage').write(SETTINGS_FILE, settings);
 }
 
-const locations = ["London" ,"Newcastle","Edinburgh", "Paris" , "New York" , "Tokyo"  , "Frankfurt", "Auckland", "???"];
-const lats =      [ 51.5072 ,  54.9783  , 55.9533   , 48.8566 ,  40.7128   ,  35.6762 ,  50.1236   ,  -36.9    ,  0.0 ];
-const lons =      [ -0.1276 ,  -1.6178  , -3.1883   ,  2.3522 , -74.0060   , 139.6503 ,   8.6553   ,  174.7832 ,  0.0 ];
+const locations = ["London" ,"Newcastle","Edinburgh", "Paris" , "New York" , "Tokyo"  , "Frankfurt", "Auckland", "Prague", "???"];
+const lats =      [ 51.5072 ,  54.9783  , 55.9533   , 48.8566 ,  40.7128   ,  35.6762 ,  50.1236   ,  -36.9    ,  50.088, 0.0 ];
+const lons =      [ -0.1276 ,  -1.6178  , -3.1883   ,  2.3522 , -74.0060   , 139.6503 ,   8.6553   ,  174.7832 ,  14.444, 0.0 ];
 
 function setFromGPS() {
   Bangle.on('GPS', (gps) => {
     //console.log(".");
     if (gps.fix === 0) return;
     //console.log("fix from GPS");
-    s = {'lat': gps.lat, 'lon': gps.lon, 'location': 'GPS' };
+    s = {'lat': gps.lat, 'lon': gps.lon, 'alt': gps.alt, 'location': 'GPS' };
     Bangle.buzz(1500); // buzz on first position
     Bangle.setGPSPower(0, "mylocation");
     saveSettings();
@@ -61,6 +61,7 @@ function setFromWaypoint() {
           s.location = wp.name;
           s.lat = parseFloat(wp.lat);
           s.lon = parseFloat(wp.lon);
+          s.alt = parseFloat(wp.alt);
           saveSettings();
           showMainMenu();
       };
