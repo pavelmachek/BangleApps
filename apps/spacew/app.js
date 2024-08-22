@@ -771,7 +771,7 @@ function drawAll(qual) {
 }
 
 function initVector() {
-  var s = readTarFile("delme.mtar", "meta.json");
+  var s = readTarFile("world.mtar", "meta.json");
   meta = JSON.parse(s);
 
 }
