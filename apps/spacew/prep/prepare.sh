@@ -23,7 +23,7 @@ Z=
 #BBOX=14.25,50.17,14.61,49.97
 #Z="--maxz 14"
 # Zernovka small -- 3.5 delme.pbf, ~850K result.
-#BBOX=14.7,49.9,14.8,50.1
+BBOX=14.7,49.9,14.8,50.1
 # Zernovka big
 #BBOX=14.6,49.7,14.9,50.1
 # Trebenice -- 7MB
@@ -39,7 +39,7 @@ Z=
 # Huculi Sumava
 #BBOX=14.64,48.64,14.84,48.84
 # Zelezna ruda
-BBOX=12.99,48.95,13.45,49.30
+#BBOX=12.99,48.95,13.45,49.30
 
 
 if [ ".$1" == ".-f" ]; then
