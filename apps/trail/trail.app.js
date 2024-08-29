@@ -373,6 +373,12 @@ function paint(pp, p1, p2, thick) {
 
 var destination = {}, num = 0, dist = 0;
 
+//{ rotate: Math.PI / 4 + i/100, scale: 1-i/100 }
+function flip(pp) {
+  // pp.g.flip();
+  g.drawImage(g_over, 0, 0, {});
+}
+
 function read(pp, n) {
   g.reset().clear();
   let f = require("Storage").open(n+".st", "r");
@@ -397,7 +403,7 @@ function read(pp, n) {
       if (!pp.g)
         ui.drawMsg(num + "\n" + fmt.fmtDist(dist / 1000));
       else
-        pp.g.flip();
+        flip(pp)
       print(num, "points");
     }
     num++;
@@ -406,6 +412,8 @@ function read(pp, n) {
     ui.drawMsg(num + "\n" + fmt.fmtDist(dist / 1000));
   destination = prev;
 }
+
+var g_over = Graphics.createArrayBuffer(176, 176, 2, { msb: true });
 
 function time_read(n) {
   print("Converting...");
@@ -417,13 +425,16 @@ function time_read(n) {
   pp.course = 0;
   pp.x = 176/2;
   pp.y = 176/2;
-  pp.g = g;
+  pp.g = g_over;
   read(pp, n);
+  // { rotate: Math.PI / 4 + i/100, scale: 1-i/100 }
+  flip(pp);
+
   let v2 = getTime();
   print("Read took", (v2-v1), "seconds");
   step_init();
   print(num, "points", dist, "distance");
-  setTimeout(step, 1000);
+  setTimeout(step, 5000);
 }
 
 var track_name = "", inf, point_num, track = [], track_points = 30, north = {};
