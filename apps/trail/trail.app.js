@@ -377,6 +377,7 @@ var destination = {}, num = 0, dist = 0;
 function flip(pp) {
   // pp.g.flip();
   g.drawImage(g_over, 0, 0, {});
+  g.flip();
 }
 
 function read(pp, n) {
@@ -453,8 +454,7 @@ function load_next() {
     let l = inf.readLine();
     if (l === undefined) {
       print("End of track");
-      ui.drawMsg("End of track");
-      break;
+      return 0;
     }
     let p = egt.parse(l);
     if (!p.lat) {
@@ -466,6 +466,7 @@ function load_next() {
     print("Loading ", p.point_num);
     track.push(p);
   }
+  return 1;
 }
 
 function paint_all(pp) {
@@ -527,7 +528,9 @@ function step_to(pp, pass_all) {
   
   let quiet = paint_all(pp);
   
-  if ((pass_all || track[0].passed) && distSegment(track[0], track[1], pp) > 150) {
+  if ((pass_all || track[0].passed)
+      && distSegment(track[0], track[1], pp) > 150
+      && track.length > 10) {
     print("Dropping ", track[0].point_num);
     track.shift();
   }
@@ -543,7 +546,7 @@ function step() {
 
   let fix = gps.getGPSFix();
 
-  load_next();
+  let have_more = load_next();
   
   let pp = fix;
   pp.ppm = 0.08 * 3; /* Pixels per meter */
@@ -562,6 +565,9 @@ function step() {
     g.setFont("Vector", 31);
     g.setFontAlign(-1, -1);
     let msg = "\noff " + fmt.fmtDist(quiet.offtrack/1000);
+    if (!have_more) {
+      msg += "\nEnd!";
+    }
     g.drawString(fmt.fmtFix(fix, getTime()-gps.gps_start) + msg, 3, 3);
   }
   if (!fast) {
