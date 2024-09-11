@@ -279,6 +279,72 @@ let egt = {
   },
 };
 
+
+/* zoom library v0.0.2 */
+var zoom = {
+  buf : 0,
+  /* x1 -- top left, x2 -- bottom right of simulated canvas */
+  x1 : 0, x2 : 0, y1 : 0, y2 : 0, 
+  /* screen size in pixels */
+  ss : 176,
+  /* size in pixels */
+  init : function(size) {
+    this.size = size;
+    this.buf = Graphics.createArrayBuffer(size, size, 2, { msb: true });
+  },
+  /* output: 0..1 */
+  xrel : function(x, y)  {
+    let r = {};
+    r.x = ((x - this.x1) / (this.x2 - this.x1));
+    r.y = ((y - this.y1) / (this.y2 - this.y1));
+    return r;
+  },
+  /* input: meters, output: pixels */
+  xform : function(p) {
+    let r = this.xrel(p.x, p.y);
+    r.x *= this.size;
+    r.y *= this.size;
+    return r;
+  },
+  /* takes x, y with lat/lon m */
+  geoLine : function(i1, i2) {
+    this.drawLine(Bangle.project(i1), Bangle.project(i2));
+  },
+  /* takes x, y in m */
+  drawLine : function(i1, i2) {
+    let p1 = this.xform(i1);
+    let p2 = this.xform(i2);
+    this.buf.drawLine(p1.x, p1.y, p2.x, p2.y);
+  },
+  /* vx, vy: viewpoint in meters,
+     head: which heading to display as up,
+     zoom: how many meters from center of screen to edge */
+  paint : function(vx, vy, head, z) {
+    let sh = this.xrel(vx, vy);
+    sh.x -= 0.5;
+    sh.y -= 0.5;
+    let scale = ((this.y2-this.y1)/(z*2)) * this.ss/this.size;
+    let dist = Math.sqrt(sh.x*sh.x + sh.y*sh.y) * this.ss * scale;
+    let theta = Math.atan2(-sh.y, sh.x);
+    let rad = (head / 360) * 2 * Math.PI;
+    let ox = Math.sin(theta - rad + 1.5*Math.PI) * dist;
+    let oy = Math.cos(theta - rad + 1.5*Math.PI) * dist;
+    /*
+    print("scale", scale);
+    print("dist", dist);
+    print("o", ox, oy);
+    */
+    
+    /* drawimage... takes middle of the image, and rotates around it.
+                ... in pixels
+       scale is pixels to pixels */
+    g.drawImage(zoom.buf, 176/2 + ox, 176/2 + oy,
+                { rotate: rad,
+                  scale: scale });
+  }
+};
+
+
 function toCartesian(v) {
   const R = 6371; // Poloměr Země v km
   const latRad = v.lat * Math.PI / 180;
@@ -365,10 +431,7 @@ function toxy(pp, p) {
 }
 
 function paint(pp, p1, p2, thick) {
-  let d1 = toxy(pp, p1);
-  let d2 = toxy(pp, p2);
-  //print(d1, d2);
-  drawThickLine(pp.g, d1.x, d1.y, d2.x, d2.y, thick);
+  zoom.geoLine(p1, p2);
 }
 
 var destination = {}, num = 0, dist = 0;
@@ -376,12 +439,11 @@ var destination = {}, num = 0, dist = 0;
 //{ rotate: Math.PI / 4 + i/100, scale: 1-i/100 }
 function flip(pp) {
   // pp.g.flip();
-  g.drawImage(g_over, 0, 0, {});
-  g.flip();
+  //g.flip();
 }
 
 function read(pp, n) {
-  g.reset().clear();
+  zoom.buf.reset().clear();
   let f = require("Storage").open(n+".st", "r");
   let l = f.readLine();
   let prev = 0;
@@ -394,6 +456,12 @@ function read(pp, n) {
         if (pp.g)
           paint(pp, prev, p, 1);
       } else {
+        let i = Bangle.project(p);
+        let is = 1000; /* meters */
+        zoom.x1 = i.x - is;
+        zoom.x2 = i.x + is;
+        zoom.y1 = i.y - is;
+        zoom.y2 = i.y + is;
         pp.lat = p.lat;
         pp.lon = p.lon;
       }
@@ -414,7 +482,7 @@ function read(pp, n) {
   destination = prev;
 }
 
-var g_over = Graphics.createArrayBuffer(176, 176, 2, { msb: true });
+zoom.init(176);
 
 function time_read(n) {
   print("Converting...");
@@ -426,7 +494,7 @@ function time_read(n) {
   pp.course = 0;
   pp.x = 176/2;
   pp.y = 176/2;
-  pp.g = 0; // g_over;
+  pp.g = zoom.buf;
   read(pp, n);
   // { rotate: Math.PI / 4 + i/100, scale: 1-i/100 }
   flip(pp);
@@ -537,7 +605,7 @@ function step_to(pp, pass_all) {
   return quiet;
 }
 
-var demo_mode = 0;
+var demo_mode = 1;
 
 function step() {
   const fast = 0;
@@ -550,9 +618,9 @@ function step() {
   
   let pp = fix;
   pp.ppm = 0.08 * 3; /* Pixels per meter */
-  pp.g = g;
+  pp.g = 0;
 
-  if (!fix.fix) {
+  if (demo_mode || !fix.fix) {
     let i = 2;
     pp.lat = track[i].lat;
     pp.lon = track[i].lon;
@@ -560,6 +628,11 @@ function step() {
   }
 
   let quiet = step_to(pp, 1);
+  {
+    let xy = Bangle.project(pp);
+    print(xy);
+    zoom.paint(xy.x, xy.y, pp.course, 500);
+  }
 
   if (!fast) {
     g.setFont("Vector", 31);
