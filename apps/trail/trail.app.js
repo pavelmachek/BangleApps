@@ -426,7 +426,7 @@ function time_read(n) {
   pp.course = 0;
   pp.x = 176/2;
   pp.y = 176/2;
-  pp.g = g_over;
+  pp.g = 0; // g_over;
   read(pp, n);
   // { rotate: Math.PI / 4 + i/100, scale: 1-i/100 }
   flip(pp);
