@@ -301,7 +301,7 @@ var zoom = {
   },
   /* input: meters, output: pixels */
   xform : function(p) {
-    let r = this.xrel(p.x, p.y);
+    let r = this.xrel(p.x, -p.y);
     r.x *= this.size;
     r.y *= this.size;
     return r;
@@ -431,7 +431,13 @@ function toxy(pp, p) {
 }
 
 function paint(pp, p1, p2, thick) {
-  zoom.geoLine(p1, p2);
+  if (0) {
+   let d1 = toxy(pp, p1);
+   let d2 = toxy(pp, p2);
+   //print(d1, d2);
+   drawThickLine(pp.g, d1.x, d1.y, d2.x, d2.y, thick);
+  } else
+    zoom.geoLine(p1, p2);
 }
 
 var destination = {}, num = 0, dist = 0;
@@ -457,11 +463,11 @@ function read(pp, n) {
           paint(pp, prev, p, 1);
       } else {
         let i = Bangle.project(p);
-        let is = 1000; /* meters */
+        let is = 300; /* meters */
         zoom.x1 = i.x - is;
         zoom.x2 = i.x + is;
-        zoom.y1 = i.y - is;
-        zoom.y2 = i.y + is;
+        zoom.y1 = -i.y - is;
+        zoom.y2 = -i.y + is;
         pp.lat = p.lat;
         pp.lon = p.lon;
       }
@@ -503,7 +509,7 @@ function time_read(n) {
   print("Read took", (v2-v1), "seconds");
   step_init();
   print(num, "points", dist, "distance");
-  setTimeout(step, 5000);
+  setTimeout(step, 100);
 }
 
 var track_name = "", inf, point_num, track = [], track_points = 30, north = {};
@@ -605,7 +611,7 @@ function step_to(pp, pass_all) {
   return quiet;
 }
 
-var demo_mode = 1;
+var demo_mode = 1; //fixme
 
 function step() {
   const fast = 0;
@@ -618,7 +624,7 @@ function step() {
   
   let pp = fix;
   pp.ppm = 0.08 * 3; /* Pixels per meter */
-  pp.g = 0;
+  pp.g = g;
 
   if (demo_mode || !fix.fix) {
     let i = 2;
@@ -628,10 +634,10 @@ function step() {
   }
 
   let quiet = step_to(pp, 1);
-  {
+  if (1) {
     let xy = Bangle.project(pp);
     print(xy);
-    zoom.paint(xy.x, xy.y, pp.course, 500);
+    zoom.paint(xy.x, -xy.y, pp.course, 500);
   }
 
   if (!fast) {
@@ -659,7 +665,7 @@ function step() {
     track.shift();
   let v2 = getTime();
   print("Step took", (v2-v1), "seconds");
-  setTimeout(step, 100);
+  setTimeout(step, 1000);
 }
 
 function recover() {
