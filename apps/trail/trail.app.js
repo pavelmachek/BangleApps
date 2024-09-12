@@ -279,11 +279,12 @@ let egt = {
   },
 };
 
-
-/* zoom library v0.0.2 */
+/* zoom library v0.0.4 */
 var zoom = {
   buf : 0,
-  /* x1 -- top left, x2 -- bottom right of simulated canvas */
+  /* y coordinate is "strange" -- positive values go north */ 
+  /* x1 -- left, x2 -- right of simulated canvas.
+     we want x1 < x2, y1 < y2. */
   x1 : 0, x2 : 0, y1 : 0, y2 : 0, 
   /* screen size in pixels */
   ss : 176,
@@ -292,18 +293,22 @@ var zoom = {
     this.size = size;
     this.buf = Graphics.createArrayBuffer(size, size, 2, { msb: true });
   },
+  clear : function() {
+    this.buf.reset().clear();
+  },
   /* output: 0..1 */
-  xrel : function(x, y)  {
+  xrel : function(i)  {
     let r = {};
-    r.x = ((x - this.x1) / (this.x2 - this.x1));
-    r.y = ((y - this.y1) / (this.y2 - this.y1));
+    r.x = ((i.x - this.x1) / (this.x2 - this.x1));
+    r.y = ((i.y - this.y1) / (this.y2 - this.y1));
     return r;
   },
-  /* input: meters, output: pixels */
+  /* input: meters, output: pixels in buf*/
   xform : function(p) {
-    let r = this.xrel(p.x, -p.y);
+    let r = this.xrel(p);
     r.x *= this.size;
-    r.y *= this.size;
+    r.y *= -this.size;
+    r.y += this.size;
     return r;
   },
   /* takes x, y with lat/lon m */
@@ -314,15 +319,19 @@ var zoom = {
   drawLine : function(i1, i2) {
     let p1 = this.xform(i1);
     let p2 = this.xform(i2);
+    print("line", p1, p2);
     this.buf.drawLine(p1.x, p1.y, p2.x, p2.y);
+  },
+  geoPaint : function(i, head, z) {
+    this.mPaint(Bangle.project(i), head, z);
   },
   /* vx, vy: viewpoint in meters,
      head: which heading to display as up,
      zoom: how many meters from center of screen to edge */
-  paint : function(vx, vy, head, z) {
-    let sh = this.xrel(vx, vy);
-    sh.x -= 0.5;
-    sh.y -= 0.5;
+  mPaint : function(v, head, z) {
+    let sh = this.xrel(v);
+    sh.x = sh.x - 0.5;
+    sh.y = 0.5 - sh.y;
     let scale = ((this.y2-this.y1)/(z*2)) * this.ss/this.size;
     let dist = Math.sqrt(sh.x*sh.x + sh.y*sh.y) * this.ss * scale;
     let theta = Math.atan2(-sh.y, sh.x);
@@ -463,11 +472,11 @@ function read(pp, n) {
           paint(pp, prev, p, 1);
       } else {
         let i = Bangle.project(p);
-        let is = 300; /* meters */
+        let is = 1000; /* meters */
         zoom.x1 = i.x - is;
         zoom.x2 = i.x + is;
-        zoom.y1 = -i.y - is;
-        zoom.y2 = -i.y + is;
+        zoom.y1 = i.y - is;
+        zoom.y2 = i.y + is;
         pp.lat = p.lat;
         pp.lon = p.lon;
       }
@@ -635,9 +644,7 @@ function step() {
 
   let quiet = step_to(pp, 1);
   if (1) {
-    let xy = Bangle.project(pp);
-    print(xy);
-    zoom.paint(xy.x, -xy.y, pp.course, 500);
+    zoom.geoPaint(pp, -pp.course, 500);
   }
 
   if (!fast) {
