@@ -604,6 +604,13 @@ function paint_all(pp) {
   return { quiet: quiet, offtrack: mDist };
 }
 
+function drop_last() {
+  if (track.length > 10) {
+    print("Dropping ", track[0].point_num);
+    track.shift();
+  }
+}
+
 function step_to(pp, pass_all) {    
   if (0) {
     g.setColor(0.5, 0.5, 1);
@@ -615,10 +622,8 @@ function step_to(pp, pass_all) {
 
   let quiet = paint_all(pp);
   
-  if (distSegment(track[0], track[1], pp) > 150
-      && track.length > 10) {
-    print("Dropping ", track[0].point_num);
-    track.shift();
+  if (distSegment(track[0], track[1], pp) > 150) {
+    drop_last();
   }
   return quiet;
 }
@@ -684,7 +689,7 @@ function step() {
     Bangle.setLCDPower(1);
 
   if (demo_mode)
-    track.shift();
+    drop_last();
   let v2 = getTime();
   print("Step took", (v2-v1), "seconds");
   setTimeout(step, 10); /* FIXME! */
@@ -702,7 +707,6 @@ function recover() {
     fix.lon = 14.7780;
   }
   load_next();
-  load_next();
   while(1) {
     let d = distSegment(track[0], track[1], pp);
     print("Recover, d", d);
@@ -711,7 +715,8 @@ function recover() {
     track.shift();
     if (0)
       step_to(pp, 1);
-    load_next();
+    if (!load_next())
+      break;
     ui.drawMsg("Recover\n" + fmt.fmtDist(d / 1000));
   }
 }
