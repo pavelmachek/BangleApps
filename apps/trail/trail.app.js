@@ -513,7 +513,7 @@ function time_read(n) {
   setTimeout(step, 100);
 }
 
-var track_name = "", inf, point_num, track = [], track_points = 30, north = {};
+var track_name = "", inf, point_num, track = [], track_points = 30, north = {}, point_drawn;
 
 function step_init() {
   inf = require("Storage").open(track_name + ".st", "r");
@@ -521,6 +521,7 @@ function step_init() {
   north.lat = 89.9;
   north.lon = 0;
   point_num = 0;
+  point_drawn = 0;
   track = [];
   zoom.geoNew(start, 3000);
 }
@@ -557,6 +558,14 @@ function paint_all(pp) {
   for (let i = 1; i < track.length; i++) {
     let p = track[i];
     prev = track[i-1];
+    if (point_drawn < p.point_num) {
+      paint(pp, prev, p, 3);
+      point_drawn = p.point_num;
+    }
+  }
+  for (let i = 1; i < track.length; i++) {
+    let p = track[i];
+    prev = track[i-1];
     if (!fast) {
       let d = distSegment(prev, p, pp);
       if (d < mDist) {
@@ -566,13 +575,14 @@ function paint_all(pp) {
         g.setColor(0, 0, 0);
       }
     }
-    paint(pp, prev, p, 3);
   }
   if (fast)
     return { quiet: 0, offtrack : 0 };
   print("Best segment was", m, "dist", mDist);
-  if (fmt.distance(track[m], zoom.origin) > 1500)
+  if (fmt.distance(track[m], zoom.origin) > 1500) {
     zoom.geoNew(track[m], 3000); // FIXME: this will flicker
+    point_drawn = 0;
+  }
   let ahead = 0, a = fmt.bearing(track[m-1], track[m]), quiet = -1;
   for (let i = m+1; i < track.length; i++) {
     let a2 = fmt.bearing(track[i-1], track[i]);
@@ -672,7 +682,7 @@ function step() {
     track.shift();
   let v2 = getTime();
   print("Step took", (v2-v1), "seconds");
-  setTimeout(step, 1000);
+  setTimeout(step, 10); /* FIXME! */
 }
 
 function recover() {
