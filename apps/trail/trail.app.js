@@ -478,6 +478,7 @@ function read(pp, n) {
     }
     l = f.readLine();
     if (!(num % 30)) {
+      g.clear();
       zoom.geoPaint(prev, 0, 1500);
       g.drawString(num + "\n" + fmt.fmtDist(dist / 1000), 3, 3);
       g.flip();
@@ -553,16 +554,20 @@ function paint_all(pp) {
   let prev = 0;
   let mDist = 99999999999, m = 0;
   const fast = 0;
+  let new_drawn = -1;
 
   g.setColor(1, 0, 0);
-  for (let i = 1; i < track.length; i++) {
+  for (let i = track.length-1; i > 1; i--) {
     let p = track[i];
+    if (point_drawn >= p.point_num)
+      break;
     prev = track[i-1];
-    if (point_drawn < p.point_num) {
-      paint(pp, prev, p, 3);
-      point_drawn = p.point_num;
-    }
+    paint(pp, prev, p, 3);
+    if (new_drawn == -1)
+      new_drawn = p.point_num;
   }
+  if (new_drawn != -1)
+    point_drawn = new_drawn;
   for (let i = 1; i < track.length; i++) {
     let p = track[i];
     prev = track[i-1];
@@ -571,9 +576,8 @@ function paint_all(pp) {
       if (d < mDist) {
         mDist = d;
         m = i;
-      } else {
-        g.setColor(0, 0, 0);
-      }
+      } else if (mDist < 10 && d > 100)
+        break;
     }
   }
   if (fast)
@@ -592,6 +596,7 @@ function paint_all(pp) {
         quiet = ahead + fmt.distance(pp, track[i-1]);
       print("...straight", ahead);
       a = a2;
+      break;
     }
     ahead += fmt.distance(track[i-1], track[i]);
   }
