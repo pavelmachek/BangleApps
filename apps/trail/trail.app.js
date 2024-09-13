@@ -545,6 +545,14 @@ function paint_all(pp) {
   for (let i = 1; i < track.length; i++) {
     let p = track[i];
     prev = track[i-1];
+    if (point_drawn < p.point_num) {
+      paint(pp, prev, p, 3);
+      point_drawn = p.point_num;
+    }
+  }
+  for (let i = 1; i < track.length; i++) {
+    let p = track[i];
+    prev = track[i-1];
     if (!fast) {
       let d = distSegment(prev, p, pp);
       if (d < mDist) {
