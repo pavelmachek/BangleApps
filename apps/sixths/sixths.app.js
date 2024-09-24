@@ -196,23 +196,45 @@ let sun	= {
 
     print("Have suncalc: ", this.SunCalc);
   },
-  get_sun_pos: function() {
+  sunPos: function() {
     let d = new Date();
     let sun = this.SunCalc.getPosition(d, this.lat, this.lon);
     print(sun.azimuth, sun.altitude);
     return sun;
   },
-  get_sun_time: function() {
+  sunTime: function() {
     let d = new Date();
     let sun = this.SunCalc.getTimes(d, this.lat, this.lon);
-    print(sun.sunrise, sun.sunset);
     return sun;
+  },
+  adj: function (x) {
+    if (x < 0)
+      return x + 24*60*60;
+    return x;
+  },
+  toSunrise: function () {
+    let sec = this.sunTime().sunrise.getTime() / 1000;
+    return this.adj(sec - getTime());
+  },
+  toSunset: function () {
+    let sec = this.sunTime().sunset.getTime() / 1000;
+    return this.adj(sec - getTime());
+  },
+  // < 0 : next is sunrise, in abs(ret) seconds
+  // > 0 
+  getNext: function () {
+    let rise = this.toSunrise();
+    let set = this.toSunset();
+    if (rise < set) {
+      return -rise;
+    }
+    return set;
+ //   set = set / 60;
+ //   return s + (set / 60).toFixed(0) + ":" + (set % 60).toFixed(0);
   },
 };
 
 sun.init();
-sun.get_sun_pos();
-sun.get_sun_time();
 fmt.init();
 gps.init();
 
@@ -826,6 +848,20 @@ function draw() {
 
   if (state.cur_mark) {
     msg += markHandle() + "\n";
+  }
+  
+  {
+    let set = sun.getNext();
+    if (set > -8*60*60 && set < 2*60*60) {
+      if (set < 0) {
+        msg += "^";
+        set = -set;
+      } else msg += "v";
+      set = Math.floor(set / 60);
+      msg += (set / 60).toFixed(0) + ":" + fmt.add0(set % 60);
+      
+      msg += "\n";
+    }
   }
 
   if (note != "") {
