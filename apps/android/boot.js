@@ -53,3 +53,6 @@
   // remove settings object so it's not taking up RAM
   delete settings;
 }
+
+/* Vynutit baterii / versi etc -- */
+/* Ve chvili kdy se pusti aplikace poslat event -- chci hudebni prehravac */
