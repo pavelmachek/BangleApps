@@ -226,7 +226,7 @@ let sun	= {
       this.rise = this.toSunrise();
       this.set  = this.toSunset();
     }
-  }
+  },
   // < 0 : next is sunrise, in abs(ret) seconds
   // > 0 
   getNext: function () {
@@ -255,7 +255,7 @@ var buzz = "",      /* Set this to transmit morse via vibrations */
     inm = "", l = "", /* For incoming morse handling */
     in_str = "",
     note = "",
-    debug = "v0.10.0", debug2 = "(otherdb)", debug3 = "(short)";
+    debug = "v0.10.1", debug2 = "(otherdb)", debug3 = "(short)";
 var note_limit = 0;
 var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note, 2.. mark name
 var disp_mode = 0;  // 0 .. normal, 1 .. small time
