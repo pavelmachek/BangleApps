@@ -222,7 +222,7 @@ let sun	= {
     return this.adj(sec - getTime());
   },
   update: function () {
-    if (this.Suncalc) {
+    if (this.SunCalc) {
       this.rise = this.toSunrise();
       this.set  = this.toSunset();
     }
