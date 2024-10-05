@@ -182,18 +182,19 @@ let gps = {
   },
 };
 
-/* sun version 0.0.1 */
+/* sun version 0.0.2 */
 let sun	= {
   SunCalc: null,
   lat: 50,
   lon: 14,
+  rise: 0,
+  set: 0,
   init: function() {  
     try {
       this.SunCalc = require("suncalc"); // from modules folder
     } catch (e) {
       print("Require error", e);
     }
-
     print("Have suncalc: ", this.SunCalc);
   },
   sunPos: function() {
@@ -220,11 +221,17 @@ let sun	= {
     let sec = this.sunTime().sunset.getTime() / 1000;
     return this.adj(sec - getTime());
   },
+  update: function () {
+    if (this.Suncalc) {
+      this.rise = this.toSunrise();
+      this.set  = this.toSunset();
+    }
+  }
   // < 0 : next is sunrise, in abs(ret) seconds
   // > 0 
   getNext: function () {
-    let rise = this.toSunrise();
-    let set = this.toSunset();
+    let rise = this.rise;
+    let set = this.set;
     if (rise < set) {
       return -rise;
     }
@@ -659,6 +666,7 @@ function hourly() {
   }
   if (is_active)
     doBuzz(toMorse(s));
+  sun.update();
   //logstamp("");
 }
 function showMsg(msg, timeout) {
@@ -852,14 +860,13 @@ function draw() {
   
   {
     let set = sun.getNext();
-    if (set > -8*60*60 && set < 2*60*60) {
+    if (true || (set > -8*60*60 && set < 2*60*60)) {
       if (set < 0) {
         msg += "^";
         set = -set;
       } else msg += "v";
       set = Math.floor(set / 60);
       msg += (set / 60).toFixed(0) + ":" + fmt.add0(set % 60);
-      
       msg += "\n";
     }
   }
