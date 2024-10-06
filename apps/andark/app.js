@@ -38,7 +38,7 @@ function zeiger(len,dia,tim){
 
 function drawHands(d) {
   let m=d.getMinutes(), h=d.getHours(), s=d.getSeconds();
-  g.setColor(1,1,1);
+  g.setColor(white,white,white);
 
   if(h>12){
     h=h-12;
@@ -63,11 +63,15 @@ function drawHands(d) {
   g.fillCircle(c.x,c.y,4);
 }
 
+const white = 0;
+function setColor() {
+   g.setBgColor(!white,!white,!white);
+  g.setColor(white,white,white);
+}
+
 function drawText(d) {
   g.setFont("Vector",10);
-  g.setBgColor(0,0,0);
-  g.setColor(1,1,1);
-  let dateStr = require("locale").date(d);
+   let dateStr = require("locale").date(d);
   g.drawString(dateStr, c.x, c.y+20, true);
   let batStr = Math.round(E.getBattery()/5)*5+"%";
   if (Bangle.isCharging()) {
@@ -79,8 +83,7 @@ function drawText(d) {
 function drawNumbers() {
   //draws the numbers on the screen
   g.setFont("Vector",20);
-  g.setColor(1,1,1);
-  g.setBgColor(0,0,0);
+  setColor();
   for(let i = 0;i<12;i++){
      g.drawString(zahlpos[i][0],zahlpos[i][1],zahlpos[i][2],true);
   }
@@ -88,7 +91,7 @@ function drawNumbers() {
 
 function draw(){
   // draw black rectangle in the middle to clear screen from scale and hands
-  g.setColor(0,0,0);
+  g.setColor(!white,!white,!white);
   g.fillRect(10,10,2*c.x-10,2*c.x-10);
   // prepare for drawing the text
   g.setFontAlign(0,0);
@@ -105,7 +108,7 @@ function draw(){
 //draws the scale once the app is startet
 function drawScale(){
   // clear the screen
-  g.setBgColor(0,0,0);
+  g.setBgColor(!white,!white,!white);
   g.clear();
   // draw the ticks of the scale
   for(let i=-14;i<47;i++){
@@ -113,9 +116,9 @@ function drawScale(){
     let d=2;
     if(i%5==0){d=5;}
     g.fillPoly(zeiger(300,d,win),true);
-    g.setColor(0,0,0);
+    g.setColor(!white,!white,!white);
     g.fillRect(10,10,2*c.x-10,2*c.x-10);
-    g.setColor(1,1,1);
+    g.setColor(white,white,white);
   }
 }
 
