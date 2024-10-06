@@ -70,22 +70,35 @@ function setColor() {
 }
 
 function drawText(d) {
-  g.setFont("Vector",10);
+  g.setFont("Vector",20);
    let dateStr = require("locale").date(d);
-  g.drawString(dateStr, c.x, c.y+20, true);
-  let batStr = Math.round(E.getBattery()/5)*5+"%";
+  //g.drawString(dateStr, c.x, c.y+20, true);
+  let bat = E.getBattery();
+  let batStr = Math.round(bat/5)*5+"%";
   if (Bangle.isCharging()) {
     g.setBgColor(1,0,0);
   }
-  g.drawString(batStr, c.x, c.y+40, true);
+  if (bat < 30)
+    g.drawString(batStr, c.x, c.y+40, true);
 }
 
-function drawNumbers() {
+function drawNumbers(d) {
   //draws the numbers on the screen
-  g.setFont("Vector",20);
-  setColor();
   for(let i = 0;i<12;i++){
-     g.drawString(zahlpos[i][0],zahlpos[i][1],zahlpos[i][2],true);
+     let on = false;
+     let j = i+1;
+     g.setFont("Vector",20);
+     if (j == d.getDate()) {
+       on = true;
+       g.setFont("Vector",29);
+     }
+    if (j == d.getHours() || (j+12) == d.getHours())
+      on = true;
+    setColor();
+    if (!on)
+      g.setColor(white/2, !white, white);
+    if (1 || on)
+      g.drawString(zahlpos[i][0],zahlpos[i][1],zahlpos[i][2],true);
   }
 }
 
@@ -96,8 +109,8 @@ function draw(){
   // prepare for drawing the text
   g.setFontAlign(0,0);
   // do drawing
-  drawNumbers();
   const d=new Date();
+  drawNumbers(d);
   if (settings.textAboveHands) {
     drawHands(d); drawText(d);
   } else {
