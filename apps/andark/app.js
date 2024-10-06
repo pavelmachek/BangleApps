@@ -1,8 +1,9 @@
 const defaultSettings = {
   loadWidgets    : false,
   textAboveHands : false,
-  shortHrHand    : false
+  shortHrHand    : true
 };
+const white = 0;
 const settings = Object.assign(defaultSettings, require('Storage').readJSON('andark.json',1)||{});
 
 const c={"x":g.getWidth()/2,"y":g.getHeight()/2};
@@ -63,7 +64,6 @@ function drawHands(d) {
   g.fillCircle(c.x,c.y,4);
 }
 
-const white = 0;
 function setColor() {
    g.setBgColor(!white,!white,!white);
   g.setColor(white,white,white);
