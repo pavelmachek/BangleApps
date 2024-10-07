@@ -766,6 +766,7 @@ function draw() {
   // Reset the state of the graphics library
   g.reset();
   g.setColor(display_colour);
+  g.setBgColor("#000000");
   // draw the current time (4x size 7 segment)
   g.setFont("7x11Numeric7Seg", 4);
   g.setFontAlign(1, 1); // align right bottom
