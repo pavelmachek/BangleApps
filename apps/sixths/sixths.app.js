@@ -187,7 +187,7 @@ let sun	= {
   SunCalc: null,
   lat: 50,
   lon: 14,
-  rise: 0,
+  rise: 0,  /* Unix time of sunrise/sunset */
   set: 0,
   init: function() {  
     try {
@@ -214,24 +214,23 @@ let sun	= {
     return x;
   },
   toSunrise: function () {
-    let sec = this.sunTime().sunrise.getTime() / 1000;
-    return this.adj(sec - getTime());
+    return this.adj(this.rise - getTime());
   },
   toSunset: function () {
-    let sec = this.sunTime().sunset.getTime() / 1000;
-    return this.adj(sec - getTime());
+    return this.adj(this.set - getTime());
   },
   update: function () {
     if (this.SunCalc) {
-      this.rise = this.toSunrise();
-      this.set  = this.toSunset();
+      let t = this.sunTime();
+      this.rise = t.sunrise.getTime() / 1000;
+      this.set  = t.sunset.getTime() / 1000;
     }
   },
   // < 0 : next is sunrise, in abs(ret) seconds
   // > 0 
   getNext: function () {
-    let rise = this.rise;
-    let set = this.set;
+    let rise = this.toSunrise();
+    let set = this.toSunset();
     if (rise < set) {
       return -rise;
     }
@@ -255,7 +254,7 @@ var buzz = "",      /* Set this to transmit morse via vibrations */
     inm = "", l = "", /* For incoming morse handling */
     in_str = "",
     note = "",
-    debug = "v0.10.1", debug2 = "(otherdb)", debug3 = "(short)";
+    debug = "v0.10.2", debug2 = "(otherdb)", debug3 = "(short)";
 var note_limit = 0;
 var mode = 0, mode_time = 0; // 0 .. normal, 1 .. note, 2.. mark name
 var disp_mode = 0;  // 0 .. normal, 1 .. small time
