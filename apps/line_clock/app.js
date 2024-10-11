@@ -7,7 +7,7 @@ const radius = 220;
 const lineOffset = 115;
 const hourOffset = 32;
 const numberOffset = 85;
-const numberSize = 22;
+const numberSize = 28;
 
 const storage = require('Storage');
 
@@ -188,7 +188,7 @@ function drawNumber(n) {
     }], hourAngle, radius
   );
   g.setColor(0xF800);
-  g.fillCircle(rotatedPoints[0], rotatedPoints[1], numberSize+ halfWidth);
+  g.fillCircle(rotatedPoints[0], rotatedPoints[1], numberSize + halfWidth);
   g.setColor(g.theme.bg);
   g.fillCircle(rotatedPoints[0], rotatedPoints[1], numberSize - halfWidth);
   g.setColor(g.theme.fg);
