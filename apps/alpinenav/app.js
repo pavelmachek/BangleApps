@@ -143,7 +143,8 @@ function rescale() {
 
 Bangle.setCompassPower(1);
 Bangle.setGPSPower(1);
-g.clear();
+g.setColor(background_colour);
+g.fillRect(10, 65, 230, 230);
 process_GPS();
 /*var poll_GPS =*/ setInterval(process_GPS, 9000);
 

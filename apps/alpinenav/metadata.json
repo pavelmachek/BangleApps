@@ -5,7 +5,8 @@
   "description": "App that performs GPS monitoring to track and display position relative to a given origin in realtime",
   "icon": "app-icon.png",
   "tags": "outdoors,gps",
-  "supports": ["BANGLEJS"],
+  "supports": ["BANGLEJS", "BANGLEJS2"],
+  "allow_emulator": true,
   "readme": "README.md",
   "storage": [
     {"name":"alpinenav.app.js","url":"app.js"},
