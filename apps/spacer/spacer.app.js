@@ -17,7 +17,7 @@ CFG-PMS z gpssetup to zda se neumi?
 2.11.5 CFG-RATE (0x06 0x04)
 */
 
-/* ui library 0.1.3 */
+/* ui library 0.1.4 */
 let ui = {
   display: 0,
   numScreens: 2,
@@ -83,10 +83,37 @@ let ui = {
   init: function() {
     this.h = this.y2 - this.wi;
     this.drawBusy();
-  }
+  },
+  /* radial angle -- convert 0..1 to 0..2pi */
+  radA: function(p) { return p*(Math.PI*2); },
+  /* radial distance -- convert 0..1 to something that fits on screen */
+  radD: function(d) { return d*(ui.h/2); },
+
+  /* given angle/distance, get X coordinate */
+  radX: function(p, d) {
+    let a = this.radA(p);
+    return this.w/2 + Math.sin(a)*this.radD(d);
+  },
+  /* given angle/distance, get Y coordinate */
+  radY: function(p, d) {
+    let a = this.radA(p);
+    return this.h/2 - Math.cos(a)*this.radD(d) + this.wi;
+  },
+  radLine: function(a1, d1, a2, d2) {
+    g.drawLine(this.radX(a1, d1), this.radY(a1, d1), this.radX(a2, d2), this.radY(a2, d2));
+  },
+  radCircle: function(d) {
+    g.drawCircle(this.radX(0, 0), this.radY(0, 0), this.radD(d));
+    if (1)
+      return;
+    let step = 0.05;
+    for (let i = 0; i < 1; i += 0.05) {
+      this.radLine(i - step, d, i, d);
+    }
+  },
 };
 
-/* sky library v0.0.3 */
+/* sky library v0.1.0 */
 let sky = {
   sats: [],
   snum: 0,
@@ -96,31 +123,17 @@ let sky = {
 
   drawGrid: function() {
     g.setColor(0,0,0);
-    this.radLine(0, 1, 0.5, 1);
-    this.radLine(0.25, 1, 0.75, 1);
-    this.radCircle(0.5);
-    this.radCircle(1.0);
-  },
-
-  radLine: function(a1, d1, a2, d2) {
-    g.drawLine(radX(a1, d1), radY(a1, d1), radX(a2, d2), radY(a2, d2));
-  },
-
-  radCircle: function(d) {
-    g.drawCircle(radX(0, 0), radY(0, 0), radD(d));
-    if (1)
-      return;
-    let step = 0.05;
-    for (let i = 0; i < 1; i += 0.05) {
-      this.radLine(i - step, d, i, d);
-    }
+    ui.radLine(0, 1, 0.5, 1);
+    ui.radLine(0.25, 1, 0.75, 1);
+    ui.radCircle(0.5);
+    ui.radCircle(1.0);
   },
 
   drawSat: function(s) {
     let a = s.azi / 360;
     let e = ((90 - s.ele) / 90);
-    let x = radX(a, e);
-    let y = radY(a, e);
+    let x = ui.radX(a, e);
+    let y = ui.radY(a, e);
 
     if (s.snr === "")
       g.setColor(1, 0.25, 0.25);  
@@ -160,22 +173,6 @@ let sky = {
       this.sats[this.snum++] = sat;
     }
   },
-  __parseRaw: function(msg, lost) {
-    if (lost) print("## data lost");
-    let s = msg.split(",");
-    if (s[0] === "$GNGGA") {
-      this.drawSats(this.sats);
-      if (this.sats_used < 5)
-        this.sky_start = getTime();
-      this.snum = 0;
-      this.sats = [];
-      this.sats_used = 0;
-      return;
-    }
-    if (s[0] === "$GPGSV") { this.parseSats(s); return; }
-    if (s[0] === "$GLGSV") { this.parseSats(s); return; }
-    if (s[0] === "$BDGSV") { this.parseSats(s); return; }
-  },
 
   old_msg: {},
   msg: {},
@@ -198,6 +195,7 @@ let sky = {
       .drawString(msg, 0, 0);
   },
   parseRaw: function(msg, lost) {
+    if (lost) print("## data lost");
     let s = msg.split(",");
     let cmd = s[0].slice(3);
     //print("cmd", cmd);
@@ -213,6 +211,12 @@ let sky = {
       this.msg.gl = {};
       print("-----------------------------------------------");
       print("GGA Time", s[1], "fix quality", s[4], "sats in view ", s[5]);
+      this.drawSats(this.sats);
+      if (this.sats_used < 5)
+        this.sky_start = getTime();
+      this.snum = 0;
+      this.sats = [];
+      this.sats_used = 0;
       return;
     }
     if (cmd === "GLL") return; /* Position lat/lon */
@@ -239,16 +243,19 @@ let sky = {
     }
     if (s[0] === "$GPGSV") {
       print("Have gps sentences", s[1], "/", s[2]);
+      this.parseSats(s);
       this.msg.gp.sent = ""+s[2];
       return;
     }
     if (s[0] === "$BDGSV") {
       print("Have baidu sentences", s[1], "/", s[2]);
+      this.parseSats(s);
       this.msg.bd.sent = ""+s[2];
       return;
     }
     if (s[0] === "$GLGSV") {
       print("Have glonass sentences", s[1], "/", s[2]);
+      this.parseSats(s);
       this.msg.gl.sent = ""+s[2];
       return;
     }
