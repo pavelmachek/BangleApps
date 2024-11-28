@@ -113,6 +113,8 @@ let ui = {
   },
 };
 
+let fix = {}; /* Global for sky library */
+
 /* sky library v0.1.0 */
 let sky = {
   sats: [],
@@ -181,6 +183,8 @@ let sky = {
     return sys.sent + "." + sys.d23 + "D "+ this.tof(sys.pdop) + " " + this.tof(sys.vdop) + "\n";
   },
   display: function() {
+    if (ui.display != 1)
+      return;
     let m = this.old_msg;
     let msg = "" + this.tof(m.time) + "\n" + 
         "q" + m.quality + " " + m.in_view + " " + m.hdop + "\n" +
