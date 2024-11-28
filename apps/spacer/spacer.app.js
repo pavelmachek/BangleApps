@@ -1,4 +1,4 @@
-/* -> space race ! */
+/* Space race */
 
 /* 
 
@@ -86,7 +86,97 @@ let ui = {
   }
 };
 
-let graw = {
+/* sky library v0.0.3 */
+let sky = {
+  sats: [],
+  snum: 0,
+  sats_used: 0,
+  sky_start: -1,
+  this_usable: 0,
+
+  drawGrid: function() {
+    g.setColor(0,0,0);
+    this.radLine(0, 1, 0.5, 1);
+    this.radLine(0.25, 1, 0.75, 1);
+    this.radCircle(0.5);
+    this.radCircle(1.0);
+  },
+
+  radLine: function(a1, d1, a2, d2) {
+    g.drawLine(radX(a1, d1), radY(a1, d1), radX(a2, d2), radY(a2, d2));
+  },
+
+  radCircle: function(d) {
+    g.drawCircle(radX(0, 0), radY(0, 0), radD(d));
+    if (1)
+      return;
+    let step = 0.05;
+    for (let i = 0; i < 1; i += 0.05) {
+      this.radLine(i - step, d, i, d);
+    }
+  },
+
+  drawSat: function(s) {
+    let a = s.azi / 360;
+    let e = ((90 - s.ele) / 90);
+    let x = radX(a, e);
+    let y = radY(a, e);
+
+    if (s.snr === "")
+      g.setColor(1, 0.25, 0.25);  
+    else
+      g.setColor(0, 0, 0);
+    g.drawString(s.id, x, y);
+  },
+
+  // Should correspond to view from below.
+  // https://in-the-sky.org//satmap_radar.php?year=2023&month=10&day=24&skin=1
+  decorate: function() {},
+  drawSats: function(sats) {
+    if (ui.display != 0)
+      return;
+    g.reset()
+      .setColor(1, 1, 1)
+      .fillRect(0, ui.wi, ui.w, ui.y2)
+      .setFont("Vector", 20)
+      .setFontAlign(0, 0);
+    this.drawGrid();
+    sats.forEach(s => this.drawSat(s));
+
+    if (fix && fix.fix && fix.lat) {
+      g.setColor(0, 0, 0)
+       .setFontAlign(-1, 1);
+      g.drawString(fix.satellites + "/" + fix.hdop, 5, ui.y2);
+    }
+    this.decorate();
+  },
+
+  parseSats: function(s) {
+    let view = 1 * s[3];
+    let k = Math.min(4, view - this.snum);
+    for (let i = 4, j = 0; j < k; j++) {
+      let sat = { id: s[i++], ele: 1 * s[i++], azi: 1 * s[i++], snr: s[i++] };
+      if (sat.snr !== "") this.sats_used++;
+      this.sats[this.snum++] = sat;
+    }
+  },
+  __parseRaw: function(msg, lost) {
+    if (lost) print("## data lost");
+    let s = msg.split(",");
+    if (s[0] === "$GNGGA") {
+      this.drawSats(this.sats);
+      if (this.sats_used < 5)
+        this.sky_start = getTime();
+      this.snum = 0;
+      this.sats = [];
+      this.sats_used = 0;
+      return;
+    }
+    if (s[0] === "$GPGSV") { this.parseSats(s); return; }
+    if (s[0] === "$GLGSV") { this.parseSats(s); return; }
+    if (s[0] === "$BDGSV") { this.parseSats(s); return; }
+  },
+
   old_msg: {},
   msg: {},
   tof: function(v) { let i = (1*v); return i.toFixed(0); },
@@ -107,7 +197,7 @@ let graw = {
       .setFontAlign(-1, -1)
       .drawString(msg, 0, 0);
   },
-  on_raw: function(msg, lost) {
+  parseRaw: function(msg, lost) {
     let s = msg.split(",");
     let cmd = s[0].slice(3);
     //print("cmd", cmd);
@@ -193,18 +283,18 @@ let graw = {
 
 function start() {
   Bangle.setGPSPower(1);
-  Bangle.on('GPS-raw', function(a, b) { graw.on_raw(a, b); });
+  Bangle.on('GPS-raw', function(a, b) { sky.parseRaw(a, b); });
   setTimeout(function() {
     Bangle.removeAllListeners('GPS-raw');
   }, 1000000);
-  setInterval(function() { graw.display(); }, 1000);
+  setInterval(function() { sky.display(); }, 1000);
 }
 
 // CASIC_CMD("$PCAS06,0"); /* Query product information */
-setTimeout(() => graw.casic_cmd("$PCAS04,7"), 1000); /* Enable gps + beidou + glonass */
-//setTimeout(() => graw.casic_cmd("$PCAS10,2"), 1200); /* 2: cold start, 1 warm start, 0: hot start */
+setTimeout(() => sky.casic_cmd("$PCAS04,7"), 1000); /* Enable gps + beidou + glonass */
+//setTimeout(() => sky.casic_cmd("$PCAS10,2"), 1200); /* 2: cold start, 1 warm start, 0: hot start */
 
 ui.init();
-ui.topLeft = () => graw.selectSpace();
+ui.topLeft = () => sky.selectSpace();
 Bangle.on("drag", (b) => ui.touchHandler(b));
 start();
