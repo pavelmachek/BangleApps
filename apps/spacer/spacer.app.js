@@ -2,6 +2,15 @@
 
 /* 
 
+Performance Assessment of GNSS Signals in
+terms of Time to First Fix for
+Cold, Warm and Hot Start
+Matteo Paonni, Marco Anghileri, Stefan Wallner, José-Ángel Ávila-Rodríguez, Bernd Eissfeller
+Institute of Geodesy and Navigation, University FAF Munich, Germany
+
+=> 22 to 26 dB -- long time / no fix / ...
+=> 26db + -- basically strength no longer matters
+
 apps/assistedgps/custom.html
 
 https://github.com/espruino/EspruinoDocs/blob/master/info/Bangle.js2%20Technical.md#gps
@@ -131,14 +140,17 @@ let sky = {
     ui.radCircle(1.0);
   },
 
+  snrLim: 28,
   drawSat: function(s) {
     let a = s.azi / 360;
     let e = ((90 - s.ele) / 90);
     let x = ui.radX(a, e);
     let y = ui.radY(a, e);
 
-    if (s.snr === "")
+    if (s.snr == 0)
       g.setColor(1, 0.25, 0.25);  
+    else if (s.snr < this.snrLim)
+      g.setColor(0.25, 0.5, 0.25);
     else
       g.setColor(0, 0, 0);
     g.drawString(s.id, x, y);
@@ -171,7 +183,12 @@ let sky = {
     let k = Math.min(4, view - this.snum);
     for (let i = 4, j = 0; j < k; j++) {
       let sat = { id: s[i++], ele: 1 * s[i++], azi: 1 * s[i++], snr: s[i++] };
-      if (sat.snr !== "") this.sats_used++;
+      if (sat.snr === "")
+        sat.snr = 0;
+      if (sat.snr >= this.snrLim) {
+        this.sats_used++;
+        print(sat.id, sat.snr);
+      }
       this.sats[this.snum++] = sat;
     }
   },
@@ -303,6 +320,8 @@ function start() {
 
 // CASIC_CMD("$PCAS06,0"); /* Query product information */
 setTimeout(() => sky.casic_cmd("$PCAS04,7"), 1000); /* Enable gps + beidou + glonass */
+setTimeout(() => sky.casic_cmd("$PCAS03,1,1,1,1,1,1,1,1"), 1000); /* Enable gps + beidou + glonass */
+
 //setTimeout(() => sky.casic_cmd("$PCAS10,2"), 1200); /* 2: cold start, 1 warm start, 0: hot start */
 
 ui.init();
