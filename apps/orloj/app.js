@@ -77,11 +77,14 @@ const defaultSettings = {
 const settings = Object.assign(defaultSettings, require('Storage').readJSON('andark.json',1)||{});
 
 const c={"x":g.getWidth()/2,"y":g.getHeight()/2};
+const l2 = 12;
 
 const zahlpos=(function() {
   let z=[];
   let sk=1;
-  for(let i=-10;i<50;i+=5){
+  let step = 5;
+  if (l2==24) step = 2.5;
+  for(let i=-10;i<50;i+=step){
      let win=i*2*Math.PI/60;
      let xsk =c.x+2+Math.cos(win)*(c.x-10),
          ysk =c.y+2+Math.sin(win)*(c.x-10);
@@ -110,11 +113,11 @@ function drawHands(d) {
   let m=d.getMinutes(), h=d.getHours(), s=d.getSeconds();
   g.setColor(settings.white,settings.white,settings.white);
 
-  if(h>12){
-    h=h-12;
+  if (h>l2){
+    h=h-l2;
   }
   //calculates the position of the minute, second and hour hand
-  h=2*Math.PI/12*(h+m/60)-Math.PI/2;
+  h=2*Math.PI/l2*(h+m/60)-Math.PI/2;
   //more accurate
   //m=2*Math.PI/60*(m+s/60)-Math.PI/2;
   m=2*Math.PI/60*(m)-Math.PI/2;
@@ -157,13 +160,13 @@ function drawNumbers(d) {
     hour += 1;
   }
   let day = d.getDate();
-  if (day > 12) {
+  if (day > l2) {
     day = day % 10;
     if (!day)
       day = 10;
   }
   //draws the numbers on the screen
-  for(let i = 0;i<12;i++){
+  for(let i = 0;i<l2;i++){
      let on = false;
      let j = i+1;
      g.setFont("Vector",20);
@@ -171,7 +174,7 @@ function drawNumbers(d) {
        on = true;
        g.setFont("Vector",29);
      }
-    if ((j % 12) == (hour % 12))
+    if ((j % l2) == (hour % l2))
       on = true;
     setColor();
     if (!on)
@@ -199,12 +202,12 @@ function draw(){
 }
 
 /* 0..12 -> angle suitable for drawScale */
-function conv(m) { return -15 + (m / 12) * 60; }
+function conv(m) { return -15 + (m / l2) * 60; }
 /* datetime -> 0..12 float */
 function hour12(d) {
   let h = d.getHours() + d.getMinutes() / 60;
-  if (h > 12)
-    h = h - 12;
+  if (h > l2)
+    h = h - l2;
   return h;
 }
 
@@ -218,7 +221,7 @@ function drawScale(d){
   print(m);
 
   let pos = sun.sunPos().azimuth;
-  pos = conv(12*(pos/360));
+  pos = conv(l2*(pos/360));
   
   let t = sun.sunTime();
   // FIXME
@@ -254,8 +257,12 @@ if (settings.loadWidgets) {
   require("widget_utils").swipeOn();
 } else if (global.WIDGETS) require("widget_utils").hide();
 // Clear the screen once, at startup
+print(settings)
+print("Scale");
 drawScale(new Date());
+print("Clock");
 draw();
+print("Done");
 
 let secondInterval = setInterval(draw, 1000);
 
