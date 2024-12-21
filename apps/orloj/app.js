@@ -71,9 +71,9 @@ sun.init();
 const defaultSettings = {
   loadWidgets    : false,
   textAboveHands : false,
-  shortHrHand    : true
+  shortHrHand    : true,
+  white          : 0
 };
-const white = 0;
 const settings = Object.assign(defaultSettings, require('Storage').readJSON('andark.json',1)||{});
 
 const c={"x":g.getWidth()/2,"y":g.getHeight()/2};
@@ -108,7 +108,7 @@ function zeiger(len,dia,tim){
 
 function drawHands(d) {
   let m=d.getMinutes(), h=d.getHours(), s=d.getSeconds();
-  g.setColor(white,white,white);
+  g.setColor(settings.white,settings.white,settings.white);
 
   if(h>12){
     h=h-12;
@@ -134,8 +134,8 @@ function drawHands(d) {
 }
 
 function setColor() {
-   g.setBgColor(!white,!white,!white);
-  g.setColor(white,white,white);
+   g.setBgColor(!settings.white,!settings.white,!settings.white);
+  g.setColor(settings.white,settings.white,settings.white);
 }
 
 function drawText(d) {
@@ -175,7 +175,7 @@ function drawNumbers(d) {
       on = true;
     setColor();
     if (!on)
-      g.setColor(white/2, !white, white);
+      g.setColor(settings.white/2, !settings.white, settings.white);
     if (1 || on)
       g.drawString(zahlpos[i][0],zahlpos[i][1],zahlpos[i][2],true);
   }
@@ -183,7 +183,7 @@ function drawNumbers(d) {
 
 function draw(){
   // draw black rectangle in the middle to clear screen from scale and hands
-  g.setColor(!white,!white,!white);
+  g.setColor(!settings.white,!settings.white,!settings.white);
   g.fillRect(10,10,2*c.x-10,2*c.x-10);
   // prepare for drawing the text
   g.setFontAlign(0,0);
@@ -211,7 +211,7 @@ function hour12(d) {
 //draws the scale once the app is started
 function drawScale(d){
   // clear the screen
-  g.setBgColor(!white,!white,!white);
+  g.setBgColor(!settings.white,!settings.white,!settings.white);
   g.clear();
   // Display month as a wider mark
   let m = conv(d.getMonth() + 1);
@@ -233,13 +233,13 @@ function drawScale(d){
     if(i%5==0){d=5;}
     if(i==m){d=10;}
     if (i>=pos && i<=(pos+2))
-      g.setColor(!white,!white,white/2);
+      g.setColor(!settings.white,!settings.white,settings.white/2);
     else if (i>=set && i<=dark)
-      g.setColor(white/2,!white,white/2);
+      g.setColor(settings.white/2,!settings.white,settings.white/2);
     else
-      g.setColor(white,white,white);
+      g.setColor(settings.white,settings.white,settings.white);
     g.fillPoly(zeiger(300,d,win),true);
-      g.setColor(!white,!white,!white);
+      g.setColor(!settings.white,!settings.white,!settings.white);
     g.fillRect(10,10,2*c.x-10,2*c.x-10);
   }
 }
