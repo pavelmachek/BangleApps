@@ -121,7 +121,18 @@ const cities=(function() {
       if(sk==12){ysk+=10;}
       if(sk==10){xsk+=3;}
     }
-    z.push([sk,xsk,ysk]);
+    text="";
+    if (sk==21) text="SYD";
+    if (sk==20) text="TOK";
+    if (sk==19) text="PEK";
+    if (sk==14) text="MOS";
+    // (sk==13) Israel?
+    if (sk==12) text="PRG";
+    if (sk==11) text="*";
+    if (sk== 6) text="NY";
+    if (sk== 3) text="LA";
+    
+    z.push([text,xsk,ysk]);
     sk+=1;
   }
   return z;
