@@ -77,27 +77,56 @@ const defaultSettings = {
 const settings = Object.assign(defaultSettings, require('Storage').readJSON('andark.json',1)||{});
 
 const c={"x":g.getWidth()/2,"y":g.getHeight()/2};
-const l2 = 12;
+const l2 = 24;
 
 const zahlpos=(function() {
   let z=[];
   let sk=1;
   let step = 5;
-  if (l2==24) step = 2.5;
-  for(let i=-10;i<50;i+=step){
+  if (l2==24) step=2.5;
+  let i=-10;
+  if (l2==24) i=-12.5;
+  for(;i<50;i+=step){
      let win=i*2*Math.PI/60;
      let xsk =c.x+2+Math.cos(win)*(c.x-10),
          ysk =c.y+2+Math.sin(win)*(c.x-10);
-    if(sk==3){xsk-=10;}
-    if(sk==6){ysk-=10;}
-    if(sk==9){xsk+=10;}
-    if(sk==12){ysk+=10;}
-    if(sk==10){xsk+=3;}
+    if (l2==12) {
+      if(sk==3){xsk-=10;}
+      if(sk==6){ysk-=10;}
+      if(sk==9){xsk+=10;}
+      if(sk==12){ysk+=10;}
+      if(sk==10){xsk+=3;}
+    }
     z.push([sk,xsk,ysk]);
     sk+=1;
   }
   return z;
 })();
+
+const cities=(function() {
+  let z=[];
+  let sk=1;
+  let step = 5;
+  if (l2==24) step=2.5;
+  let i=-10;
+  if (l2==24) i=-12.5;
+  for(;i<50;i+=step){
+     let win=i*2*Math.PI/60;
+     let xsk =c.x+2+Math.cos(win)*(c.x-30),
+         ysk =c.y+2+Math.sin(win)*(c.x-30);
+    if (l2==12) {
+      if(sk==3){xsk-=10;}
+      if(sk==6){ysk-=10;}
+      if(sk==9){xsk+=10;}
+      if(sk==12){ysk+=10;}
+      if(sk==10){xsk+=3;}
+    }
+    z.push([sk,xsk,ysk]);
+    sk+=1;
+  }
+  return z;
+})();
+
 
 let unlock = false;
 
@@ -181,6 +210,11 @@ function drawNumbers(d) {
       g.setColor(settings.white/2, !settings.white, settings.white);
     if (1 || on)
       g.drawString(zahlpos[i][0],zahlpos[i][1],zahlpos[i][2],true);
+    if (l2 == 24) {
+      g.setColor();
+      g.setFont("Vector",12);
+      g.drawString(cities[i][0],cities[i][1],cities[i][2],true);
+    }
   }
 }
 
