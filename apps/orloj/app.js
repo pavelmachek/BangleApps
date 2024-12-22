@@ -122,15 +122,16 @@ const cities=(function() {
       if(sk==10){xsk+=3;}
     }
     text="";
-    if (sk==21) text="SYD";
-    if (sk==20) text="TOK";
-    if (sk==19) text="PEK";
-    if (sk==14) text="MOS";
-    // (sk==13) Israel?
-    if (sk==12) text="PRG";
-    if (sk==11) text="*";
-    if (sk== 6) text="NY";
-    if (sk== 3) text="LA";
+    let gmt = 12-sk+1;
+    if (gmt==10) text="SYD";
+    if (gmt== 9) text="TOK";
+    if (gmt== 8) text="PEK";
+    if (gmt== 3) text="MOS";
+    // (gmt==13) Israel?
+    if (gmt== 1) text="PRG";
+    if (gmt== 0) text="*";
+    if (gmt==-5) text="NY";
+    if (gmt==-8) text="LA";
     
     z.push([text,xsk,ysk]);
     sk+=1;
