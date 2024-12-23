@@ -103,7 +103,7 @@ const zahlpos=(function() {
   return z;
 })();
 
-const cities=(function() {
+function gen_cities(h) {
   let z=[];
   let sk=1;
   let step = 5;
@@ -137,8 +137,9 @@ const cities=(function() {
     sk+=1;
   }
   return z;
-})();
+}
 
+const cities=gen_cities(0);
 
 let unlock = false;
 
