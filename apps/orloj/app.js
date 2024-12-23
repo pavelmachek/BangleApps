@@ -111,7 +111,7 @@ function gen_cities(h) {
   let i=-10;
   if (l2==24) i=-12.5;
   for(;i<50;i+=step){
-     let win=i*2*Math.PI/60;
+     let win=i*2*Math.PI/60 + h;
      let xsk =c.x+2+Math.cos(win)*(c.x-30),
          ysk =c.y+2+Math.sin(win)*(c.x-30);
     if (l2==12) {
@@ -122,7 +122,10 @@ function gen_cities(h) {
       if(sk==10){xsk+=3;}
     }
     text="";
-    let gmt = 12-sk+1;
+    let gmt = sk+1;
+    if (gmt > 12)
+      gmt -= 24;
+    //print("gmt", gmt);
     if (gmt==10) text="SYD";
     if (gmt== 9) text="TOK";
     if (gmt== 8) text="PEK";
@@ -139,7 +142,7 @@ function gen_cities(h) {
   return z;
 }
 
-const cities=gen_cities(0);
+var cities=gen_cities(0);
 
 let unlock = false;
 
@@ -207,6 +210,9 @@ function drawNumbers(d) {
     if (!day)
       day = 10;
   }
+
+  cities = gen_cities(hour*2*Math.PI/24);
+  
   //draws the numbers on the screen
   for(let i = 0;i<l2;i++){
      let on = false;
