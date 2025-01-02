@@ -126,15 +126,29 @@ function gen_cities(h) {
     if (gmt > 12)
       gmt -= 24;
     //print("gmt", gmt);
-    if (gmt==10) text="SYD";
-    if (gmt== 9) text="TOK";
-    if (gmt== 8) text="PEK";
-    if (gmt== 3) text="MOS";
-    // (gmt==13) Israel?
-    if (gmt== 1) text="PRG";
-    if (gmt== 0) text="*";
-    if (gmt==-5) text="NY";
-    if (gmt==-8) text="LA";
+    // we could fit all this on 12h display, having two cities per hour, indicating normal/inverse day/night
+    if (gmt == 12) text = "AUK";   // Auckland
+    if (gmt == 11) text = "SYD";   // Sydney
+    if (gmt == 10) text = "BRI";   // Brisbane
+    if (gmt == 9) text = "TOK";    // Tokyo
+    if (gmt == 8) text = "PEK";    // Peking
+    if (gmt == 7) text = "BKK";    // Bangkok
+    if (gmt == 6) text = "DEL";    // Dillí
+    if (gmt == 5) text = "KHI";    // Karáčí
+    if (gmt == 4) text = "DXB";    // Dubaj
+    if (gmt == 3) text = "MOS";    // Moskva
+    if (gmt == 2) text = "CAI";    // Káhira
+    if (gmt == 1) text = "PRG";    // Praha
+    if (gmt == 0) text = "LON";    // Londýn
+    if (gmt == -1) text = "AZO";   // Azorské ostrovy
+    if (gmt == -3) text = "RIO";   // Rio de Janeiro
+    if (gmt == -4) text = "CCS";   // Caracas
+    if (gmt == -5) text = "NY";    // New York
+    if (gmt == -6) text = "CHI";   // Chicago
+    if (gmt == -7) text = "DEN";   // Denver
+    if (gmt == -8) text = "LA";    // Los Angeles
+    if (gmt == -9) text = "ANC";   // Anchorage
+    if (gmt == -10) text = "HNL";  // Honolulu
     
     z.push([text,xsk,ysk]);
     sk+=1;
