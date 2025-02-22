@@ -29,7 +29,8 @@ let bgOtherEvent;
 const eventsPerDay=6; // how much different events per day we can display
 const date = new Date();
 
-const timeutils = require("time_utils");
+//const timeutils = require("time_utils");
+const timeutils = 0;
 let startOnSun = ((require("Storage").readJSON("setting.json", true) || {}).firstDayOfWeek || 0) === 0;
 let events;
 const dowLbls = function() {
@@ -176,14 +177,18 @@ const drawCalendar = function(date) {
   const year = date.getFullYear();
   const localeMonth = require('locale').month(date);
   g.setFontAlign(0, 0);
-  g.setFont("6x8", fontSize);
+  g.setFont("12x20", fontSize);
   g.setColor(white);
   g.drawString(`${localeMonth} ${year}`, maxX / 2, headerH / 2);
-  g.drawPoly([10, headerH / 2, 20, 10, 20, headerH - 10], true);
+  const pos = 2;
+  // Draw arrows
+  g.drawPoly([pos, headerH / 2, pos+10, 10, pos+10, headerH - 10], true);
   g.drawPoly(
-    [maxX - 10, headerH / 2, maxX - 20, 10, maxX - 20, headerH - 10],
+    [maxX - pos, headerH / 2, maxX-pos-10, 10, maxX-pos-10, headerH - 10],
     true
   );
+  g.setFont("6x8", fontSize);
+
 
   dowLbls.forEach((lbl, i) => {
     g.drawString(lbl, i * colW + colW / 2, headerH + rowH / 2);
@@ -228,7 +233,7 @@ const drawCalendar = function(date) {
     return acc;
   }, []);
   let i = 0;
-  g.setFont("8x12", fontSize);
+  g.setFont("12x20", fontSize);
   for (let y = 0; y < rowN - 1; y++) {
     for (let x = 0; x < colN; x++) {
       i++;
@@ -266,8 +271,8 @@ const drawCalendar = function(date) {
       g.setColor(day < 50 ? fgOtherMonth : fgSameMonth);
       g.drawString(
         (day > 50 ? day - 50 : day).toString(),
-        x * colW + colW / 2,
-        headerH + rowH + y * rowH + rowH / 2
+        1+ x * colW + colW / 2,
+        2+ headerH + rowH + y * rowH + rowH / 2
       );
     } // end for (x = 0; x < colN; x++)
   } // end for (y = 0; y < rowN - 1; y++)
@@ -278,11 +283,11 @@ const showMenu = function() {
     "" : {
       title : "Calendar",
       remove: () => {
-        require("widget_utils").show();
+        //require("widget_utils").show();
       }
     },
     "< Back": () => {
-      require("widget_utils").hide();
+      //require("widget_utils").hide();
       E.showMenu();
       setUI();
     },
@@ -299,12 +304,12 @@ const showMenu = function() {
       load("alarm.app.js");
     };
   }
-  require("widget_utils").show();
+  //require("widget_utils").show();
   E.showMenu(menu);
 };
 
 const setUI = function() {
-  require("widget_utils").hide(); // No space for widgets!
+  //require("widget_utils").hide(); // No space for widgets!
   drawCalendar(date);
 
   Bangle.setUI({
@@ -350,11 +355,11 @@ const setUI = function() {
       }
       menu[""] = { title: require("locale").month(date) + " " + date.getFullYear() };
       menu["< Back"] = () => {
-        require("widget_utils").hide();
+        //require("widget_utils").hide();
         E.showMenu();
         setUI();
       };
-      require("widget_utils").show();
+      //require("widget_utils").show();
       E.showMenu(menu);
     }
   });
