@@ -296,10 +296,6 @@ let ui = {
   },
 };
 
-function log2(x) {
-  return Math.log(x) / Math.log(2);
-}
-
 /* pie library v0.0.1 */
 let pie = {
   radians: function(a) { return a*Math.PI/180; },
@@ -380,6 +376,10 @@ let pie = {
     g.flip();
   }
 };
+
+function log2(x) {
+  return Math.log(x) / Math.log(2);
+}
 
 var debug = 0;
 var cur_altitude;
@@ -619,7 +619,7 @@ let skys = {
   },
   onEnd: function () {
     this.trackSatelliteVisibility();
-    if (this.sats_used < 5)
+    if (this.sats_used < 4)
       this.sky_start = getTime();
     this.reset();
   },
@@ -666,7 +666,8 @@ let sky = {
   },
 
   /* 18.. don't get reliable fix in 40s */
-  snrLim: 22,
+  /* 25.. seems to be good limit for clear sky. ~60 seconds. */
+  snrLim: 25,
   drawSat: function(s) {
     let a = s.azi / 360;
     let e = ((90 - s.ele) / 90);
