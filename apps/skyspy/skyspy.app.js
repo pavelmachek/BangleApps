@@ -369,11 +369,13 @@ let gpsg = {
     let s = this.s;
     g.reset().clear();
     g.fillCircle(cx, cy, s);
-    this.drawCorner(-1, -1);
-    this.drawCorner(1, -1);
     if (!this.fix.fix)
-      this.drawCorner(-1, 1);
+      this.drawCorner(1, -1);
+    if (0) {
     this.drawCorner(1, 1);
+    this.drawCorner(-1, 1);
+    this.drawCorner(-1, -1);
+    }
     
     g.setColor(1, 1, 1);
     let t = getTime();
@@ -534,6 +536,7 @@ let quality = {
     } else if (ui.display == 5) {
       gpsg.start_t = gps.gps_start;
       gpsg.fix = fix;
+      gpsg.dalt = Math.abs(adelta);
       gpsg.draw();
     }
     quality.step++;
