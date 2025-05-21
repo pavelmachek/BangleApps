@@ -340,7 +340,7 @@ let gpsg = {
   cy: 88,
   s: 87,
   sats: 4, /* Number of sats with good enough snr */
-  sats_bad: 1, /* Sattelites visible but with low snr */
+  sats_bad: 0, /* Sattelites visible but with low snr */
   view_t: getTime(), /* When sky became visible */
   start_t: getTime(), /* When we started acquiring fix */
   dalt: 30, /* Altitude error between barometer and gps */
@@ -381,12 +381,15 @@ let gpsg = {
       let data = this.clamp(210, 210 + (360*this.fix.speed) / 20, 210+360);
       let colors = [ "ign", "#000", "#fff" ];
       pie.drawPieChart1(g, cx, cy, s * 1, data, colors);
+    } else {
+      let data = this.clamp(0, (360*(t - this.start_t)) / 600, 360);
+      let colors = [ "ign", "#888", "#000" ];
+      pie.drawPieChart1(g, cx, cy, s * 1, data, colors);
     }
     if (this.fix.fix) {
       let data = this.clamp(90, 90 + (360*this.dalt) / 200, 90+360);
       let colors = [ "ign", "#000", "#fff" ];
       pie.drawPieChart1(g, cx, cy, s * 0.6, data, colors);
-
     } else { /* Still waiting for fix */
       let data = this.clamp(0, (360*(t - this.view_t)) / 120, 360);
       let colors = [ "ign", "#888", "#000" ];
