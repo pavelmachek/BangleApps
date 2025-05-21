@@ -296,7 +296,7 @@ let ui = {
   },
 };
 
-/* pie library v0.0.1 */
+/* pie library v0.0.3 */
 let pie = {
   radians: function(a) { return a*Math.PI/180; },
 
@@ -306,75 +306,100 @@ let pie = {
     points.push(centerX, centerY); // Start at the center
     
     // Step through angles to create points on the arc
-    for (let angle = startAngle; angle <= endAngle; angle += 5) {
-      const x = centerX + Math.cos(this.radians(angle)) * radius;
-      const y = centerY + Math.sin(this.radians(angle)) * radius;
+    for (let angle = startAngle; angle <= endAngle; angle += 7) {
+      const x = centerX + Math.sin(this.radians(angle)) * radius;
+      const y = centerY - Math.cos(this.radians(angle)) * radius;
       points.push(x, y);
     }
     
     // Add the final point at the end angle
-    points.push(centerX + Math.cos(this.radians(endAngle)) * radius);
-    points.push(centerY + Math.sin(this.radians(endAngle)) * radius);
+    points.push(centerX + Math.sin(this.radians(endAngle)) * radius);
+    points.push(centerY - Math.cos(this.radians(endAngle)) * radius);
     
     g.fillPoly(points); // Draw the arc as a polygon
   },
 
   // Function to draw the pie chart
   drawPieChart1: function(g, centerX, centerY, radius, data, colors) {
-    let startAngle = 0;
+    let startAngle = data[0];
     
     // Loop through the data to draw each segment
-    for (let i = 0; i < data.length; i++) {
+    for (let i = 1; i < data.length; i++) {
       const angle = data[i];         // Get the angle for the current section
-      const endAngle = startAngle + angle; // Calculate the end angle
+      const endAngle = angle; // Calculate the end angle
       
       g.setColor(colors[i]);  // Set the fill color
       this.fillArc(g, centerX, centerY, radius, startAngle, endAngle, colors[i]); // Draw the arc
-      startAngle = endAngle; // Update the start angle for the next segment
+      startAngle = angle; // Update the start angle for the next segment
     }
-
-    g.flip(); // Update the screen
   },
-  altDelta: function(centerX, centerY, radius, altitude, altChange) {
-    // Altitude range and mapping to a logarithmic scale
-    //const altitudeMin = -1000, altitudeMax = 1000;
-    const altitudeLog = log2(Math.abs(altitude) + 1) * Math.sign(altitude); // Logarithmic scaling
-    const altitudeAngle = E.clip((altitudeLog - log2(1)) / (log2(1001) - log2(1)), -1, 1) * 180;
+};
 
-    // Altitude Change (linear scale)
-    const altChangeMin = -30, altChangeMax = 30;
-    const altChangeAngle = E.clip((altChange - altChangeMin) / (altChangeMax - altChangeMin), 0, 1) * 360;
-    
-    this.twoPie(centerX, centerY, radius, altitudeAngle, altChangeAngle);
-  },
+let gpsg = {
+  cx: 88,
+  cy: 88,
+  s: 87,
+  sats: 4, /* Number of sats with good enough snr */
+  sats_bad: 1, /* Sattelites visible but with low snr */
+  view_t: getTime(), /* When sky became visible */
+  start_t: getTime(), /* When we started acquiring fix */
+  dalt: 30, /* Altitude error between barometer and gps */
+  fix: {},
   
-  twoPie: function(centerX, centerY, radius, altitudeAngle, altChangeAngle) {
-    // Outer Ring (Altitude Change) - Draw a segment based on altitude change
-
-    g.setColor(0, 0, 0.5); // Set a color for the outer ring
-    this.fillArc(g,
-                 centerX, centerY,
-                 radius, // Define the thickness of the outer ring
-                 0, altChangeAngle // Draw based on altitude change
-                );
+  init : function() {
+  },
+  drawCorner(h, v) {
+    let cx = this.cx;
+    let cy = this.cy;
+    let s = this.s;
+    let st = 48;
+    let a = [cx+h*s, cy+v*s, cx+h*s - h*st, cy+v*s, cx+h*s, cy+v*s - v*st];
+    g.fillPoly(a);
+  },
+  clamp: function(low, v, high) {
+    if (v < low)
+      v = low;
+    if (v > high)
+      v = high;
+    return [ low, v, high ];
+  },
+  draw : function() {
+    let cx = this.cx;
+    let cy = this.cy;
+    let s = this.s;
+    g.reset().clear();
+    g.fillCircle(cx, cy, s);
+    this.drawCorner(-1, -1);
+    this.drawCorner(1, -1);
+    if (!this.fix.fix)
+      this.drawCorner(-1, 1);
+    this.drawCorner(1, 1);
     
-    // Inner Ring (Altitude) - Draw a segment based on altitude angle
-    const innerRadius = radius * 0.6; // Inner ring size
-    g.setColor(0, 0.5, 0); // Set a color for the inner ring
-    this.fillArc(g,
-                 centerX, centerY,
-                 innerRadius, // Define thickness of inner ring
-                 0, altitudeAngle // Draw based on altitude
-                );
+    g.setColor(1, 1, 1);
+    let t = getTime();
+    if (this.fix.fix) { /* Have speed */
+      let data = this.clamp(210, 210 + (360*this.fix.speed) / 20, 210+360);
+      let colors = [ "ign", "#000", "#fff" ];
+      pie.drawPieChart1(g, cx, cy, s * 1, data, colors);
+    }
+    if (this.fix.fix) {
+      let data = this.clamp(90, 90 + (360*this.dalt) / 200, 90+360);
+      let colors = [ "ign", "#000", "#fff" ];
+      pie.drawPieChart1(g, cx, cy, s * 0.6, data, colors);
 
-    // Draw the baseline circle for reference
-    g.setColor(0, 0, 0); // Gray for baseline
-    g.drawCircle(centerX, centerY, innerRadius); // Inner circle (reference)
-    g.drawCircle(centerX, centerY, radius); // Outer circle (reference)
-
-    // Render the chart
-    g.flip();
-  }
+    } else { /* Still waiting for fix */
+      let data = this.clamp(0, (360*(t - this.view_t)) / 120, 360);
+      let colors = [ "ign", "#888", "#000" ];
+      pie.drawPieChart1(g, cx, cy, s * 0.6, data, colors);
+    }
+    {
+      let slice = 360 / 8;   
+      let sats = this.fix.satellites;
+      let data = [ 0, slice * sats, slice * (sats + this.sats_bad), 360 ];
+      let colors = [ "ign", "#FFF", "#F00", "#000" ];
+      pie.drawPieChart1(g, cx, cy, s * 0.3, data, colors);
+    }
+  },
 };
 
 function log2(x) {
@@ -503,6 +528,10 @@ let quality = {
       msg += "Sky: " + fmt.fmtTimeDiff(t-sky.all.sky_start) + "\n";
       msg += "2D: " + fmt.fmtTimeDiff(t-quality.fix_start) + "\n";
       msg += "3D: " + fmt.fmtTimeDiff(t-quality.f3d_start) + "\n";
+    } else if (ui.display == 5) {
+      gpsg.start_t = gps.gps_start;
+      gpsg.fix = fix;
+      gpsg.draw();
     }
     quality.step++;
     if (quality.step == 10) {
@@ -886,18 +915,20 @@ function onMessage() {
 
 
 ui.init();
-ui.numScreens = 5;
+ui.numScreens = 6;
 /* 0.. sat drawing
    1.. position, basic data
    2.. fix quality esitmation
    3.. times from ...
    4.. time to fix experiment
+   5.. gps graph
 */
 gps.init();
 quality.resetAlt();
 fmt.init();
 sky.onMessageEnd = onMessage;
 sky.init();
+gpsg.init();
 
 sky.decorate = () => { 
   let p = 15;
