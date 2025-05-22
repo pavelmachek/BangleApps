@@ -339,7 +339,7 @@ let gpsg = {
   cx: 88,
   cy: 88,
   s: 87,
-  sats: 4, /* Number of sats with good enough snr */
+  sats: 4,  /* Number of sats with good enough snr */
   sats_bad: 0, /* Sattelites visible but with low snr */
   view_t: getTime(), /* When sky became visible */
   start_t: getTime(), /* When we started acquiring fix */
@@ -397,11 +397,22 @@ let gpsg = {
       let colors = [ "ign", "#888", "#000" ];
       pie.drawPieChart1(g, cx, cy, s * 0.6, data, colors);
     }
-    {
+    if (this.fix.fix) {
       let slice = 360 / 8;   
       let sats = this.fix.satellites;
-      let data = [ 0, slice * sats, slice * (sats + this.sats_bad), 360 ];
-      let colors = [ "ign", "#FFF", "#F00", "#000" ];
+      let data = this.clamp( 0, slice * sats, 360 );
+      let colors = [ "ign", "#fff", "#000" ];
+      pie.drawPieChart1(g, cx, cy, s * 0.3, data, colors);
+    } else {
+      let slice = 360 / 8;   
+      let sats = this.sats;
+      let red = sats + this.sats_bad;
+      if (sats > 8)
+        sats = 8;
+      if (red > 8)
+        red = 8;      
+      let data = [ 0, slice * sats, slice * red, 360 ];
+      let colors = [ "ign", "#FFF", "#F00", "#888" ];
       pie.drawPieChart1(g, cx, cy, s * 0.3, data, colors);
     }
   },
@@ -535,6 +546,9 @@ let quality = {
       msg += "3D: " + fmt.fmtTimeDiff(t-quality.f3d_start) + "\n";
     } else if (ui.display == 5) {
       gpsg.start_t = gps.gps_start;
+      gpsg.view_t = sky.all.sky_start;
+      gpsg.sats = skys.sats_used;
+      gpsg.sats_bad = skys.snum - skys.sats_used;
       gpsg.fix = fix;
       gpsg.dalt = Math.abs(adelta);
       gpsg.draw();
