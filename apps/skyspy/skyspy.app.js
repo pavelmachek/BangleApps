@@ -412,7 +412,7 @@ let gpsg = {
       if (red > 8)
         red = 8;      
       let data = [ 0, slice * sats, slice * red, 360 ];
-      let colors = [ "ign", "#FFF", "#F00", "#888" ];
+      let colors = [ "ign", "#888", "#800", "#000" ];
       pie.drawPieChart1(g, cx, cy, s * 0.3, data, colors);
     }
   },
@@ -541,14 +541,14 @@ let quality = {
       let t = getTime();
       //print(t, this.fix_start);
       msg = "St: " + fmt.fmtTimeDiff(t-gps.gps_start) + "\n";
-      msg += "Sky: " + fmt.fmtTimeDiff(t-sky.all.sky_start) + "\n";
+      msg += "Sky: " + fmt.fmtTimeDiff(t-skys.sky_start) + "\n";
       msg += "2D: " + fmt.fmtTimeDiff(t-quality.fix_start) + "\n";
       msg += "3D: " + fmt.fmtTimeDiff(t-quality.f3d_start) + "\n";
     } else if (ui.display == 5) {
       gpsg.start_t = gps.gps_start;
-      gpsg.view_t = sky.all.sky_start;
+      gpsg.view_t = skys.sky_start;
       gpsg.sats = skys.sats_used;
-      gpsg.sats_bad = skys.snum - skys.sats_used;
+      gpsg.sats_bad = skys.sats_weak;
       gpsg.fix = fix;
       gpsg.dalt = Math.abs(adelta);
       gpsg.draw();
@@ -573,12 +573,14 @@ let skys = {
   sats: [],
   snum: 0,
   sats_used: 0,
+  sats_weak: 0,
   sky_start: -1,
 
   reset: function() {
     this.snum = 0;
     this.sats = [];
     this.sats_used = 0;
+    this.sats_weak = 0;
   },
   parseSats: function(s) {
     let view = 1 * s[3];
@@ -590,6 +592,9 @@ let skys = {
       if (sat.snr >= this.snrLim) {
         this.sats_used++;
         print(sat.id, sat.snr);
+      }
+      if (sat.snr > 0) {
+        this.sats_weak++;
       }
       this.sats[this.snum++] = sat;
     }
@@ -716,7 +721,7 @@ let sky = {
 
   /* 18.. don't get reliable fix in 40s */
   /* 25.. seems to be good limit for clear sky. ~60 seconds. */
-  snrLim: 25,
+  snrLim: 26,
   drawSat: function(s) {
     let a = s.azi / 360;
     let e = ((90 - s.ele) / 90);
