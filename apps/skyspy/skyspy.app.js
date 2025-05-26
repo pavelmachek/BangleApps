@@ -575,6 +575,10 @@ let skys = {
   sats_used: 0,
   sats_weak: 0,
   sky_start: -1,
+  /* 18.. don't get reliable fix in 40s */
+  /* 25.. seems to be good limit for clear sky. ~60 seconds.
+     .. maybe better 26? */
+  snrLim: 10,
 
   reset: function() {
     this.snum = 0;
@@ -719,9 +723,6 @@ let sky = {
     ui.radCircle(1.0);
   },
 
-  /* 18.. don't get reliable fix in 40s */
-  /* 25.. seems to be good limit for clear sky. ~60 seconds. */
-  snrLim: 26,
   drawSat: function(s) {
     let a = s.azi / 360;
     let e = ((90 - s.ele) / 90);
@@ -730,7 +731,7 @@ let sky = {
 
     if (s.snr == 0)
       g.setColor(1, 0.25, 0.25);
-    else if (s.snr < this.snrLim)
+    else if (s.snr < this.all.snrLim)
       g.setColor(0.25, 0.5, 0.25);
     else
       g.setColor(0, 0, 0);
