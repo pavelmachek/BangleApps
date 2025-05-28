@@ -200,10 +200,16 @@ let gps = {
   },
 };
 
-/* ui library 0.1.5 */
+/* ui library 0.1.5, dirty, bad, revert! */
 let ui = {
   display: 0,
   numScreens: 2,
+  clear: function() {
+    g.reset()
+      .setColor(g.theme.bg)
+      .fillRect(0, this.wi, this.w, this.y2)
+      .setColor(g.theme.fg);
+  },
   drawMsg: function(msg) {
     g.reset().setFont("Vector", 35)
       .setColor(g.theme.bg)
@@ -296,7 +302,7 @@ let ui = {
   },
 };
 
-/* pie library v0.0.3 */
+/* pie library v0.0.4 */
 let pie = {
   radians: function(a) { return a*Math.PI/180; },
 
@@ -306,7 +312,7 @@ let pie = {
     points.push(centerX, centerY); // Start at the center
     
     // Step through angles to create points on the arc
-    for (let angle = startAngle; angle <= endAngle; angle += 7) {
+    for (let angle = startAngle; angle <= endAngle; angle += 15) {
       const x = centerX + Math.sin(this.radians(angle)) * radius;
       const y = centerY - Math.cos(this.radians(angle)) * radius;
       points.push(x, y);
@@ -336,9 +342,9 @@ let pie = {
 };
 
 let gpsg = {
-  cx: 88,
-  cy: 88,
-  s: 87,
+  cx: ui.w/2,
+  cy: ui.wi+ui.h/2,
+  s: ui.h/2 - 1,
   sats: 4,  /* Number of sats with good enough snr */
   sats_bad: 0, /* Sattelites visible but with low snr */
   view_t: getTime(), /* When sky became visible */
@@ -367,15 +373,16 @@ let gpsg = {
     let cx = this.cx;
     let cy = this.cy;
     let s = this.s;
-    g.reset().clear();
+    ui.clear();
     g.fillCircle(cx, cy, s);
     if (!this.fix.fix)
       this.drawCorner(1, -1);
-    if (0) {
-    this.drawCorner(1, 1);
-    this.drawCorner(-1, 1);
-    this.drawCorner(-1, -1);
-    }
+    if (this.fix.satellites < 4)
+      this.drawCorner(1, 1);
+    if (this.fix.hdop > 10)
+      this.drawCorner(-1, 1);
+    if (0)
+      this.drawCorner(-1, -1);
     
     g.setColor(1, 1, 1);
     let t = getTime();
@@ -578,7 +585,7 @@ let skys = {
   /* 18.. don't get reliable fix in 40s */
   /* 25.. seems to be good limit for clear sky. ~60 seconds.
      .. maybe better 26? */
-  snrLim: 10,
+  snrLim: 25,
 
   reset: function() {
     this.snum = 0;
@@ -705,7 +712,7 @@ let sky = {
   this_usable: 0,
   debug: 0,
   all: skys,  /* Sattelites from all systems */
-  split: 1,
+  split: 0,
 
   init: function () {
     if (this.split) {
