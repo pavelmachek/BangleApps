@@ -377,11 +377,11 @@ let gpsg = {
     g.fillCircle(cx, cy, s);
     if (!this.fix.fix)
       this.drawCorner(1, -1);
-    if (this.fix.satellites < 4)
-      this.drawCorner(1, 1);
     if (this.fix.hdop > 10)
+      this.drawCorner(1, 1);
+    if (this.fix.satellites < 4)
       this.drawCorner(-1, 1);
-    if (0)
+    if (this.sats < 4)
       this.drawCorner(-1, -1);
     
     g.setColor(1, 1, 1);
