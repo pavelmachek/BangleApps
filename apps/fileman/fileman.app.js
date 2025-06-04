@@ -65,9 +65,18 @@ function visit_file(fn) {
   E.showMenu(menu);
 }
 
-function drawUtilMenu() {
+function showFree() {
   var free = (require("Storage").getFree() / (1024*1024)).toFixed(2) + " MB\n";
   E.showAlert(free).then( function() { drawMenu(); } );
+}
+
+function drawUtilMenu() {
+  var menu = {
+    '' : {'title' : "Utils"}
+  };
+  menu['Show free'] = showFree;
+  menu['< Back'] = drawMenu;
+  E.showMenu(menu);
 }
 
 function drawMenu() {
@@ -88,7 +97,7 @@ function drawMenu() {
     drawMenu();
     m.move(-1);
   }
-  menu["..."] = function() {
+  menu["[utils...]"] = function() {
     drawUtilMenu();
   }
   for (var i=nstart; i<nend; ++i) {
