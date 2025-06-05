@@ -70,11 +70,18 @@ function showFree() {
   E.showAlert(free).then( function() { drawMenu(); } );
 }
 
+function jumpTo(v) {
+  nstart = Math.round((v/100)*files.length);
+  if (nstart >= files.length) { nstart = 0; }
+  drawMenu();
+}
+
 function drawUtilMenu() {
   var menu = {
     '' : {'title' : "Utils"}
   };
   menu['Show free'] = showFree;
+  menu['Jump to 50%'] = function() { jumpTo(50); }
   menu['< Back'] = drawMenu;
   E.showMenu(menu);
 }
