@@ -81,7 +81,10 @@ function drawUtilMenu() {
     '' : {'title' : "Utils"}
   };
   menu['Show free'] = showFree;
-  menu['Jump to 50%'] = function() { jumpTo(50); }
+  for (let i=0; i<10; i++) {
+    let v = i*10;
+    menu['Jump to '+v+'%'] = function() { jumpTo(v); };
+  }
   menu['< Back'] = drawMenu;
   E.showMenu(menu);
 }
@@ -96,17 +99,17 @@ function drawMenu() {
     if (nstart<0) nstart = files.length-n>0 ? files.length-n : 0;
     menu = {};
     drawMenu();
-  }
+  };
   menu["> next"] = function() {
     if (nstart+n<files.length) nstart += n;
     else nstart = 0;
     menu = {};
     drawMenu();
     m.move(-1);
-  }
+  };
   menu["[utils...]"] = function() {
     drawUtilMenu();
-  }
+  };
   for (var i=nstart; i<nend; ++i) {
     menu[files[i]] = visit_file.bind(null, files[i]);
   }
