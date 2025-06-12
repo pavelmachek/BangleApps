@@ -521,6 +521,7 @@ function inputHandler(s) {
       break;
     }
     case 'D': doBuzz(' .'); selectWP(1); break;
+    case 'E': aload('cload.js'); break;
     case 'F': gpsOff(); ack("GPS off"); break;
     case 'T': gpsOn(); state.gps_limit = getTime() + 60*60*4; ack("GPS on"); break;
     case 'I':
