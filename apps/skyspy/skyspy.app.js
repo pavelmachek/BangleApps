@@ -547,6 +547,7 @@ let quality = {
       msg += "Sky: " + fmt.fmtTimeDiff(t-skys.sky_start) + "\n";
       msg += "2D: " + fmt.fmtTimeDiff(t-quality.fix_start) + "\n";
       msg += "3D: " + fmt.fmtTimeDiff(t-quality.f3d_start) + "\n";
+      skys.drawSnrGraph();
     } else if (ui.display == 5) {
       gpsg.start_t = gps.gps_start;
       gpsg.view_t = skys.sky_start;
@@ -582,6 +583,9 @@ let skys = {
   /* 25.. seems to be good limit for clear sky. ~60 seconds.
      .. maybe better 26? */
   snrLim: 25,
+  snr_history: [ 10, 11, 12, 13, 14, 13, 14, 15, 18, 19, 23, 25, 27 ],
+  snr_history_long: [ 19, 18, 19, 18, 25, 25 ],
+  snr_len: 60,
 
   reset: function() {
     this.snum = 0;
@@ -678,10 +682,41 @@ let skys = {
       return s;
     return this.qualest();
   },
+  drawSnrGraph: function () {
+    var at = 135;
+    var peakValue = 30;
+    var fft = this.snr_history;
+
+    var graphHeight = g.getHeight() - at;
+    var graphWidth = g.getWidth();
+    var binsToShow = fft.length;
+    var binWidth = graphWidth / binsToShow;
+
+    g.setColor(0, 0, 0);
+    for (let i = 0; i < binsToShow; i++) {
+      var x = i * binWidth;
+      var h = (fft[i] / peakValue) * graphHeight;
+      if (h > graphHeight) h = graphHeight;
+      g.fillRect(at, x, at + h, x + binWidth - 1);
+    }
+  },
   onEnd: function () {
     this.trackSatelliteVisibility();
     if (this.sats_used < 4)
       this.sky_start = getTime();
+    let sortedSats = this.snrSort();
+    let val = -1;
+    if (sortedSats[4] && sortedSats[4].snr) {
+      val = sortedSats[4].snr;
+    }
+    this.snr_history.push(val);
+    if (this.snr_history.length > this.snr_len) {
+      this.snr_history = [];
+      this.snr_history_long.push(val);
+    }
+    if (this.snr_history_long.length > this.snr_len)
+      this.snr_history_long.shift();
+    
     this.reset();
   },
 };
