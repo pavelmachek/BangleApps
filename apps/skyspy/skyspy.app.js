@@ -529,6 +529,8 @@ let quality = {
         .setColor(g.theme.fb).drawString(msg, 3, 25);
     }
     if (debug > 0) print(fix);
+    if (ui.display == 3)
+      skys.drawSnrGraph();
   },
 
   formatDisplayMessage: function(lat, alt, speed, hdop, adelta, ddalt, tdelta) {
@@ -547,7 +549,6 @@ let quality = {
       msg += "Sky: " + fmt.fmtTimeDiff(t-skys.sky_start) + "\n";
       msg += "2D: " + fmt.fmtTimeDiff(t-quality.fix_start) + "\n";
       msg += "3D: " + fmt.fmtTimeDiff(t-quality.f3d_start) + "\n";
-      skys.drawSnrGraph();
     } else if (ui.display == 5) {
       gpsg.start_t = gps.gps_start;
       gpsg.view_t = skys.sky_start;
@@ -583,7 +584,13 @@ let skys = {
   /* 25.. seems to be good limit for clear sky. ~60 seconds.
      .. maybe better 26? */
   snrLim: 25,
-  snr_history: [ 10, 11, 12, 13, 14, 13, 14, 15, 18, 19, 23, 25, 27 ],
+  snr_history: [ 10, 11, 12, 13, 14, 13, 14, 15, 18, 19, 
+                 23, 25, 27, 11, 20, 15, 10,  3,  1,  3,
+                 23, 25, 27, 11, 20, 15, 10,  3,  1,  3,
+                 23, 25, 27, 11, 20, 15, 10,  3,  1,  3,
+                 23, 25, 27, 11, 20, 15, 10,  3,  1,  3,
+                 15
+               ],
   snr_history_long: [ 19, 18, 19, 18, 25, 25 ],
   snr_len: 60,
 
@@ -683,7 +690,7 @@ let skys = {
     return this.qualest();
   },
   drawSnrGraph: function () {
-    var at = 135;
+    var at = 120;
     var peakValue = 30;
     var fft = this.snr_history;
 
@@ -691,7 +698,11 @@ let skys = {
     var graphWidth = g.getWidth();
     var binsToShow = fft.length;
     var binWidth = graphWidth / binsToShow;
+    
+    g.setColor(1, 0.75, 0.75);
+    g.fillRect(at, 0, at + (this.snrLim / peakValue)*graphHeight, g.getHeight());
 
+    print("bins: ", binsToShow);
     g.setColor(0, 0, 0);
     for (let i = 0; i < binsToShow; i++) {
       var x = i * binWidth;
@@ -711,6 +722,7 @@ let skys = {
     }
     this.snr_history.push(val);
     if (this.snr_history.length > this.snr_len) {
+      val = Math.min.apply(this.snr_history);
       this.snr_history = [];
       this.snr_history_long.push(val);
     }
