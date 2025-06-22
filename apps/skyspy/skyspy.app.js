@@ -724,7 +724,7 @@ Constellation.prototype.onEnd = function() {
   let val = (sorted[4] && sorted[4].snr) || -1;
   this.snr_history.push(val);
   if (this.snr_history.length > this.snr_len) {
-    val = Math.min(...this.snr_history);
+    val = Math.min.apply(this.snr_history);
     this.snr_history = [];
     this.snr_history_long.push(val);
   }
