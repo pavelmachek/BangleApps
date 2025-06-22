@@ -167,6 +167,7 @@ Gps.prototype = Object.create(Sensor.prototype);
 Gps.prototype.constructor = Gps;
 
 Gps.prototype.init = function(x) {
+  print("Gps init");
   this.emulator = (process.env.BOARD === "EMSCRIPTEN" || process.env.BOARD === "EMSCRIPTEN2") ? 1 : 0;
 };
 
@@ -308,7 +309,7 @@ let ui = {
     this.h = this.y2 - this.wi;
     this.drawBusy();
   }
-}
+};
 
 let uir = {
   /* FIXME: should really move somewhere else */
@@ -470,143 +471,154 @@ var debug = 0;
 var cur_altitude;
 var adj_time = 0, adj_alt = 0;
 
-let quality = {
-  min_dalt: 9999,
-  max_dalt: -9999,
-  step: 0,
-  dalt: 0,
-  fix_start: -1,
-  f3d_start: -1,
+function GpsAlt() {
+  Gps.call(this);
+}
 
-  resetAlt: function() {
-    this.min_dalt = 9999;
-    this.max_dalt = -9999;
-    this.step = 0;
-  },
+GpsAlt.prototype = Object.create(Gps.prototype);
+GpsAlt.prototype.constructor = GpsAlt;
 
-  calcAlt: function(alt, cur_altitude) {
-    let dalt = alt - cur_altitude;
-    this.dalt = dalt;
-    if (this.min_dalt > dalt) this.min_dalt = dalt;
-    if (this.max_dalt < dalt) this.max_dalt = dalt;
-    return this.max_dalt - this.min_dalt;
-  },
+GpsAlt.prototype.init = function() {
+  print("GpsAlt init");
+  Gps.prototype.init.call(this);
+};
 
-  updateGps: function() {
-    let lat = "lat ", alt = "?", speed = "speed ", hdop = "?",
-        adelta = "adelta ", tdelta = "tdelta ";
+// Converted from QualitySensor class to prototype-based GpsAlt object
+function GpsAlt() {
+  this.min_dalt = 9999;
+  this.max_dalt = -9999;
+  this.step = 0;
+  this.dalt = 0;
+  this.fix_start = -1;
+  this.f3d_start = -1;
+}
 
-    fix = gps.getGPSFix();
-    if (!fix.fix || !fix.lat) {
-      print("...no fix\n");
-      quality.fix_start = getTime();
+GpsAlt.prototype.resetAlt = function() {
+  this.min_dalt = 9999;
+  this.max_dalt = -9999;
+  this.step = 0;
+};
+
+GpsAlt.prototype.calcAlt = function(alt, cur_altitude) {
+  let dalt = alt - cur_altitude;
+  this.dalt = dalt;
+  if (this.min_dalt > dalt) this.min_dalt = dalt;
+  if (this.max_dalt < dalt) this.max_dalt = dalt;
+  return this.max_dalt - this.min_dalt;
+};
+
+GpsAlt.prototype.updateGps = function() {
+  let lat = "lat ", alt = "?", speed = "speed ", hdop = "?",
+      adelta = "adelta ", tdelta = "tdelta ";
+
+  fix = gps.getGPSFix();
+  if (!fix.fix || !fix.lat) {
+    print("...no fix\n");
+    this.fix_start = getTime();
+  }
+  if (qalt < 0 || qalt > 10)
+    this.f3d_start = getTime();
+
+  if (adj_time) {
+    print("Adjusting time");
+    setTime(fix.time.getTime()/1000);
+    adj_time = 0;
+  }
+  if (adj_alt) {
+    print("Adjust altitude");
+    this.adjustAltitude();
+  }
+
+  this.updateAltitude();
+  this.displayData(lat, alt, speed, hdop, adelta, tdelta);
+};
+
+GpsAlt.prototype.adjustAltitude = function() {
+  if (qalt < 5) {
+    let rest_altitude = fix.alt;
+    let alt_adjust = cur_altitude - rest_altitude;
+    let abs = Math.abs(alt_adjust);
+    print("adj", alt_adjust);
+    let o = Bangle.getOptions();
+    if (abs > 10 && abs < 150) {
+      let a = 0.01;
+      if (cur_altitude > rest_altitude) a = -a;
+      o.seaLevelPressure = o.seaLevelPressure + a;
+      Bangle.setOptions(o);
     }
-    //print("fix: ", fix);
-    //print("qalt: ", qalt);
-    if (qalt < 0 || qalt > 10)
-      quality.f3d_start = getTime();
-
-    if (adj_time) {
-      print("Adjusting time");
-      setTime(fix.time.getTime()/1000);
-      adj_time = 0;
-    }
-    if (adj_alt) {
-      print("Adjust altitude");
-      quality.adjustAltitude();
-    }
-
-    quality.updateAltitude();
-    quality.displayData(lat, alt, speed, hdop, adelta, tdelta);
-  },
-
-  adjustAltitude: function() {
-    if (qalt < 5) {
-      let rest_altitude = fix.alt;
-      let alt_adjust = cur_altitude - rest_altitude;
-      let abs = Math.abs(alt_adjust);
-      print("adj", alt_adjust);
-      let o = Bangle.getOptions();
-      if (abs > 10 && abs < 150) {
-        let a = 0.01;
-        if (cur_altitude > rest_altitude) a = -a;
-        o.seaLevelPressure = o.seaLevelPressure + a;
-        Bangle.setOptions(o);
-      }
-      print(o.seaLevelPressure.toFixed(1) + "hPa");
-    }
-  },
-
-  updateAltitude: function() {
-    try {
-      Bangle.getPressure().then((x) => {
-        cur_altitude = x.altitude;
-      }, print);
-    } catch (e) {}
-  },
-
-  displayData: function(lat, alt, speed, hdop, adelta, tdelta) {
-    if (fix && fix.time) {
-      tdelta = "" + (getTime() - fix.time.getTime()/1000).toFixed(0);
-    }
-    if (fix && fix.fix && fix.lat) {
-      lat = "" + fmt.fmtPos(fix);
-      alt = "" + fix.alt.toFixed(0);
-      adelta = "" + (cur_altitude - fix.alt).toFixed(0);
-      speed = "" + fix.speed.toFixed(1);
-      hdop = "" + fix.hdop.toFixed(0);
-    } else {
-      lat = "NO FIX\n" + (getTime() - gps.gps_start).toFixed(0) + "s " 
-            + sky.sats_used + "/" + sky.snum;
-      if (cur_altitude) adelta = "" + cur_altitude.toFixed(0);
-    }
-
-    let ddalt = quality.calcAlt(alt, cur_altitude);
-    let msg = this.formatDisplayMessage(lat, alt, speed, hdop, adelta, ddalt, tdelta);
-
-    if (msg != "") {
-      g.reset().setFont("Vector", 31)
-        .setColor(g.theme.bg).fillRect(0, ui.wi, ui.w, ui.y2)
-        .setColor(g.theme.fb).drawString(msg, 3, 25);
-    }
-    if (debug > 0) print(fix);
-    if (ui.display == 3)
-      sky.all.drawSnrGraph();
-  },
-
-  formatDisplayMessage: function(lat, alt, speed, hdop, adelta, ddalt, tdelta) {
-    let msg = "";
-    if (ui.display == 1) {
-      msg = lat + "\ne" + hdop + "m " + tdelta + "s\n" + 
-            speed + "km/h\n" + alt + "m+" + adelta + "\nmsghere";
-    } else if (ui.display == 2) {
-      msg = speed + "km/h\n" + "e" + hdop + "m" + "\ndd " +
-            qalt.toFixed(0) + "\n(" + quality.step + "/" + 
-            ddalt.toFixed(0) + ")" + "\n" + alt + "m+" + adelta;
-    } else if (ui.display == 3) {
-      let t = getTime();
-      //print(t, this.fix_start);
-      msg = "St: " + fmt.fmtTimeDiff(t-gps.gps_start) + "\n";
-      msg += "Sky: " + fmt.fmtTimeDiff(t-sky.all.sky_start) + "\n";
-      msg += "2D: " + fmt.fmtTimeDiff(t-quality.fix_start) + "\n";
-      msg += "3D: " + fmt.fmtTimeDiff(t-quality.f3d_start) + "\n";
-    } else if (ui.display == 5) {
-      gpsg.start_t = gps.gps_start;
-      gpsg.view_t = sky.all.sky_start;
-      gpsg.sats = sky.all.sats_used;
-      gpsg.sats_bad = sky.all.sats_weak;
-      gpsg.fix = fix;
-      gpsg.dalt = Math.abs(adelta);
-      gpsg.draw();
-    }
-    quality.step++;
-    if (quality.step == 10) {
-      qalt = quality.max_dalt - quality.min_dalt;
-      quality.resetAlt();
-    }
-    return msg;
+    print(o.seaLevelPressure.toFixed(1) + "hPa");
   }
 };
+
+GpsAlt.prototype.updateAltitude = function() {
+  try {
+    Bangle.getPressure().then((x) => {
+      cur_altitude = x.altitude;
+    }, print);
+  } catch (e) {}
+};
+
+GpsAlt.prototype.displayData = function(lat, alt, speed, hdop, adelta, tdelta) {
+  if (fix && fix.time) {
+    tdelta = "" + (getTime() - fix.time.getTime()/1000).toFixed(0);
+  }
+  if (fix && fix.fix && fix.lat) {
+    lat = "" + fmt.fmtPos(fix);
+    alt = "" + fix.alt.toFixed(0);
+    adelta = "" + (cur_altitude - fix.alt).toFixed(0);
+    speed = "" + fix.speed.toFixed(1);
+    hdop = "" + fix.hdop.toFixed(0);
+  } else {
+    lat = "NO FIX\n" + (getTime() - gps.gps_start).toFixed(0) + "s " +
+          sky.all.sats_used + "/" + sky.all.snum;
+    if (cur_altitude) adelta = "" + cur_altitude.toFixed(0);
+  }
+
+  let ddalt = this.calcAlt(alt, cur_altitude);
+  let msg = this.formatDisplayMessage(lat, alt, speed, hdop, adelta, ddalt, tdelta);
+
+  if (msg != "") {
+    g.reset().setFont("Vector", 31)
+      .setColor(g.theme.bg).fillRect(0, ui.wi, ui.w, ui.y2)
+      .setColor(g.theme.fb).drawString(msg, 3, 25);
+  }
+  if (debug > 0) print(fix);
+  if (ui.display == 3)
+    sky.all.drawSnrGraph();
+};
+
+GpsAlt.prototype.formatDisplayMessage = function(lat, alt, speed, hdop, adelta, ddalt, tdelta) {
+  let msg = "";
+  if (ui.display == 1) {
+    msg = lat + "\ne" + hdop + "m " + tdelta + "s\n" + 
+          speed + "km/h\n" + alt + "m+" + adelta + "\nmsghere";
+  } else if (ui.display == 2) {
+    msg = speed + "km/h\n" + "e" + hdop + "m" + "\ndd " +
+          qalt.toFixed(0) + "\n(" + this.step + "/" + 
+          ddalt.toFixed(0) + ")" + "\n" + alt + "m+" + adelta;
+  } else if (ui.display == 3) {
+    let t = getTime();
+    msg = "St: " + fmt.fmtTimeDiff(t-gps.gps_start) + "\n";
+    msg += "Sky: " + fmt.fmtTimeDiff(t-sky.all.sky_start) + "\n";
+    msg += "2D: " + fmt.fmtTimeDiff(t-this.fix_start) + "\n";
+    msg += "3D: " + fmt.fmtTimeDiff(t-this.f3d_start) + "\n";
+  } else if (ui.display == 5) {
+    gpsg.start_t = gps.gps_start;
+    gpsg.view_t = sky.all.sky_start;
+    gpsg.sats = sky.all.sats_used;
+    gpsg.sats_bad = sky.all.sats_weak;
+    gpsg.fix = fix;
+    gpsg.dalt = Math.abs(adelta);
+    gpsg.draw();
+  }
+  this.step++;
+  if (this.step == 10) {
+    qalt = this.max_dalt - this.min_dalt;
+    this.resetAlt();
+  }
+  return msg;
+};
+
 
 var qalt = 9999; /* global, altitude quality */
 
@@ -920,7 +932,7 @@ function markGps() {
 }
 
 function onMessage() {
-  quality.updateGps();
+  gps.updateGps();
   if (ui.display == 4)
     sky.drawEstimates();
   
@@ -937,15 +949,15 @@ ui.init();
 ui.numScreens = 6;
 /* 0.. sat drawing
    1.. position, basic data
-   2.. fix quality esitmation
+   2.. fix quality estimation
    3.. times from ...
    4.. time to fix experiment
    5.. gps graph
 */
-gps = new Gps();
+gps = new GpsAlt();
 gps.init();
 sky = new RawGps();
-quality.resetAlt();
+gps.resetAlt();
 fmt.init();
 sky.onMessageEnd = onMessage;
 sky.init();
@@ -954,7 +966,7 @@ gpsg.init();
 sky.decorate = () => { 
   let p = 15;
   if (0)
-    pie.twoPie(p, p+ui.wi, p, quality.dalt, qalt);
+    pie.twoPie(p, p+ui.wi, p, gps.dalt, qalt);
 };
 ui.topLeft = () => { ui.drawMsg("Clock\nadjust"); adj_time = 1; };
 ui.topRight = () => { ui.drawMsg("Alt\nadjust"); adj_alt = 1; };
@@ -970,4 +982,4 @@ Bangle.setUI({
 
 Bangle.loadWidgets();
 Bangle.drawWidgets();
-markGps();
+//markGps();
