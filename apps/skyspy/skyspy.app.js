@@ -307,8 +307,10 @@ let ui = {
   init: function() {
     this.h = this.y2 - this.wi;
     this.drawBusy();
-  },
+  }
+}
 
+let uir = {
   /* FIXME: should really move somewhere else */
   /* radial angle -- convert 0..1 to 0..2pi */
   radA: function(p) { return p*(Math.PI*2); },
@@ -318,12 +320,12 @@ let ui = {
   /* given angle/distance, get X coordinate */
   radX: function(p, d) {
     let a = this.radA(p);
-    return this.w/2 + Math.sin(a)*this.radD(d);
+    return ui.w/2 + Math.sin(a)*this.radD(d);
   },
   /* given angle/distance, get Y coordinate */
   radY: function(p, d) {
     let a = this.radA(p);
-    return this.h/2 - Math.cos(a)*this.radD(d) + this.wi;
+    return ui.h/2 - Math.cos(a)*this.radD(d) + ui.wi;
   },
   radLine: function(a1, d1, a2, d2) {
     g.drawLine(this.radX(a1, d1), this.radY(a1, d1), this.radX(a2, d2), this.radY(a2, d2));
@@ -754,17 +756,17 @@ RawGps.prototype.init = function () {
 
 RawGps.prototype.drawGrid = function() {
   g.setColor(g.theme.fg);
-  ui.radLine(0, 1, 0.5, 1);
-  ui.radLine(0.25, 1, 0.75, 1);
-  ui.radCircle(0.5);
-  ui.radCircle(1.0);
+  uir.radLine(0, 1, 0.5, 1);
+  uir.radLine(0.25, 1, 0.75, 1);
+  uir.radCircle(0.5);
+  uir.radCircle(1.0);
 };
 
 RawGps.prototype.drawSat = function(s) {
   let a = s.azi / 360;
   let e = ((90 - s.ele) / 90);
-  let x = ui.radX(a, e);
-  let y = ui.radY(a, e);
+  let x = uir.radX(a, e);
+  let y = uir.radY(a, e);
 
   if (s.snr == 0)
     g.setColor(1, 0.25, 0.25);
