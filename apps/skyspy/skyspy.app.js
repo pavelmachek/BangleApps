@@ -146,16 +146,16 @@ let fmt = {
   },
 };
 
-/* gps library v0.1.4 (bad changes, revert!) */
+/* gps library v0.1.4 */
 let gps = {
   emulator: -1,
   init: function(x) {
-    this.emulator = (process.env.BOARD=="EMSCRIPTEN" 
+    this.emulator = (process.env.BOARD=="EMSCRIPTEN"
                      || process.env.BOARD=="EMSCRIPTEN2")?1:0;
   },
   state: {},
   on_gps: function(f) {
-    let fix = this.getGPSFix();      
+    let fix = this.getGPSFix();
     f(fix);
 
     /*
@@ -190,7 +190,6 @@ let gps = {
     return fix;
   },
   gps_start : -1,
-  fix_start : -1,
   start_gps: function() {
     Bangle.setGPSPower(1, "libgps");
     this.gps_start = getTime();
@@ -200,40 +199,61 @@ let gps = {
   },
 };
 
-/* ui library 0.1.5, dirty, bad, revert! */
+/* ui library 0.2.0 */
+//Bangle.on("drag", (b) => ui.touchHandler(b));
 let ui = {
   display: 0,
   numScreens: 2,
+  name: ".oO busy",
+  screens: [ "Screen 1", "Screen 2", "Screen 3", "Screen 4", "Screen 5", "Screen 6" ],
+  help: [ "F1", "F2", "<", ">" ],
   clear: function() {
     g.reset()
       .setColor(g.theme.bg)
       .fillRect(0, this.wi, this.w, this.y2)
       .setColor(g.theme.fg);
   },
+  draw: function(screen) {},
   drawMsg: function(msg) {
-    g.reset().setFont("Vector", 35)
-      .setColor(g.theme.bg)
-      .fillRect(0, this.wi, this.w, this.y2)
-      .setColor(g.theme.fg)
+    this.clear();
+    g.setFont("Vector", 35)
       .drawString(msg, 5, 30)
       .flip();
   },
   drawBusy: function() {
-    this.drawMsg("\n.oO busy");
+    this.clear();
+    g.setFont("Vector", 35);
+    let help = this.help;
+    g.setFontAlign(-1, -1).drawString(help[0], 0, this.wi);
+    g.setFontAlign(1, -1).drawString(help[1], this.w, this.wi);
+    g.setFontAlign(-1, 1).drawString(help[2], 0, this.h+this.wi);
+    g.setFontAlign(1, 1).drawString(help[3], this.w, this.h+this.wi);
+    g.setFontAlign(0, 0)
+      .drawString(this.name, this.w/2, this.h/2);
+    g.reset();
+  },
+  drawScreen: function() {
+    this.drawMsg(this.screens[this.display]);
+    let t1 = getTime();
+    this.draw();
+    let t = getTime() - t1;
+    if (t > 30) {
+      print("Draw took", t, "msec");
+    }
   },
   nextScreen: function() {
     print("nextS");
     this.display = this.display + 1;
     if (this.display == this.numScreens)
       this.display = 0;
-    this.drawBusy();
+    this.drawScreen();
   },
   prevScreen: function() {
     print("prevS");
     this.display = this.display - 1;
     if (this.display < 0)
       this.display = this.numScreens - 1;
-    this.drawBusy();
+    this.drawScreen();
   },
   onSwipe: function(dir) {
     this.nextScreen();
