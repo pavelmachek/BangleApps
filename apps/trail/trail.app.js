@@ -437,9 +437,8 @@ var zoom = {
   }
 };
 
-
 function toCartesian(v) {
-  const R = 6371; // Poloměr Země v km
+  const R = 6371; // Earth radius in km
   const latRad = v.lat * Math.PI / 180;
   const lonRad = v.lon * Math.PI / 180;
 
@@ -540,6 +539,7 @@ function read(pp, n) {
   destination = prev;
 }
 
+/* Convert to storagefile, and find out start/stop points (and display some eye-candy) */
 function time_read(n) {
   ui.drawMsg("Converting");
   print("Converting...");
@@ -561,6 +561,8 @@ function time_read(n) {
   print(num, "points", dist, "distance");
   setTimeout(step, 100);
 }
+
+/* Main code for displaying track */
 
 var track_name = "", inf, point_num, track = [], track_points = 30, north = {}, point_drawn;
 
@@ -665,6 +667,8 @@ function drop_last() {
     track.shift();
 }
 
+/* Display data for given position -- pp.
+   Drop data that are more than 150 meters behind current position */
 function step_to(pp, pass_all) {    
   if (0) {
     g.setColor(0.5, 0.5, 1);
@@ -720,6 +724,7 @@ function step() {
   }
   
   {
+    /* Draw arrow representing current position */
   pp.x = ui.w/2;
   pp.y = ui.h*0.5;
 
@@ -758,6 +763,10 @@ function step() {
   setTimeout(step, 1000);
 }
 
+/* Recovery: If we get completely lost, we can do this.
+   It works similar to main loop, but faster.
+   It simply drop points until we are 400meters from the fix, then main code can take over.
+*/
 function recover() {
   ui.drawMsg("Recover...");
   step_init();
@@ -766,7 +775,7 @@ function recover() {
   pp.ppm = 0.08 * 3; /* Pixels per meter */
   if (!fix.fix) {
     print("Can't recover with no fix\n");
-    fix.lat = 50.010507;
+    fix.lat = 50.010507;  /* FIXME */
     fix.lon = 14.765840;
   }
   load_next();
@@ -787,6 +796,7 @@ function recover() {
   }
 }
 
+/* Convert "normal" file to storagefile... so that we can read lines from it */
 function to_storage(n) {
   let f2 = require("Storage").open(n+".st", "w");
   let pos = 0;
@@ -814,6 +824,7 @@ l = st.list(l, {sf:false});
 
 print(l);
 
+/* After user selected the track, we can switch to main interface */
 function load_track(x) {
   ui.init();
   ui.numScreens = 4;
@@ -833,6 +844,7 @@ ui.screens = [ "Detail", "Mid", "Overview", "Stats" ];
   ui.topRight = () => { ui.drawMsg("Recover"); recover(); };
 }
 
+/* Display menu with tracks. */
 var menu = {
     "< Back" : Bangle.load
 };
