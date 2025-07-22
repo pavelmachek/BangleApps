@@ -600,6 +600,7 @@ function paint(pp, p1, p2, thick) {
   zoom.geoLine(p1, p2);
 }
 
+/* Paint points in window around current position */
 function paint_all(pp) {
   let prev = 0;
   let mDist = 99999999999, m = 0;
@@ -641,10 +642,13 @@ function paint_all(pp) {
   if (fast)
     return { quiet: 0, offtrack : 0 };
   print("Best segment was", m, "dist", mDist);
-  if (fmt.distance(track[m], zoom.origin) > 1500) {
+  /* If we are too far from ... */
+  if (fmt.distance(track[m], zoom.origin) > 2500) {
     zoom.geoNew(track[m], 3000); // FIXME: this will flicker
     point_drawn = 0;
   }
+
+  /* Estimate distance to next turn/intersection */
   let ahead = 0, a = fmt.bearing(track[m-1], track[m]), quiet = -1;
   for (let i = m+1; i < track.length; i++) {
     let a2 = fmt.bearing(track[i-1], track[i]);
@@ -677,9 +681,7 @@ function step_to(pp, pass_all) {
     g.setColor(1, 0.5, 0.5);
     paint(pp, pp, north, 1);
   }
-
   let quiet = paint_all(pp);
-  
   while (distSegment(track[0], track[1], pp) > 150 &&
          track.length > 10) {
     drop_last();
@@ -725,13 +727,12 @@ function step() {
   
   {
     /* Draw arrow representing current position */
-  pp.x = ui.w/2;
-  pp.y = ui.h*0.5;
+    pp.x = ui.w/2;
+    pp.y = ui.h*0.5;
 
-  g.setColor(0, 0, 1);
-  let sc = 2.5;
-  g.drawPoly([ pp.x, pp.y, pp.x - 5*sc, pp.y + 12*sc, pp.x + 5*sc, pp.y + 12*sc ], true);
-
+    g.setColor(0, 0, 1);
+    let sc = 2.5;
+    g.drawPoly([ pp.x, pp.y, pp.x - 5*sc, pp.y + 12*sc, pp.x + 5*sc, pp.y + 12*sc ], true);
   }
   
   g.setColor(0, 0, 0);
@@ -792,7 +793,7 @@ function recover() {
       step_to(pp, 1);
     if (!load_next())
       break;
-    ui.drawMsg("Recover\n" + fmt.fmtDist(d / 1000));
+    ui.drawMsg("Recover\n" + fmt.fmtDist(d / 1000) + "\n" + point_num + "/" + num);
   }
 }
 
