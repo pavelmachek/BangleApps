@@ -697,7 +697,7 @@ function step_to(pp, pass_all) {
   return quiet;
 }
 
-var demo_mode = 0, zoom_mode = 0;
+var demo_mode = 0, zoom_scale = 500;
 
 function step() {
   const fast = 0;
@@ -751,7 +751,7 @@ function step() {
   }
   if (zoom_scale) {
     g.setColor(0, 0, 0);
-    zoom.geoPaint(pp, -pp.course, zoom_scale);
+    zoom.geoPaint(pp, -pp.course, zoom_scale); /* Here we can change resolution */
   }
   
   if (zoom_scale) {
@@ -885,33 +885,27 @@ function load_track(x) {
   Bangle.buzz(50, 1);
   ui.drawMsg("Loading\n"+x);
   track_name = x;
-  time_read();
+  time_read(x);
 
-  Bangle.on("drag", (b) => ui.touchHandler(b));
-  Bangle.setUI({
-  mode : "custom",
-  clock : 0
+  /* FIXME: should use ui */
+  Bangle.setUI("clockupdown", btn => {
+    print("Button", btn);
+    if (btn == -1) {
+      recover();
+    }
+    if (0) { /* FIXME */
+      ui.drawMsg("Demo mode");
+      demo_mode = 1;
+    }
+    if (btn == 1) {
+      if (zoom_scale == 500)
+        zoom_scale = 1500;
+      else
+        zoom_scale = 500;
+      ui.drawMsg("Zoom scale\n" + zoom_scale);
+    }
+    
   });
-  ui.topLeft = () => {
-    switch (ui.display) {
-    case 0:
-    case 1:
-        zoom_mode++;
-        if (zoom_mode == 3)
-          zoom_mode = 0;
-        ui.drawMsg("Zoom\nmode\n" + zoom_mode);
-        break;
-    case 2: demo_mode = !demo_mode; 
-        ui.drawMsg("Demo\nmode\n" + demo_mode);
-        break;
-    }
-  }
-  ui.topRight = () => {
-    switch (ui.display) {
-    case 0: ui.drawMsg("Recover"); recover(); break;
-    case 1: ui.drawMsg("Draw map"); draw_map(); break;
-    }
-  };
 }
 
 /* Display menu with tracks. */
