@@ -522,9 +522,8 @@ function read(pp, n, candy) {
         if (candy) {
         pp.lat = p.lat;
         pp.lon = p.lon;
-        }
         /* FIXME: won't init destination */
-        //return;
+        return;
       }
       prev = p;
     }
@@ -532,7 +531,7 @@ function read(pp, n, candy) {
     if (!(num % 30)) {
       g.clear();
       zoom.geoPaint(prev, 0, 2500);
-      g.drawString(num + "\n" + fmt.fmtDist(dist / 1000) + "\n" + track_name, 3, 3);
+      g.drawString(num + "\n" + fmt.fmtDist(dist / 1000), 3, 3);
       g.flip();
       print(num, "points");
       if (candy && !(num % 300)) {
@@ -545,9 +544,7 @@ function read(pp, n, candy) {
   destination = prev;
 }
 
-/* Find out start/stop points (and display some eye-candy) */
-function time_read() {
-  let n = track_name;
+function time_read(n) {
   ui.drawMsg("Converting");
   print("Converting...");
   to_storage(n);
@@ -697,7 +694,7 @@ function step_to(pp, pass_all) {
   return quiet;
 }
 
-var demo_mode = 0, zoom_scale = 500;
+var demo_mode = 0;
 
 function step() {
   const fast = 0;
@@ -751,7 +748,15 @@ function step() {
   }
   if (zoom_scale) {
     g.setColor(0, 0, 0);
-    zoom.geoPaint(pp, -pp.course, zoom_scale); /* Here we can change resolution */
+    let zoom_scale = 0;
+    switch (ui.display) {
+    case 0: zoom_scale = 500; break;
+    case 1: zoom_scale = 1500; break;
+    case 2: zoom_scale = 2500; break;
+    case 3: /* draw some statistics? */ break;
+    }
+    if (zoom_scale)
+      zoom.geoPaint(pp, -pp.course, zoom_scale);
   }
   
   if (zoom_scale) {
@@ -879,33 +884,21 @@ print(l);
 /* After user selected the track, we can switch to main interface */
 function load_track(x) {
   ui.init();
-  ui.numScreens = 3;
-  ui.screens = [ "Follow", "Map", "Stats" ];
+  ui.numScreens = 4;
+ui.screens = [ "Detail", "Mid", "Overview", "Stats" ];
 
   Bangle.buzz(50, 1);
   ui.drawMsg("Loading\n"+x);
   track_name = x;
   time_read(x);
 
-  /* FIXME: should use ui */
-  Bangle.setUI("clockupdown", btn => {
-    print("Button", btn);
-    if (btn == -1) {
-      recover();
-    }
-    if (0) { /* FIXME */
-      ui.drawMsg("Demo mode");
-      demo_mode = 1;
-    }
-    if (btn == 1) {
-      if (zoom_scale == 500)
-        zoom_scale = 1500;
-      else
-        zoom_scale = 500;
-      ui.drawMsg("Zoom scale\n" + zoom_scale);
-    }
-    
+  Bangle.on("drag", (b) => ui.touchHandler(b));
+  Bangle.setUI({
+  mode : "custom",
+  clock : 0
   });
+  ui.topLeft = () => { ui.drawMsg("Demo mode"); demo_mode = 1; }
+  ui.topRight = () => { ui.drawMsg("Recover"); recover(); };
 }
 
 /* Display menu with tracks. */
