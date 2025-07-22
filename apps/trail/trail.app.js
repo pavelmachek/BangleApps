@@ -712,20 +712,20 @@ function step() {
   }
 
   let quiet = step_to(pp, 1);
-  if (1) {
-    g.setColor(0, 0, 0);
-    let zoom_scale = 0;
-    switch (ui.display) {
+  let zoom_scale = 0;
+  switch (ui.display) {
     case 0: zoom_scale = 500; break;
     case 1: zoom_scale = 1500; break;
     case 2: zoom_scale = 2500; break;
-    case 3: /* draw some statistics? */ break;
-    }
-    if (zoom_scale)
-      zoom.geoPaint(pp, -pp.course, zoom_scale);
+    case 3: ui.drawMsg("Stats\n" + fmt.fmtDist(0 / 1000) + "\n" + point_num + "/" + num);
+      break;
+  }
+  if (zoom_scale) {
+    g.setColor(0, 0, 0);
+    zoom.geoPaint(pp, -pp.course, zoom_scale);
   }
   
-  {
+  if (zoom_scale) {
     /* Draw arrow representing current position */
     pp.x = ui.w/2;
     pp.y = ui.h*0.5;
@@ -736,7 +736,7 @@ function step() {
   }
   
   g.setColor(0, 0, 0);
-  if (!fast) {
+  if (zoom_scale && !fast) {
     g.setFont("Vector", 31);
     g.setFontAlign(-1, -1);
     let msg = "\noff " + fmt.fmtDist(quiet.offtrack/1000);
@@ -745,7 +745,7 @@ function step() {
     }
     g.drawString(fmt.fmtFix(fix, getTime()-gps.gps_start) + msg, 3, 3);
   }
-  if (!fast) {
+  if (zoom_scale && !fast) {
     g.setFont("Vector", 23);
     g.setColor(0, 0, 0);
     g.setFontAlign(-1, 1);
@@ -829,7 +829,7 @@ print(l);
 function load_track(x) {
   ui.init();
   ui.numScreens = 4;
-ui.screens = [ "Detail", "Mid", "Overview", "Stats" ];
+  ui.screens = [ "Detail", "Mid", "Overview", "Stats" ];
 
   Bangle.buzz(50, 1);
   ui.drawMsg("Loading\n"+x);
