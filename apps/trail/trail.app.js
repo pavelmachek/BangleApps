@@ -181,42 +181,72 @@ let gps = {
   },
 };
 
-/* ui library 0.1.2 */
+/* ui library 0.2.0 -- see skyspy */
+//Bangle.on("drag", (b) => ui.touchHandler(b));
 let ui = {
   display: 0,
   numScreens: 2,
+  name: ".oO busy",
+  screens: [ "Screen 1", "Screen 2", "Screen 3", "Screen 4", "Screen 5", "Screen 6" ],
+  help: [ "F1", "F2", "<", ">" ],
+  clear: function() {
+    g.reset()
+      .setColor(g.theme.bg)
+      .fillRect(0, this.wi, this.w, this.y2)
+      .setColor(g.theme.fg);
+  },
+  draw: function(screen) {},
   drawMsg: function(msg) {
-    g.reset().setFont("Vector", 35)
-      .setColor(1,1,1)
-      .fillRect(0, this.wi, 176, 176)
-      .setColor(0,0,0)
+    this.clear();
+    g.setFont("Vector", 35)
       .drawString(msg, 5, 30)
       .flip();
   },
   drawBusy: function() {
-    this.drawMsg("\n.oO busy");
+    this.clear();
+    g.setFont("Vector", 35);
+    let help = this.help;
+    g.setFontAlign(-1, -1).drawString(help[0], 0, this.wi);
+    g.setFontAlign(1, -1).drawString(help[1], this.w, this.wi);
+    g.setFontAlign(-1, 1).drawString(help[2], 0, this.h+this.wi);
+    g.setFontAlign(1, 1).drawString(help[3], this.w, this.h+this.wi);
+    g.setFontAlign(0, 0)
+      .drawString(this.name, this.w/2, this.h/2);
+    g.reset();
+  },
+  drawScreen: function() {
+    this.drawMsg(this.screens[this.display]);
+    let t1 = getTime();
+    this.draw();
+    let t = getTime() - t1;
+    if (t > 30) {
+      print("Draw took", t, "msec");
+    }
   },
   nextScreen: function() {
     print("nextS");
     this.display = this.display + 1;
     if (this.display == this.numScreens)
       this.display = 0;
-    this.drawBusy();
+    this.drawScreen();
   },
   prevScreen: function() {
     print("prevS");
     this.display = this.display - 1;
     if (this.display < 0)
       this.display = this.numScreens - 1;
-    this.drawBusy();
+    this.drawScreen();
   },
   onSwipe: function(dir) {
     this.nextScreen();
   },
-  h: 176,
+  wi: 24,
+  y2: 176,
+  h: 152,
   w: 176,
-  wi: 32,
   last_b: 0,
+  topLeft: function() { this.drawMsg("Unimpl"); },
+  topRight: function() { this.drawMsg("Unimpl"); },
   touchHandler: function(d) {
     let x = Math.floor(d.x);
     let y = Math.floor(d.y);
@@ -228,25 +258,50 @@ let ui = {
     
     print("touch", x, y, this.h, this.w);
 
-    /*
-      if ((x<this.h/2) && (y<this.w/2)) {
-      }
-      if ((x>this.h/2) && (y<this.w/2)) {
-      }
-    */
-
-    if ((x<this.h/2) && (y>this.w/2)) {
+    if ((x<this.w/2) && (y<this.y2/2))
+      this.topLeft();
+    if ((x>this.w/2) && (y<this.y2/2))
+      this.topRight();
+    if ((x<this.w/2) && (y>this.y2/2)) {
       print("prev");
       this.prevScreen();
     }
-    if ((x>this.h/2) && (y>this.w/2)) {
+    if ((x>this.w/2) && (y>this.y2/2)) {
       print("next");
       this.nextScreen();
     }
   },
   init: function() {
+    this.h = this.y2 - this.wi;
     this.drawBusy();
-  }
+  },
+  /* radial angle -- convert 0..1 to 0..2pi */
+  radA: function(p) { return p*(Math.PI*2); },
+  /* radial distance -- convert 0..1 to something that fits on screen */
+  radD: function(d) { return d*(ui.h/2); },
+
+  /* given angle/distance, get X coordinate */
+  radX: function(p, d) {
+    let a = this.radA(p);
+    return this.w/2 + Math.sin(a)*this.radD(d);
+  },
+  /* given angle/distance, get Y coordinate */
+  radY: function(p, d) {
+    let a = this.radA(p);
+    return this.h/2 - Math.cos(a)*this.radD(d) + this.wi;
+  },
+  radLine: function(a1, d1, a2, d2) {
+    g.drawLine(this.radX(a1, d1), this.radY(a1, d1), this.radX(a2, d2), this.radY(a2, d2));
+  },
+  radCircle: function(d) {
+    g.drawCircle(this.radX(0, 0), this.radY(0, 0), this.radD(d));
+    if (1)
+      return;
+    let step = 0.05;
+    for (let i = 0; i < 1; i += 0.05) {
+      this.radLine(i - step, d, i, d);
+    }
+  },
 };
 
 /* egt 0.0.3 */
@@ -463,13 +518,15 @@ function read(pp, n) {
         start = p;
         pp.lat = p.lat;
         pp.lon = p.lon;
+        /* FIXME: won't init destination */
+        return;
       }
       prev = p;
     }
     l = f.readLine();
     if (!(num % 30)) {
       g.clear();
-      zoom.geoPaint(prev, 0, 1500);
+      zoom.geoPaint(prev, 0, 2500);
       g.drawString(num + "\n" + fmt.fmtDist(dist / 1000), 3, 3);
       g.flip();
       print(num, "points");
@@ -484,6 +541,7 @@ function read(pp, n) {
 }
 
 function time_read(n) {
+  ui.drawMsg("Converting");
   print("Converting...");
   to_storage(n);
   print("Running...");
@@ -625,7 +683,7 @@ function step_to(pp, pass_all) {
   return quiet;
 }
 
-var demo_mode = 0, zoom_scale = 500;
+var demo_mode = 0;
 
 function step() {
   const fast = 0;
@@ -650,7 +708,15 @@ function step() {
   let quiet = step_to(pp, 1);
   if (1) {
     g.setColor(0, 0, 0);
-    zoom.geoPaint(pp, -pp.course, zoom_scale); /* Here we can change resolution */
+    let zoom_scale = 0;
+    switch (ui.display) {
+    case 0: zoom_scale = 500; break;
+    case 1: zoom_scale = 1500; break;
+    case 2: zoom_scale = 2500; break;
+    case 3: /* draw some statistics? */ break;
+    }
+    if (zoom_scale)
+      zoom.geoPaint(pp, -pp.course, zoom_scale);
   }
   
   {
@@ -735,7 +801,6 @@ function to_storage(n) {
   }
 }
 
-ui.init();
 fmt.init();
 egt.init();
 gps.init();
@@ -750,30 +815,22 @@ l = st.list(l, {sf:false});
 print(l);
 
 function load_track(x) {
+  ui.init();
+  ui.numScreens = 4;
+ui.screens = [ "Detail", "Mid", "Overview", "Stats" ];
+
   Bangle.buzz(50, 1);
   ui.drawMsg("Loading\n"+x);
   track_name = x;
   time_read(x);
 
-  /* FIXME: should use ui */
-  Bangle.setUI("clockupdown", btn => {
-    print("Button", btn);
-    if (btn == -1) {
-      recover();
-    }
-    if (0) { /* FIXME */
-      ui.drawMsg("Demo mode");
-      demo_mode = 1;
-    }
-    if (btn == 1) {
-      if (zoom_scale == 500)
-        zoom_scale = 1500;
-      else
-        zoom_scale = 500;
-      ui.drawMsg("Zoom scale\n" + zoom_scale);
-    }
-    
+  Bangle.on("drag", (b) => ui.touchHandler(b));
+  Bangle.setUI({
+  mode : "custom",
+  clock : 0
   });
+  ui.topLeft = () => { ui.drawMsg("Demo mode"); demo_mode = 1; }
+  ui.topRight = () => { ui.drawMsg("Recover"); recover(); };
 }
 
 var menu = {
