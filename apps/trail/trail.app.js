@@ -249,25 +249,39 @@ let ui = {
   }
 };
 
-/* egt 0.0.1 */
+/* egt 0.0.3 */
 let egt = {
   init: function() {
   },
+  removeCRLF: function(s) {
+    let end = s.length;
+    while (end > 0) {
+        let ch = s[end - 1];
+        if (ch === '\n' || ch === '\r') {
+            end--;
+        } else {
+            break;
+        }
+    }
+    return s.slice(0, end);
+  },
+
   parse: function(l) {
+    l = this.removeCRLF(l);
     let r = {};
     let s = l.split(' ');
-    
+
     if (s === undefined)
       return r;
-    
+
     if (s[1] === undefined)
       return r;
-    
+
     if (s[1].split('=')[1] === undefined) {
       r.lat = 1 * s[0];
       r.lon = 1 * s[1];
       if (!r.lat || !r.lon) {
-        print("Parse error at ", l);
+        print("Parse error at ", l, "have (", s[0], s[1], ")");
       }
     }
 
@@ -281,6 +295,7 @@ let egt = {
     return r;
   },
 };
+
 
 /* zoom library v0.0.4 */
 var zoom = {
@@ -424,6 +439,7 @@ function angleDifference(angle1, angle2) {
   return difference;
 }
 
+/* These are initialized by read() function, below */
 var start = {}, destination = {}, num = 0, dist = 0;
 
 function read(pp, n) {
@@ -609,7 +625,7 @@ function step_to(pp, pass_all) {
   return quiet;
 }
 
-var demo_mode = 0;
+var demo_mode = 0, zoom_scale = 500;
 
 function step() {
   const fast = 0;
@@ -634,7 +650,7 @@ function step() {
   let quiet = step_to(pp, 1);
   if (1) {
     g.setColor(0, 0, 0);
-    zoom.geoPaint(pp, -pp.course, 500);
+    zoom.geoPaint(pp, -pp.course, zoom_scale); /* Here we can change resolution */
   }
   
   {
@@ -738,15 +754,25 @@ function load_track(x) {
   ui.drawMsg("Loading\n"+x);
   track_name = x;
   time_read(x);
-  
+
+  /* FIXME: should use ui */
   Bangle.setUI("clockupdown", btn => {
     print("Button", btn);
     if (btn == -1) {
       recover();
     }
-    if (btn == 1) {
+    if (0) { /* FIXME */
+      ui.drawMsg("Demo mode");
       demo_mode = 1;
     }
+    if (btn == 1) {
+      if (zoom_scale == 500)
+        zoom_scale = 1500;
+      else
+        zoom_scale = 500;
+      ui.drawMsg("Zoom scale\n" + zoom_scale);
+    }
+    
   });
 }
 
