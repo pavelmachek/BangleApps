@@ -716,8 +716,7 @@ function step() {
   switch (ui.display) {
     case 0: zoom_scale = 500; break;
     case 1: zoom_scale = 1500; break;
-    case 2: zoom_scale = 2500; break;
-    case 3: ui.drawMsg("Stats\n" + fmt.fmtDist(0 / 1000) + "\n" + point_num + "/" + num);
+    case 2: ui.drawMsg("Stats\n" + fmt.fmtDist(0 / 1000) + "\n" + point_num + "/" + num);
       break;
   }
   if (zoom_scale) {
@@ -829,8 +828,8 @@ print(l);
 /* After user selected the track, we can switch to main interface */
 function load_track(x) {
   ui.init();
-  ui.numScreens = 4;
-  ui.screens = [ "Detail", "Mid", "Overview", "Stats" ];
+  ui.numScreens = 3;
+  ui.screens = [ "Follow", "Map", "Stats" ];
 
   Bangle.buzz(50, 1);
   ui.drawMsg("Loading\n"+x);
