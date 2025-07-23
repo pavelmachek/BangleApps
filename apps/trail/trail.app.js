@@ -527,7 +527,7 @@ function read(pp, n, candy) {
     if (!(num % 30)) {
       g.clear();
       zoom.geoPaint(prev, 0, 2500);
-      g.drawString(num + "\n" + fmt.fmtDist(dist / 1000), 3, 3);
+      g.drawString(num + "\n" + fmt.fmtDist(dist / 1000) + "\n" + track_name, 3, 3);
       g.flip();
       print(num, "points");
       if (!candy && !(num % 300)) {
@@ -763,7 +763,7 @@ function step() {
     }
     g.drawString(fmt.fmtFix(fix, getTime()-gps.gps_start) + msg, 3, 3);
   }
-  if (follow && !fast) {
+  if (zoom_scale && !fast) {
     g.setFont("Vector", 23);
     g.setColor(0, 0, 0);
     g.setFontAlign(-1, 1);
@@ -812,21 +812,26 @@ function recover() {
     if (!load_next())
       break;
     if (!(point_num % 30))
-      ui.drawMsg("Recover\n" + fmt.fmtDist(d / 1000) + "\n" + point_num + "/" + num);
+      ui.drawMsg("Recover\n" + fmt.fmtDist(d / 1000) + "\n" + point_num + "/" + num + "\n" + track_name);
   }
 }
 
 /* Draw map around current position */
 function draw_map() {
   ui.drawMsg("Draw...");
+  step_init();
   let fix = gps.getGPSFix();
-  let pp = fix;
-  pp.ppm = 0.08 * 3; /* Pixels per meter */
   if (!fix.fix) {
     print("Can't draw with no fix\n");
     fix.lat = 50.010507;  /* FIXME */
     fix.lon = 14.765840;
   }
+  let pp = fix;
+  pp.ppm = 0.08 * 3; /* Pixels per meter */
+  pp.course = 0;
+  pp.x = 176/2;
+  pp.y = 176/2;
+  pp.g = zoom.buf;
   let d = 0;
   load_next();
   zoom.geoNew(pp, 3000);
@@ -883,6 +888,12 @@ function load_track(x) {
   });
   ui.topLeft = () => {
     switch (ui.display) {
+    case 0:
+    case 1:
+        zoom_mode++;
+        if (zoom_mode == 3)
+          zoom_mode = 0;
+        break;
     case 2: demo_mode = !demo_mode; ui.drawMsg("Demo mode " + demo_mode);  break;
     }
   }
