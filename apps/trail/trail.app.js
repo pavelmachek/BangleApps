@@ -518,7 +518,7 @@ function read(pp, n) {
         pp.lat = p.lat;
         pp.lon = p.lon;
         /* FIXME: won't init destination */
-        return;
+        //return;
       }
       prev = p;
     }
@@ -539,7 +539,7 @@ function read(pp, n) {
   destination = prev;
 }
 
-/* Convert to storagefile, and find out start/stop points (and display some eye-candy) */
+/* Find out start/stop points (and display some eye-candy) */
 function time_read(n) {
   ui.drawMsg("Converting");
   print("Converting...");
@@ -793,7 +793,8 @@ function recover() {
       step_to(pp, 1);
     if (!load_next())
       break;
-    ui.drawMsg("Recover\n" + fmt.fmtDist(d / 1000) + "\n" + point_num + "/" + num);
+    if (!(point_num % 30))
+      ui.drawMsg("Recover\n" + fmt.fmtDist(d / 1000) + "\n" + point_num + "/" + num);
   }
 }
 
