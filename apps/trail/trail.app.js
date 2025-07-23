@@ -496,7 +496,7 @@ function angleDifference(angle1, angle2) {
 /* These are initialized by read() function, below */
 var start = {}, destination = {}, num = 0, dist = 0;
 
-function read(pp, n) {
+function read(pp, n, candy) {
   let f = require("Storage").open(n+".st", "r");
   let l = f.readLine();
   let prev = 0;
@@ -513,7 +513,8 @@ function read(pp, n) {
         if (pp.g)
           paint(pp, prev, p, 1);
       } else {
-        zoom.geoNew(p, 3000);
+        if (candy)
+          zoom.geoNew(p, 3000);
         start = p;
         pp.lat = p.lat;
         pp.lon = p.lon;
@@ -529,7 +530,7 @@ function read(pp, n) {
       g.drawString(num + "\n" + fmt.fmtDist(dist / 1000), 3, 3);
       g.flip();
       print(num, "points");
-      if (!(num % 300)) {
+      if (!candy && !(num % 300)) {
         zoom.geoNew(prev, 3000);
       }
     }
@@ -540,7 +541,8 @@ function read(pp, n) {
 }
 
 /* Find out start/stop points (and display some eye-candy) */
-function time_read(n) {
+function time_read() {
+  let n = track_name
   ui.drawMsg("Converting");
   print("Converting...");
   to_storage(n);
@@ -552,7 +554,7 @@ function time_read(n) {
   pp.x = 176/2;
   pp.y = 176/2;
   pp.g = zoom.buf;
-  read(pp, n);
+  read(pp, n, 1);
   // { rotate: Math.PI / 4 + i/100, scale: 1-i/100 }
 
   let v2 = getTime();
@@ -689,16 +691,24 @@ function step_to(pp, pass_all) {
   return quiet;
 }
 
-var demo_mode = 0;
+var demo_mode = 0, zoom_mode = 0;
 
 function step() {
   const fast = 0;
+  let follow = 0;
+  switch (ui.display) {
+  case 0: follow = 1; break;
+  case 1: break;
+  case 2: follow = 1; break;
+  }
+  
   let v1 = getTime();
   g.reset().clear();
 
   let fix = gps.getGPSFix();
-
-  let have_more = load_next();
+  let have_more = 1;
+  if (follow)
+    have_more = load_next();
   
   let pp = fix;
   pp.ppm = 0.08 * 3; /* Pixels per meter */
@@ -711,13 +721,22 @@ function step() {
     pp.course = fmt.bearing(track[i], track[i+1]);
   }
 
-  let quiet = step_to(pp, 1);
+  let quiet = {};
+  if (follow)
+    quiet = step_to(pp, 1);
   let zoom_scale = 0;
+  switch (zoom_mode) {
+  case 0: zoom_scale = 500; break;
+  case 1: zoom_scale = 1500; break;
+  case 2: zoom_scale = 2500; break;
+  }  
   switch (ui.display) {
-    case 0: zoom_scale = 500; break;
-    case 1: zoom_scale = 1500; break;
-    case 2: ui.drawMsg("Stats\n" + fmt.fmtDist(0 / 1000) + "\n" + point_num + "/" + num);
-      break;
+  case 0: break;
+  case 1: break;
+  case 2:
+    ui.drawMsg("Stats\n" + fmt.fmtDist(0 / 1000) + "\n" + point_num + "/" + num);
+    zoom_scale = 0;
+    break;
   }
   if (zoom_scale) {
     g.setColor(0, 0, 0);
@@ -735,7 +754,7 @@ function step() {
   }
   
   g.setColor(0, 0, 0);
-  if (zoom_scale && !fast) {
+  if (follow && !fast) {
     g.setFont("Vector", 31);
     g.setFontAlign(-1, -1);
     let msg = "\noff " + fmt.fmtDist(quiet.offtrack/1000);
@@ -744,7 +763,7 @@ function step() {
     }
     g.drawString(fmt.fmtFix(fix, getTime()-gps.gps_start) + msg, 3, 3);
   }
-  if (zoom_scale && !fast) {
+  if (follow && !fast) {
     g.setFont("Vector", 23);
     g.setColor(0, 0, 0);
     g.setFontAlign(-1, 1);
@@ -797,6 +816,27 @@ function recover() {
   }
 }
 
+/* Draw map around current position */
+function draw_map() {
+  ui.drawMsg("Draw...");
+  let fix = gps.getGPSFix();
+  let pp = fix;
+  pp.ppm = 0.08 * 3; /* Pixels per meter */
+  if (!fix.fix) {
+    print("Can't draw with no fix\n");
+    fix.lat = 50.010507;  /* FIXME */
+    fix.lon = 14.765840;
+  }
+  let d = 0;
+  load_next();
+  zoom.geoNew(pp, 3000);
+  {
+    read(pp, track_name, 0);
+    if (!(point_num % 30))
+      ui.drawMsg("Drawn\n" + fmt.fmtDist(d / 1000) + "\n" + point_num + "/" + num);
+  }
+}
+
 /* Convert "normal" file to storagefile... so that we can read lines from it */
 function to_storage(n) {
   let f2 = require("Storage").open(n+".st", "w");
@@ -834,15 +874,24 @@ function load_track(x) {
   Bangle.buzz(50, 1);
   ui.drawMsg("Loading\n"+x);
   track_name = x;
-  time_read(x);
+  time_read();
 
   Bangle.on("drag", (b) => ui.touchHandler(b));
   Bangle.setUI({
   mode : "custom",
   clock : 0
   });
-  ui.topLeft = () => { ui.drawMsg("Demo mode"); demo_mode = 1; }
-  ui.topRight = () => { ui.drawMsg("Recover"); recover(); };
+  ui.topLeft = () => {
+    switch (ui.display) {
+    case 2: demo_mode = !demo_mode; ui.drawMsg("Demo mode " + demo_mode);  break;
+    }
+  }
+  ui.topRight = () => {
+    switch (ui.display) {
+    case 0: ui.drawMsg("Recover"); recover(); break;
+    case 1: ui.drawMsg("Draw map"); draw_map(); break;
+    }
+  };
 }
 
 /* Display menu with tracks. */
