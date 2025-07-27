@@ -768,7 +768,10 @@ function step() {
   if (zoom_scale && !fast) {
     g.setFont("Vector", 31);
     g.setFontAlign(-1, -1);
-    let msg = "\noff " + fmt.fmtDist(quiet.offtrack/1000);
+    let off = quiet.offtrack;
+    let msg = "";
+    if (follow && off > 5)
+      msg = "\noff " + fmt.fmtDist(off/1000);
     if (!have_more) {
       msg += "\nEnd!";
     }
@@ -778,9 +781,11 @@ function step() {
     g.setFont("Vector", 23);
     g.setColor(0, 0, 0);
     g.setFontAlign(-1, 1);
-    g.drawString(fmt.fmtNow(), 3, ui.h);
-    g.setFontAlign(1, 1);
-    g.drawString(fmt.fmtDist(quiet.quiet/1000), ui.w-3, ui.h);
+    g.drawString(fmt.fmtNow(), 3, ui.h + ui.wi);
+    if (follow) {
+      g.setFontAlign(1, 1);
+      g.drawString(fmt.fmtDist(quiet.quiet/1000), ui.w-3, ui.h + ui.wi);
+    }
   }
 
   if (quiet < 200)
