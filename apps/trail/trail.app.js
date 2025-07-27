@@ -762,6 +762,8 @@ function step() {
     g.setColor(0, 0, 1);
     let sc = 2.5;
     g.drawPoly([ pp.x, pp.y, pp.x - 5*sc, pp.y + 12*sc, pp.x + 5*sc, pp.y + 12*sc ], true);
+    g.drawPoly([ pp.x, pp.y-1, pp.x - 5*sc-1, pp.y + 12*sc+1, pp.x + 5*sc+1, pp.y + 12*sc+1 ], true);
+
   }
   
   g.setColor(0, 0, 0);
