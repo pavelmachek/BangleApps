@@ -16,4 +16,10 @@ It is also possible to load existing icon into editor, using
 "load_icon("");" command. At the end of iconbits.app.js file there are
 more utility functions.
 
-Create 48x48 icon in gimp.
+Create 48x48 icon in gimp. Save it as app.png.
+
+https://www.espruino.com/Image%20Converter
+
+Check "compression", "transparency", "inverted". Output as "image
+string". Copy&paste result in "app-icon.js"
+
