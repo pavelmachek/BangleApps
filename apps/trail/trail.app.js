@@ -567,7 +567,7 @@ function time_read() {
   step_init();
   zoom.geoNew(start, 3000);
   print(num, "points", dist, "distance");
-  setTimeout(step, 100);
+  setTimeout(step, 500);
 }
 
 /* Main code for displaying track */
@@ -616,6 +616,7 @@ function paint_all(pp) {
   let new_drawn = -1;
 
   g.setColor(1, 0, 0);
+  /* Draw "future" segments up-to point_drawn */
   for (let i = track.length-1; i > 1; i--) {
     let p = track[i];
     if (point_drawn >= p.point_num)
@@ -630,11 +631,13 @@ function paint_all(pp) {
   for (let i = 1; i < track.length; i++) {
     let p = track[i];
     prev = track[i-1];
+    /* FIXME: can this happen? */
     if (point_drawn < p.point_num) {
       paint(pp, prev, p, 3);
       point_drawn = p.point_num;
     }
   }
+  /* Try to find segment closest to the track */
   for (let i = 1; i < track.length; i++) {
     let p = track[i];
     prev = track[i-1];
@@ -644,6 +647,8 @@ function paint_all(pp) {
         mDist = d;
         m = i;
       } else if (mDist < 10 && d > 100)
+        /* If we already were 10 meters and are now more than 100,
+           assume that was best point */
         break;
     }
   }
@@ -754,7 +759,7 @@ function step() {
     zoom.geoPaint(pp, -pp.course, zoom_scale);
   }
   
-  if (zoom_scale) {
+  if (zoom_scale && fix.fix) {
     /* Draw arrow representing current position */
     pp.x = ui.w/2;
     pp.y = ui.h*0.5;
