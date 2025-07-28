@@ -572,7 +572,15 @@ function time_read() {
 
 /* Main code for displaying track */
 
-var track_name = "", inf, point_num, track = [], track_points = 30, north = {}, point_drawn;
+var track_name = "", inf, point_num, track = [], track_points = 120, north = {}, point_drawn;
+
+/* 30 points, we try to keep at least 10 (in drop behind).
+   Cycle track:
+   40 seconds loading for 1900 points / 49km.
+   ~47 points / second.
+   ~25 meters per point
+   ~38 points per kilometer
+*/
 
 function step_init() {
   inf = require("Storage").open(track_name + ".st", "r");
@@ -615,6 +623,9 @@ function paint_all(pp) {
   const fast = 0;
   let new_drawn = -1;
 
+  if (point_drawn == -1)
+    zoom.geoNew(track[m], 3000);
+  /* FIXME: zoom has its own context */
   g.setColor(1, 0, 0);
   /* Draw "future" segments up-to point_drawn */
   for (let i = track.length-1; i > 1; i--) {
@@ -657,8 +668,7 @@ function paint_all(pp) {
   print("Best segment was", m, "dist", mDist);
   /* If we are too far from ... */
   if (fmt.distance(track[m], zoom.origin) > 2500) {
-    zoom.geoNew(track[m], 3000); // FIXME: this will flicker
-    point_drawn = 0;
+    point_drawn = -1;
   }
 
   /* Estimate distance to next turn/intersection */
@@ -695,8 +705,8 @@ function step_to(pp, pass_all) {
     paint(pp, pp, north, 1);
   }
   let quiet = paint_all(pp);
-  while (distSegment(track[0], track[1], pp) > 150 &&
-         track.length > 10) {
+  while (distSegment(track[0], track[1], pp) > 450 &&
+         track.length > track_points * 0.7) {
     drop_last();
   }
   return quiet;
