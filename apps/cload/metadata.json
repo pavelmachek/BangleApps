@@ -1,5 +1,5 @@
 { "id": "cload",
-  "name": "Code Load Spy",
+  "name": "Code Load",
   "version": "0.01",
   "description": "Run C code on Espruino",
   "icon": "app.png",
