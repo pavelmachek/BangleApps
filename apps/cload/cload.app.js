@@ -113,10 +113,12 @@ function load() {
     switch(io[1]) {
       case 1: // print: start, len
         print("Should print");
-        let slice = ram.subarray(io[2], io[2]+io[3]);
-        let text = String.fromCharCode.apply(null, slice);
-        print(text);
-        msg(text);
+        {
+          let slice = ram.subarray(io[2], io[2]+io[3]);
+          let text = String.fromCharCode.apply(null, slice);
+          print(text);
+          msg(text);
+        }
         break;
       case 2: // draw
         g.drawImage(img, 0, 0);
