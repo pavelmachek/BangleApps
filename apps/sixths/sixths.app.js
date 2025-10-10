@@ -681,7 +681,13 @@ var prev_step = -1, this_step = -1;
 
 function fivemin() {
   print("fivemin");
-  let s = ' B';
+  let bat = E.getBattery();
+  if (bat > 83 && Bangle.isCharging()) {
+      showMsg("Bat "+bat+"%", 5*60);
+      doBuzz(toMorse(' BF'));
+  }
+  if (is_active)
+
   try {
     Bangle.getPressure().then((x) => { cur_altitude = x.altitude;
                                      cur_temperature = x.temperature; },
