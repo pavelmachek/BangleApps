@@ -1,6 +1,7 @@
 { "id": "cload",
   "name": "Code Load",
   "version": "0.01",
+  "author": "Pavel Machek",
   "description": "Run C code on Espruino",
   "icon": "app.png",
   "readme": "README.md",
