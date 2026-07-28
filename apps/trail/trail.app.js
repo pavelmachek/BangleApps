@@ -520,6 +520,7 @@ function read(pp, n, candy) {
           zoom.geoNew(p, 3000);
         start = p;
         if (candy) {
+        }
         pp.lat = p.lat;
         pp.lon = p.lon;
         /* FIXME: won't init destination */
