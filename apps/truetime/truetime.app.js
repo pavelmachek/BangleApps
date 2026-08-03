@@ -17,7 +17,7 @@ g.clear();
 // --- Configuration & State ---
 let lastSync = require("Storage").readJSON("truetime.json", 1) || {
   time: Date.now() - 24*60*60 * 1000,
-  drift: 0/1000000,  // 32 .. should be good for my watch
+  drift: 0/1000000,  // 42..50 .. should be good for my watch
   limit: 150/1000000,  // 100 .. Standard quartz drift (should be < 100 ppm even for cheap quartz)
 };
 
@@ -86,7 +86,7 @@ function drawDebug() {
 
   // 1. Draw Date & Day of Week
   let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  let dateStr = days[now.getDay()] + " " + now.getDay();
+  let dateStr = days[now.getDay()] + " " + now.getDate();
   let bat = E.getBattery();
   if (bat < 30)
     dateStr += " BAT";
